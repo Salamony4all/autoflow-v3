@@ -1,0 +1,123 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# Flask
+instance/
+.webassets-cache
+flask_session/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project Specific
+uploads/
+outputs/
+*.log
+server.log
+
+# Temporary files
+*.tmp
+*.temp
+~*
+
+# Debug and test output files
+debug_*.py
+debug_*.txt
+check_*.py
+check_*.txt
+*_output.txt
+test_discovery.py
+inspect_*.py
+inspect_*.txt
+find_*.py
+reproduce_*.py
+show_*.py
+rescrape_*.py
+demo_*.py
+demo_*.json
+enriched_boq_sample.json
+ottimo_*.json
+collections_summary.txt
+nav_debug.txt
+failed_product.html
+
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Environment variables
+.env
+.env.local
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Test files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Documentation builds
+docs/_build/
+
+# Backup files
+*.bak
+*.backup
+*_backup.*
+*_old.*
+
+# JSON data files (optional - uncomment if needed)
+# *.json
+
+# Large data files
+*.zip
+*.tar.gz
+*.rar
+
+# API keys and secrets
+*_API_KEY.txt
+*_TOKEN.txt
+secrets.txt
+
+# Session data
+flask_session/
+
+# Compiled files
+*.pyc
+*.pyo

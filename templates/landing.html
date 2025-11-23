@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlShaya Enterprises - AI-Powered BOQ Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #1a365d;
+            --primary-dark: #0f1e3d;
+            --secondary: #d4af37;
+            --accent: #f4d03f;
+            --white: #ffffff;
+            --gray-50: #f8fafc;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-600: #475569;
+            --gray-800: #1e293b;
+            --gradient-primary: linear-gradient(135deg, #1a365d 0%, #0f1e3d 100%);
+            --gradient-gold: linear-gradient(135deg, #d4af37 0%, #f4d03f 100%);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-dark);
+            color: var(--gray-800);
+            line-height: 1.6;
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background: var(--primary-dark);
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            height: 50px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 100%;
+            width: auto;
+            object-fit: contain;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--gray-600);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-cta {
+            background: var(--gradient-gold);
+            color: var(--primary-dark);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-primary);
+            position: relative;
+            overflow: hidden;
+            padding-top: 80px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 900;
+            color: var(--white);
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .hero .subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+            font-weight: 300;
+            animation: fadeInUp 0.8s ease 0.2s both;
+        }
+
+        .hero-cta {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.4s both;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--gradient-gold);
+            color: var(--primary-dark);
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(212, 175, 55, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--primary-dark);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .how-it-works .section-header h2 {
+            color: var(--white);
+        }
+
+        .how-it-works .section-header p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .section-header p {
+            font-size: 1.2rem;
+            color: var(--gray-600);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .features .section-header h2 {
+            color: var(--white);
+        }
+
+        .features .section-header p {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 1200px) {
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .feature-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            border-color: var(--secondary);
+        }
+
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-gold);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: var(--gray-600);
+            line-height: 1.7;
+        }
+
+        /* How It Works Section */
+        .how-it-works {
+            padding: 6rem 2rem;
+            background: var(--primary-dark);
+        }
+
+        .steps-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            color: var(--white);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0 auto 1.5rem;
+            box-shadow: 0 4px 20px rgba(26, 54, 93, 0.3);
+        }
+
+        .step h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--white);
+            margin-bottom: 1rem;
+        }
+
+        .step p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.7;
+        }
+
+        /* Main App Integration Section */
+        .app-integration {
+            padding: 6rem 2rem;
+            background: var(--gradient-primary);
+            color: var(--white);
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .app-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        @media (max-width: 1200px) {
+            .app-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .app-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2.5rem;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            min-height: 100%;
+        }
+
+        .app-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .app-card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--secondary);
+        }
+
+        .app-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .app-card p {
+            opacity: 0.9;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .app-card-btn {
+            background: var(--gradient-gold);
+            color: var(--primary-dark);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: auto;
+        }
+
+        .app-card-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Banner Section */
+        .banner-section {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            background: var(--primary-dark);
+        }
+
+        .banner-section img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--primary-dark);
+            color: var(--white);
+            padding: 3rem 2rem;
+            text-align: center;
+            margin: 0;
+        }
+
+        .footer p {
+            opacity: 0.8;
+            margin: 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+
+        /* Smooth Scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/AlShaya-Logo-color@2x.png') }}" alt="AlShaya Enterprises">
+            </div>
+            <ul class="nav-links">
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#app">Get Started</a></li>
+            </ul>
+            <a href="/app" class="nav-cta">Start Now</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>AI-Powered BOQ Solutions</h1>
+            <p class="subtitle">Transform your Bill of Quantities processing with intelligent automation, multi-budget alternatives, and professional offer generation</p>
+            <div class="hero-cta">
+                <a href="/app" class="btn btn-primary">Get Started</a>
+                <a href="#how-it-works" class="btn btn-secondary">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works Section -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="steps-container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>Simple, fast, and efficient workflow</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>Upload BOQ</h3>
+                    <p>Upload your Bill of Quantities PDF document</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>AI Extraction</h3>
+                    <p>Our AI automatically extracts tables and data</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>Select Products</h3>
+                    <p>Choose products from scraped brand catalogs</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>Generate Offers</h3>
+                    <p>Create professional PDF offers in seconds</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header">
+            <h2>Powerful Features</h2>
+            <p>Everything you need to streamline your BOQ workflow</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <h3>AI-Powered Extraction</h3>
+                <p>Automatically extract tables and data from PDF documents using advanced AI technology</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-dollar-sign"></i>
+                </div>
+                <h3>Multi-Budget Alternatives</h3>
+                <p>Generate budgetary, mid-range, and high-end options with intelligent product selection</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-globe"></i>
+                </div>
+                <h3>Brand Scraping</h3>
+                <p>Automatically scrape product catalogs from furniture brands with images and descriptions</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-file-pdf"></i>
+                </div>
+                <h3>Professional PDFs</h3>
+                <p>Generate branded commercial offers with company logos and professional styling</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main App Integration Section -->
+    <section class="app-integration" id="app">
+        <div class="app-container">
+            <div class="section-header" style="color: white;">
+                <h2 style="color: white;">Get Started</h2>
+                <p style="color: rgba(255,255,255,0.9);">Choose your workflow to begin</p>
+            </div>
+            <div class="app-grid">
+                <div class="app-card" onclick="showMainApp('quote-pricelist')">
+                    <div class="app-card-icon">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <h3>Quote with Price List</h3>
+                    <p>Upload BOQ and price list to generate accurate quotations</p>
+                    <button class="app-card-btn">Start Now</button>
+                </div>
+                <div class="app-card" onclick="showMainApp('multi-budget')">
+                    <div class="app-card-icon">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h3>Multi-Budget Offers</h3>
+                    <p>Create budget offers with product selection from scraped brands</p>
+                    <button class="app-card-btn">Start Now</button>
+                </div>
+                <div class="app-card" onclick="showMainApp('presentation')">
+                    <div class="app-card-icon">
+                        <i class="fas fa-file-powerpoint"></i>
+                    </div>
+                    <h3>Presentation</h3>
+                    <p>Generate professional presentations from your BOQ data</p>
+                    <button class="app-card-btn">Start Now</button>
+                </div>
+                <div class="app-card" onclick="showMainApp('mas')">
+                    <div class="app-card-icon">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <h3>MAS Document</h3>
+                    <p>Create Material Approval Sheets with detailed specifications</p>
+                    <button class="app-card-btn">Start Now</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Banner Section -->
+    <section class="banner-section">
+        <img src="{{ url_for('static', filename='images/Screenshot_2025-11-14-04-21-38-402_com.android.chrome-edit.jpg') }}" alt="AlShaya Services Banner">
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 AlShaya Enterprises. All rights reserved.</p>
+    </footer>
+
+    <!-- Load main app functionality -->
+    <script>
+        // Function to show main app (integrated with existing functionality)
+        function showMainApp(workflowType) {
+            // Store workflow type in sessionStorage and redirect to main app
+            sessionStorage.setItem('workflowType', workflowType);
+            window.location.href = '/app';
+        }
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Navbar scroll effect
+        let lastScroll = 0;
+        const navbar = document.querySelector('.navbar');
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            if (currentScroll > 100) {
+                navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.1)';
+            } else {
+                navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.05)';
+            }
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+</html>
+
