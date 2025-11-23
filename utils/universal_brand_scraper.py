@@ -16,9 +16,11 @@ logger = logging.getLogger(__name__)
 
 try:
     from utils.selenium_scraper import SeleniumScraper
+    from selenium.webdriver.common.by import By
     SELENIUM_AVAILABLE = True
 except ImportError:
     SELENIUM_AVAILABLE = False
+    By = None
     logger.warning("Selenium not available")
 
 try:
