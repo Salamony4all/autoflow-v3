@@ -2533,11 +2533,18 @@ def scrape_and_add_brand():
         from utils.architonic_scraper import ArchitonicScraper
         from utils.italian_furniture_scraper import ItalianFurnitureScraper
         
-        architonic_scraper = ArchitonicScraper()
+        # Respect the scraping method choice - only use Selenium if not 'requests'
+        use_selenium = scraping_method != 'requests'
+        try:
+            from utils.selenium_scraper import SELENIUM_AVAILABLE
+        except ImportError:
+            SELENIUM_AVAILABLE = False
+        
+        architonic_scraper = ArchitonicScraper(use_selenium=use_selenium and SELENIUM_AVAILABLE)
         italian_scraper = ItalianFurnitureScraper()
         
         if architonic_scraper.is_architonic_url(website):
-            logger.info(f"🏛️ Detected Architonic URL - Using specialized ArchitonicScraper")
+            logger.info(f"🏛️ Detected Architonic URL - Using specialized ArchitonicScraper (Selenium: {architonic_scraper.use_selenium})")
             scraped_data = architonic_scraper.scrape_collection(
                 url=website,
                 brand_name=brand_name

@@ -19,6 +19,7 @@ try:
     from selenium.webdriver.common.by import By
 except ImportError:
     SELENIUM_AVAILABLE = False
+    SeleniumScraper = None
     By = None
     logger.warning("Selenium scraper not available")
 
@@ -87,25 +88,42 @@ class ArchitonicScraper:
         Scrape a brand's collections page (like /en/b/narbutas/products/)
         Returns data in the same structure as the example JSON file
         """
-        scraper = SeleniumScraper(headless=True, timeout=120)
-        
         try:
             from datetime import datetime
+            import requests
             
             logger.info(f"Loading collections page: {url}")
-            soup = scraper.get_page(url, wait_for_selector='body', wait_time=20)
             
-            if not soup:
-                return {'error': 'Failed to load page'}
-            
-            time.sleep(5)
-            
-            # Find all collection links on the page
-            collections = self._find_collection_links(scraper, url, brand_name)
+            # Use Selenium only if available and enabled
+            if self.use_selenium and SeleniumScraper:
+                try:
+                    scraper = SeleniumScraper(headless=True, timeout=120)
+                    soup = scraper.get_page(url, wait_for_selector='body', wait_time=20)
+                    if not soup:
+                        return {'error': 'Failed to load page'}
+                    time.sleep(5)
+                    # Find all collection links on the page
+                    collections = self._find_collection_links(scraper, url, brand_name)
+                except Exception as e:
+                    logger.warning(f"Selenium failed, falling back to requests: {e}")
+                    # Fall back to requests
+                    response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30)
+                    response.raise_for_status()
+                    soup = BeautifulSoup(response.content, 'html.parser')
+                    collections = self._find_collection_links_requests(soup, url, brand_name)
+            else:
+                # Use requests-based scraping
+                response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30)
+                response.raise_for_status()
+                soup = BeautifulSoup(response.content, 'html.parser')
+                collections = self._find_collection_links_requests(soup, url, brand_name)
             
             if not collections:
                 logger.warning("No collections found, trying to scrape as single product page")
-                return self._scrape_with_selenium(url, brand_name)
+                if self.use_selenium and SeleniumScraper:
+                    return self._scrape_with_selenium(url, brand_name)
+                else:
+                    return self._scrape_with_requests(url, brand_name)
             
             logger.info(f"Found {len(collections)} collections, scraping each...")
             
@@ -297,6 +315,65 @@ class ArchitonicScraper:
             
         except Exception as e:
             logger.error(f"Error finding collection links: {e}")
+            return {}
+    
+    def _find_collection_links_requests(self, soup: BeautifulSoup, url: str, brand_name: str) -> Dict[str, str]:
+        """Find all collection links on a brand products/collections page using requests/BeautifulSoup"""
+        collections = {}
+        
+        try:
+            # Look for collection links - Architonic typically uses patterns like:
+            # /en/b/brandname/brandid/collection/collection-name/collectionid
+            # or /collection/collection-name/id
+            collection_patterns = [
+                re.compile(r'/collection/[^/]+/\d+', re.I),  # /collection/name/id
+                re.compile(r'/b/[^/]+/\d+/collection/[^/]+/\d+', re.I),  # /b/brand/id/collection/name/id
+            ]
+            
+            logger.info(f"Looking for collection links using requests...")
+            
+            # Find all links that match any collection pattern
+            links = []
+            for pattern in collection_patterns:
+                found = soup.find_all('a', href=pattern)
+                if found:
+                    logger.info(f"  Pattern '{pattern.pattern}' matched {len(found)} links")
+                    links.extend(found)
+            
+            logger.info(f"Found {len(links)} total links matching collection patterns")
+            
+            for idx, link in enumerate(links):
+                href = link.get('href', '')
+                if href:
+                    collection_url = urljoin(self.base_url, href)
+                    # Get collection name from link text or parent
+                    collection_name = link.get_text(strip=True)
+                    
+                    # If no text, try to get from parent or data attributes
+                    if not collection_name or len(collection_name) < 2:
+                        parent = link.find_parent(['div', 'article', 'li'])
+                        if parent:
+                            collection_name = parent.get_text(strip=True)
+                    
+                    # Try to get product count if available
+                    product_count_text = ''
+                    parent_elem = link.find_parent(['div', 'article', 'li', 'a'])
+                    if parent_elem:
+                        count_match = re.search(r'(\d+)\s*products?', parent_elem.get_text(), re.I)
+                        if count_match:
+                            product_count_text = f"\n{count_match.group(1)} Products"
+                    
+                    if collection_name and len(collection_name) > 2:
+                        full_name = collection_name + product_count_text
+                        if full_name not in collections:
+                            collections[full_name] = collection_url
+                            logger.info(f"  Collection {idx+1}: {full_name[:50]}... → {collection_url}")
+            
+            logger.info(f"Total collections found: {len(collections)}")
+            return collections
+            
+        except Exception as e:
+            logger.error(f"Error finding collection links with requests: {e}")
             return {}
     
     def _scrape_single_collection(self, scraper: SeleniumScraper, collection_url: str, 
