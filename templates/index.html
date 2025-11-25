@@ -4074,6 +4074,228 @@
             }
         });
 
+        // Define Multi-Budget functions IMMEDIATELY (before DOMContentLoaded)
+        // This ensures they're available when event listeners try to use them
+        (function() {
+            // Initialize variables if not already defined
+            if (typeof window.currentBudgetTier === 'undefined') {
+                window.currentBudgetTier = 'budgetary';
+            }
+            
+            // Define switchBudgetTab immediately
+            if (!window.switchBudgetTab) {
+                window.switchBudgetTab = function(tier) {
+                    window.currentBudgetTier = tier;
+                    // Update tab buttons
+                    document.querySelectorAll('.budget-tab').forEach(btn => {
+                        if (btn.dataset.tier === tier) {
+                            btn.classList.add('active');
+                            btn.style.background = '#1a365d';
+                            btn.style.color = '#d4af37';
+                            btn.style.borderBottom = '3px solid #d4af37';
+                        } else {
+                            btn.classList.remove('active');
+                            btn.style.background = '#2d4a6b';
+                            btn.style.color = '#e0e0e0';
+                            btn.style.borderBottom = '3px solid transparent';
+                        }
+                    });
+                    // Show/hide table containers
+                    const budgetaryContainer = document.getElementById('budgetaryTableContainer');
+                    const midRangeContainer = document.getElementById('mid_rangeTableContainer');
+                    const highEndContainer = document.getElementById('high_endTableContainer');
+                    if (budgetaryContainer) budgetaryContainer.style.display = tier === 'budgetary' ? 'block' : 'none';
+                    if (midRangeContainer) midRangeContainer.style.display = tier === 'mid_range' ? 'block' : 'none';
+                    if (highEndContainer) highEndContainer.style.display = tier === 'high_end' ? 'block' : 'none';
+                    // Update dropdowns
+                    if (typeof window.updateBrandDropdownsForTier === 'function') {
+                        window.updateBrandDropdownsForTier(tier);
+                    }
+                };
+            }
+            
+            // Define stub functions that will be replaced by full implementations later
+            // This ensures they exist when event listeners try to call them
+            if (!window.generateFromBOQ) {
+                window.generateFromBOQ = async function() {
+                    console.warn('generateFromBOQ: Full implementation loading...');
+                    // Will be replaced by full implementation in later script tag
+                };
+            }
+            
+            if (!window.createNewBOQ) {
+                window.createNewBOQ = function() {
+                    console.warn('createNewBOQ: Full implementation loading...');
+                    // Will be replaced by full implementation in later script tag
+                };
+            }
+            
+            if (!window.openAddBrandModal) {
+                window.openAddBrandModal = async function() {
+                    console.warn('openAddBrandModal: Full implementation loading...');
+                    // Will be replaced by full implementation in later script tag
+                };
+            }
+        })();
+
+        // Multi-Budget Offers Button Event Listeners - Using Event Delegation
+        // This works even when the card is hidden initially
+        document.addEventListener('DOMContentLoaded', function() {
+            // Use event delegation on document body to catch all clicks
+            document.body.addEventListener('click', function(e) {
+                const target = e.target;
+                
+                // Generate from BOQ button
+                if (target.id === 'generateFromBOQBtn' || target.closest('#generateFromBOQBtn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔵 Generate from BOQ button clicked');
+                    if (typeof window.generateFromBOQ === 'function') {
+                        window.generateFromBOQ();
+                    } else {
+                        console.error('generateFromBOQ not found');
+                        alert('Function not loaded. Please refresh the page.');
+                    }
+                    return;
+                }
+
+                // Create New BOQ button
+                if (target.id === 'createNewBOQBtn' || target.closest('#createNewBOQBtn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔵 Create New BOQ button clicked');
+                    if (typeof window.createNewBOQ === 'function') {
+                        window.createNewBOQ();
+                    } else {
+                        console.error('createNewBOQ not found');
+                        alert('Function not loaded. Please refresh the page.');
+                    }
+                    return;
+                }
+
+                // Add Brand button
+                if (target.id === 'openAddBrandModalBtn' || target.closest('#openAddBrandModalBtn')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔵 Add Brand button clicked');
+                    if (typeof window.openAddBrandModal === 'function') {
+                        window.openAddBrandModal();
+                    } else {
+                        console.error('openAddBrandModal not found');
+                        alert('Function not loaded. Please refresh the page.');
+                    }
+                    return;
+                }
+
+                // Budget Tier tabs
+                if (target.id === 'budgetaryTab' || target.closest('#budgetaryTab')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔵 Budgetary tab clicked');
+                    if (typeof window.switchBudgetTab === 'function') {
+                        window.switchBudgetTab('budgetary');
+                    } else {
+                        console.error('switchBudgetTab not found');
+                    }
+                    return;
+                }
+
+                if (target.id === 'midRangeTab' || target.closest('#midRangeTab')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔵 Mid-Range tab clicked');
+                    if (typeof window.switchBudgetTab === 'function') {
+                        window.switchBudgetTab('mid_range');
+                    } else {
+                        console.error('switchBudgetTab not found');
+                    }
+                    return;
+                }
+
+                if (target.id === 'highEndTab' || target.closest('#highEndTab')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🔵 High-End tab clicked');
+                    if (typeof window.switchBudgetTab === 'function') {
+                        window.switchBudgetTab('high_end');
+                    } else {
+                        console.error('switchBudgetTab not found');
+                    }
+                    return;
+                }
+            });
+        });
+
+        // Initialize Multi-Budget buttons (backup function)
+        function initializeMultiBudgetButtons() {
+            // This is a backup - event delegation above should handle everything
+            // But we can also directly attach listeners here if needed
+            const generateBtn = document.getElementById('generateFromBOQBtn');
+            const createBtn = document.getElementById('createNewBOQBtn');
+            const addBrandBtn = document.getElementById('openAddBrandModalBtn');
+            const budgetaryTab = document.getElementById('budgetaryTab');
+            const midRangeTab = document.getElementById('midRangeTab');
+            const highEndTab = document.getElementById('highEndTab');
+
+            // Only attach if not already attached (check for existing listeners)
+            if (generateBtn && !generateBtn.hasAttribute('data-listener-attached')) {
+                generateBtn.setAttribute('data-listener-attached', 'true');
+                generateBtn.addEventListener('click', function() {
+                    if (typeof window.generateFromBOQ === 'function') {
+                        window.generateFromBOQ();
+                    }
+                });
+            }
+
+            if (createBtn && !createBtn.hasAttribute('data-listener-attached')) {
+                createBtn.setAttribute('data-listener-attached', 'true');
+                createBtn.addEventListener('click', function() {
+                    if (typeof window.createNewBOQ === 'function') {
+                        window.createNewBOQ();
+                    }
+                });
+            }
+
+            if (addBrandBtn && !addBrandBtn.hasAttribute('data-listener-attached')) {
+                addBrandBtn.setAttribute('data-listener-attached', 'true');
+                addBrandBtn.addEventListener('click', function() {
+                    if (typeof window.openAddBrandModal === 'function') {
+                        window.openAddBrandModal();
+                    }
+                });
+            }
+
+            if (budgetaryTab && !budgetaryTab.hasAttribute('data-listener-attached')) {
+                budgetaryTab.setAttribute('data-listener-attached', 'true');
+                budgetaryTab.addEventListener('click', function() {
+                    if (typeof window.switchBudgetTab === 'function') {
+                        window.switchBudgetTab('budgetary');
+                    }
+                });
+            }
+
+            if (midRangeTab && !midRangeTab.hasAttribute('data-listener-attached')) {
+                midRangeTab.setAttribute('data-listener-attached', 'true');
+                midRangeTab.addEventListener('click', function() {
+                    if (typeof window.switchBudgetTab === 'function') {
+                        window.switchBudgetTab('mid_range');
+                    }
+                });
+            }
+
+            if (highEndTab && !highEndTab.hasAttribute('data-listener-attached')) {
+                highEndTab.setAttribute('data-listener-attached', 'true');
+                highEndTab.addEventListener('click', function() {
+                    if (typeof window.switchBudgetTab === 'function') {
+                        window.switchBudgetTab('high_end');
+                    }
+                });
+            }
+        }
+
+        // Make initializeMultiBudgetButtons globally accessible
+        window.initializeMultiBudgetButtons = initializeMultiBudgetButtons;
+
         // Main Application Navigation - Smoothly scrolls to upload area
         function showMainApp(workflowType, fromLanding = false) {
             const heroSection = document.getElementById('heroSection');
@@ -5223,13 +5445,13 @@
 
                 <!-- Action Buttons -->
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <button class="btn btn-primary" onclick="generateFromBOQ()" style="flex: 1; min-width: 180px;">
+                    <button id="generateFromBOQBtn" class="btn btn-primary" onclick="if(typeof window.generateFromBOQ==='function'){window.generateFromBOQ();}else{alert('Function loading... Please refresh.');}" style="flex: 1; min-width: 180px;">
                         📋 Generate from BOQ
                     </button>
-                    <button class="btn btn-success" onclick="createNewBOQ()" style="flex: 1; min-width: 180px;">
+                    <button id="createNewBOQBtn" class="btn btn-success" onclick="if(typeof window.createNewBOQ==='function'){window.createNewBOQ();}else{alert('Function loading... Please refresh.');}" style="flex: 1; min-width: 180px;">
                         ➕ Create New BOQ
                     </button>
-                    <button class="btn btn-secondary" onclick="openAddBrandModal()" style="flex: 1; min-width: 180px;">
+                    <button id="openAddBrandModalBtn" class="btn btn-secondary" onclick="if(typeof window.openAddBrandModal==='function'){window.openAddBrandModal();}else{alert('Function loading... Please refresh.');}" style="flex: 1; min-width: 180px;">
                         ➕ Add Brand
                     </button>
                 </div>
@@ -5237,15 +5459,15 @@
                 <!-- Budget Tier Tabs -->
                 <div class="budget-tabs"
                     style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #1a365d;">
-                    <button class="budget-tab active" data-tier="budgetary" onclick="switchBudgetTab('budgetary')"
+                    <button id="budgetaryTab" class="budget-tab active" data-tier="budgetary" onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('budgetary');}else{console.error('switchBudgetTab not found');}"
                         style="flex: 1; padding: 12px 20px; background: #1a365d; color: #d4af37; border: none; border-bottom: 3px solid #d4af37; cursor: pointer; font-weight: bold; transition: all 0.3s;">
                         💰 Budgetary
                     </button>
-                    <button class="budget-tab" data-tier="mid_range" onclick="switchBudgetTab('mid_range')"
+                    <button id="midRangeTab" class="budget-tab" data-tier="mid_range" onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('mid_range');}else{console.error('switchBudgetTab not found');}"
                         style="flex: 1; padding: 12px 20px; background: #2d4a6b; color: #e0e0e0; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: bold; transition: all 0.3s;">
                         ⭐ Mid-Range
                     </button>
-                    <button class="budget-tab" data-tier="high_end" onclick="switchBudgetTab('high_end')"
+                    <button id="highEndTab" class="budget-tab" data-tier="high_end" onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('high_end');}else{console.error('switchBudgetTab not found');}"
                         style="flex: 1; padding: 12px 20px; background: #2d4a6b; color: #e0e0e0; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: bold; transition: all 0.3s;">
                         👑 High-End
                     </button>
@@ -6470,7 +6692,13 @@
                     if (multiBudgetCard) {
                         multiBudgetCard.style.display = 'block';
                         // Initialize brand dropdowns for the active tier
-                        updateBrandDropdownsForTier(currentBudgetTier || 'budgetary');
+                        if (typeof window.updateBrandDropdownsForTier === 'function') {
+                            window.updateBrandDropdownsForTier(currentBudgetTier || 'budgetary');
+                        }
+                        // Ensure button listeners are attached (backup initialization)
+                        if (typeof window.initializeMultiBudgetButtons === 'function') {
+                            window.initializeMultiBudgetButtons();
+                        }
                     }
                     break;
             }
@@ -10365,6 +10593,7 @@
 
     <script>
         // Multi-Budget Offer Section JavaScript Functions
+        // IMPORTANT: Define these functions IMMEDIATELY so they're available for event listeners
 
         let currentBudgetTier = 'budgetary';
         let multiBudgetTables = {
@@ -10373,8 +10602,8 @@
             high_end: null
         };
 
-        // Switch between budget tier tabs
-        function switchBudgetTab(tier) {
+        // Switch between budget tier tabs - Define IMMEDIATELY
+        window.switchBudgetTab = function switchBudgetTab(tier) {
             currentBudgetTier = tier;
 
             // Update tab buttons
@@ -10398,11 +10627,13 @@
             document.getElementById('high_endTableContainer').style.display = tier === 'high_end' ? 'block' : 'none';
 
             // Update dropdowns in active table
-            updateBrandDropdownsForTier(tier);
-        }
+            if (typeof window.updateBrandDropdownsForTier === 'function') {
+                window.updateBrandDropdownsForTier(tier);
+            }
+        };
 
-        // Add Brand Modal Functions
-        async function openAddBrandModal() {
+        // Add Brand Modal Functions - Replace stub with full implementation
+        window.openAddBrandModal = async function openAddBrandModal() {
             const modal = document.getElementById('addBrandModal');
             const scrapeBtn = document.getElementById('scrapeBrandBtn');
 
@@ -10436,7 +10667,7 @@
 
             // Load brands for database dropdown
             await loadBrandsForDatabase();
-        }
+        };
 
         // Load brands for database download/upload dropdown
         async function loadBrandsForDatabase() {
@@ -11010,7 +11241,8 @@
 
         // Generate from BOQ - copies extracted or costed table
         // Prefers costed tables if they exist, otherwise uses stitched tables
-        async function generateFromBOQ() {
+        // Make generateFromBOQ globally accessible - Replace stub with full implementation
+        window.generateFromBOQ = async function generateFromBOQ() {
             try {
                 // Show loading indicator
                 const button = document.querySelector('button[onclick*="generateFromBOQ"]');
@@ -11148,14 +11380,14 @@
                     button.textContent = '📋 Generate from BOQ';
                 }
             }
-        }
+        };
 
-        // Create New BOQ - generates empty table
-        function createNewBOQ() {
+        // Create New BOQ - generates empty table - Replace stub with full implementation
+        window.createNewBOQ = function createNewBOQ() {
             const headers = ['SI.No', 'Image', 'Description', 'Unit', 'Qty', 'Price', 'Total'];
             const emptyTableHTML = createEmptyTableHTML(headers, 5);
             createMultiBudgetTable(currentBudgetTier, emptyTableHTML, null);
-        }
+        };
 
         // Create empty table HTML
         function createEmptyTableHTML(headers, numRows) {
@@ -11722,6 +11954,55 @@
                     html: table.outerHTML
                 };
 
+                // Add event listeners to Qty and Price cells for automatic calculation
+                // Reuse headerRow from above scope, or find it if not available
+                if (!headerRow) {
+                    headerRow = table.querySelector('thead tr') || table.querySelector('tbody tr:first-child');
+                }
+                if (headerRow) {
+                    const headers = Array.from(headerRow.children);
+                    const qtyIndex = headers.findIndex(th => {
+                        const text = th.textContent.toLowerCase().trim();
+                        return (text.includes('qty') || text.includes('quantity')) && !text.includes('unit');
+                    });
+                    const priceIndex = headers.findIndex(th => {
+                        const text = th.textContent.toLowerCase().trim();
+                        return (text.includes('price') || text.includes('rate')) && 
+                               !text.includes('total') && !text.includes('unit');
+                    });
+
+                    if (qtyIndex >= 0 || priceIndex >= 0) {
+                        const tbody = table.querySelector('tbody');
+                        if (tbody) {
+                            tbody.addEventListener('input', function(e) {
+                                const cell = e.target;
+                                if (cell.tagName === 'TD' && cell.contentEditable === 'true') {
+                                    const row = cell.closest('tr');
+                                    const cellIndex = Array.from(row.children).indexOf(cell);
+                                    
+                                    // Check if this is Qty or Price cell
+                                    if (cellIndex === qtyIndex || cellIndex === priceIndex) {
+                                        calculateRowTotal(row, headers, Array.from(row.children));
+                                    }
+                                }
+                            });
+
+                            tbody.addEventListener('blur', function(e) {
+                                const cell = e.target;
+                                if (cell.tagName === 'TD' && cell.contentEditable === 'true') {
+                                    const row = cell.closest('tr');
+                                    const cellIndex = Array.from(row.children).indexOf(cell);
+                                    
+                                    // Check if this is Qty or Price cell
+                                    if (cellIndex === qtyIndex || cellIndex === priceIndex) {
+                                        calculateRowTotal(row, headers, Array.from(row.children));
+                                    }
+                                }
+                            }, true);
+                        }
+                    }
+                }
+
                 // Optimize column widths to fit viewport
                 const optimizeColumnWidths = () => {
                     const headerRow = table.querySelector('thead tr') || table.querySelector('tbody tr');
@@ -12265,6 +12546,30 @@
                                     }
                                 }
 
+                                // Find and update Price cell
+                                const priceIndex = headers.findIndex(th => {
+                                    const text = th.textContent.toLowerCase().trim();
+                                    return (text.includes('price') || text.includes('rate')) && 
+                                           !text.includes('total') && !text.includes('unit');
+                                });
+                                
+                                if (priceIndex >= 0 && priceIndex < cells.length) {
+                                    const priceCell = cells[priceIndex];
+                                    if (price && price !== 'null' && price !== '') {
+                                        const priceValue = parseFloat(price);
+                                        if (!isNaN(priceValue)) {
+                                            priceCell.textContent = priceValue.toFixed(2);
+                                            priceCell.contentEditable = 'true';
+                                        } else {
+                                            priceCell.textContent = '';
+                                        }
+                                    } else {
+                                        priceCell.textContent = '';
+                                    }
+                                    // Trigger calculation
+                                    calculateRowTotal(row, headers, cells);
+                                }
+
                             } else {
                                 // Clear Image and Description if no model selected
                                 if (imageCell) {
@@ -12283,6 +12588,20 @@
                                         descCell.innerHTML = '';
                                     }
                                 }
+                                
+                                // Clear Price cell if no model selected
+                                const priceIndex = headers.findIndex(th => {
+                                    const text = th.textContent.toLowerCase().trim();
+                                    return (text.includes('price') || text.includes('rate')) && 
+                                           !text.includes('total') && !text.includes('unit');
+                                });
+                                
+                                if (priceIndex >= 0 && priceIndex < cells.length) {
+                                    const priceCell = cells[priceIndex];
+                                    priceCell.textContent = '';
+                                    // Trigger calculation to clear total
+                                    calculateRowTotal(row, headers, cells);
+                                }
                             }
                         };
                     }
@@ -12293,6 +12612,67 @@
                 console.error('Error updating model dropdown:', error);
             }
         }
+
+        // Calculate row total: Qty * Price = Total
+        function calculateRowTotal(row, headers, cells) {
+            if (!row || !headers || !cells) {
+                // Try to get from row if not provided
+                if (row) {
+                    const table = row.closest('table');
+                    const headerRow = table?.querySelector('thead tr') || table?.querySelector('tbody tr:first-child');
+                    if (headerRow) {
+                        headers = Array.from(headerRow.children);
+                        cells = Array.from(row.children);
+                    } else {
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            }
+
+            // Find Qty, Price, and Total column indices
+            const qtyIndex = headers.findIndex(th => {
+                const text = th.textContent.toLowerCase().trim();
+                return (text.includes('qty') || text.includes('quantity')) && !text.includes('unit');
+            });
+            
+            const priceIndex = headers.findIndex(th => {
+                const text = th.textContent.toLowerCase().trim();
+                return (text.includes('price') || text.includes('rate')) && 
+                       !text.includes('total') && !text.includes('unit');
+            });
+            
+            const totalIndex = headers.findIndex(th => {
+                const text = th.textContent.toLowerCase().trim();
+                return text.includes('total') || text.includes('amount');
+            });
+
+            // Get values
+            let qty = 0;
+            let price = 0;
+            
+            if (qtyIndex >= 0 && qtyIndex < cells.length) {
+                const qtyText = cells[qtyIndex].textContent.trim().replace(/[^0-9.-]/g, '');
+                qty = parseFloat(qtyText) || 0;
+            }
+            
+            if (priceIndex >= 0 && priceIndex < cells.length) {
+                const priceText = cells[priceIndex].textContent.trim().replace(/[^0-9.-]/g, '');
+                price = parseFloat(priceText) || 0;
+            }
+
+            // Calculate and update Total
+            if (totalIndex >= 0 && totalIndex < cells.length) {
+                const totalCell = cells[totalIndex];
+                const total = qty * price;
+                totalCell.textContent = total.toFixed(2);
+                totalCell.contentEditable = 'true';
+            }
+        }
+
+        // Make calculateRowTotal globally accessible
+        window.calculateRowTotal = calculateRowTotal;
 
         // Add row function - Simply clone existing row structure and clear content
         function addRow(rowId, tier) {

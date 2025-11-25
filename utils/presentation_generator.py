@@ -323,17 +323,33 @@ class PresentationGenerator:
         try:
             match = re.search(r'src=["\']([^"\']+)["\']', str(cell_value))
             if match:
-                img_relative_path = match.group(1).lstrip('/')
-                if img_relative_path.startswith('outputs'):
-                    return img_relative_path
+                img_path = match.group(1).lstrip('/')
+                
+                # Handle URLs (http/https)
+                if img_path.startswith('http://') or img_path.startswith('https://'):
+                    return img_path
+                
+                # Handle local paths
+                if img_path.startswith('outputs'):
+                    return img_path
                 else:
-                    return os.path.join('outputs', session_id, file_id, img_relative_path)
+                    # Check if it's a relative path that needs to be joined
+                    full_path = os.path.join('outputs', session_id, file_id, img_path)
+                    if os.path.exists(full_path):
+                        return full_path
+                    # Also try without the session_id/file_id prefix in case it's already included
+                    if os.path.exists(img_path):
+                        return img_path
+                    return full_path  # Return even if doesn't exist yet, let download logic handle it
             
             if 'img_in_' in str(cell_value):
                 match = re.search(r'(imgs/img_in_[^"\s<>]+\.jpg)', str(cell_value))
                 if match:
                     img_relative_path = match.group(1)
-                    return os.path.join('outputs', session_id, file_id, img_relative_path)
+                    full_path = os.path.join('outputs', session_id, file_id, img_relative_path)
+                    if os.path.exists(full_path):
+                        return full_path
+                    return full_path  # Return even if doesn't exist yet
         except Exception as e:
             pass
         return None
