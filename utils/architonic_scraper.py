@@ -459,6 +459,13 @@ class ArchitonicScraper:
                     }
                     formatted_products.append(formatted_product)
             
+            # Enrich products with detailed descriptions from product pages (using requests)
+            if formatted_products and len(formatted_products) > 0:
+                # Sample up to 10 products per collection to get descriptions (balance speed vs completeness)
+                sample_size = min(10, len(formatted_products))
+                logger.info(f"Enriching {sample_size} products with 'About' descriptions using requests...")
+                self._enrich_products_with_descriptions_requests(formatted_products[:sample_size])
+            
             return formatted_products
             
         except Exception as e:
@@ -618,6 +625,53 @@ class ArchitonicScraper:
                 logger.debug(f"    ✗ Error fetching description: {e}")
                 continue
     
+    def _enrich_products_with_descriptions_requests(self, products: List[Dict]) -> None:
+        """
+        Visit product detail pages using requests and extract 'About this product' descriptions
+        
+        Args:
+            products: List of product dictionaries to enrich (modified in-place)
+        """
+        import requests
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        }
+        
+        for idx, product in enumerate(products):
+            product_url = product.get('url') or product.get('source_url')
+            if not product_url:
+                continue
+            
+            try:
+                logger.info(f"  Fetching description for: {product.get('name', 'Unknown')} ({idx+1}/{len(products)})")
+                
+                # Load product page with requests
+                response = requests.get(product_url, headers=headers, timeout=15)
+                response.raise_for_status()
+                soup = BeautifulSoup(response.content, 'html.parser')
+                
+                if not soup:
+                    logger.warning(f"    ✗ No soup for {product_url}")
+                    continue
+                
+                # Extract "About this product" description
+                description = self._extract_product_about_section(soup)
+                
+                if description:
+                    product['description'] = description
+                    logger.info(f"    ✓ Added description ({len(description)} chars): {description[:100]}...")
+                else:
+                    logger.warning(f"    ✗ No description found for {product.get('name', 'Unknown')}")
+                
+                # Small delay to be respectful
+                time.sleep(0.3)  # Shorter delay for requests vs Selenium
+                
+            except Exception as e:
+                logger.warning(f"    ✗ Error fetching description for {product.get('name', 'Unknown')}: {e}")
+                continue
+    
     def _extract_product_about_section(self, soup: BeautifulSoup) -> str:
         """
         Extract the 'About this product' description from an Architonic product page
@@ -630,11 +684,18 @@ class ArchitonicScraper:
         """
         description_parts = []
         
+        # Strategy 0: Check meta description first (often has good summary)
+        meta_desc = soup.find('meta', attrs={'name': 'description'})
+        if meta_desc and meta_desc.get('content'):
+            meta_text = meta_desc.get('content', '').strip()
+            if meta_text and len(meta_text) > 50:  # Only use if substantial
+                description_parts.append(meta_text)
+        
         # Strategy 1: Look for "About this product" section
-        about_section = soup.find(['div', 'section'], string=re.compile(r'about\s+this\s+product', re.I))
+        about_section = soup.find(['div', 'section'], string=re.compile(r'about\s+this\s+product|description|über\s+das\s+produkt', re.I))
         if not about_section:
             # Look for heading
-            about_heading = soup.find(['h1', 'h2', 'h3', 'h4'], string=re.compile(r'about\s+this\s+product', re.I))
+            about_heading = soup.find(['h1', 'h2', 'h3', 'h4'], string=re.compile(r'about\s+this\s+product|description|über\s+das\s+produkt', re.I))
             if about_heading:
                 about_section = about_heading.find_parent(['div', 'section'])
         
@@ -649,30 +710,55 @@ class ArchitonicScraper:
         # Strategy 2: Look for description in common Architonic patterns
         if not description_parts:
             # Look for product description divs
-            desc_candidates = soup.find_all(['div', 'section'], class_=re.compile(r'product.*description|description.*product|product.*detail|detail.*product', re.I))
-            for candidate in desc_candidates[:3]:  # Check first 3 candidates
-                paragraphs = candidate.find_all('p')
+            desc_candidates = soup.find_all(['div', 'section'], class_=re.compile(r'product.*description|description.*product|product.*detail|detail.*product|info|text|content', re.I))
+            for candidate in desc_candidates[:5]:  # Check first 5 candidates
+                paragraphs = candidate.find_all(['p', 'div'])
                 for p in paragraphs:
                     text = p.get_text(strip=True)
                     if text and len(text) > 50:  # Longer text more likely to be description
-                        description_parts.append(text)
+                        # Skip if it's just navigation or common UI text
+                        if not any(skip in text.lower() for skip in ['cookie', 'privacy', 'terms', 'menu', 'navigation', 'skip to']):
+                            description_parts.append(text)
         
-        # Strategy 3: Look for any div with class containing "cmpboxtxt" (from your HTML structure)
+        # Strategy 3: Look for any div with class containing "cmpboxtxt" or similar (Architonic specific)
         if not description_parts:
-            desc_div = soup.find('div', class_=re.compile(r'cmpboxtxt|cmptxt', re.I))
+            desc_div = soup.find('div', class_=re.compile(r'cmpboxtxt|cmptxt|description|info|text', re.I))
             if desc_div:
-                paragraphs = desc_div.find_all('p')
+                paragraphs = desc_div.find_all(['p', 'div'])
                 for p in paragraphs:
                     text = p.get_text(strip=True)
-                    if text:
+                    if text and len(text) > 30:
                         description_parts.append(text)
+        
+        # Strategy 4: Look for main content area with substantial text
+        if not description_parts:
+            main_content = soup.find(['main', 'article', 'div'], class_=re.compile(r'main|content|article|product', re.I))
+            if main_content:
+                # Get all paragraphs from main content
+                paragraphs = main_content.find_all('p')
+                for p in paragraphs:
+                    text = p.get_text(strip=True)
+                    if text and len(text) > 100:  # Substantial paragraphs only
+                        # Skip navigation and common UI elements
+                        if not any(skip in text.lower() for skip in ['cookie', 'privacy', 'menu', 'navigation', 'login', 'register']):
+                            description_parts.append(text)
         
         # Combine all description parts
         if description_parts:
             full_description = ' '.join(description_parts)
             # Clean up whitespace
             full_description = re.sub(r'\s+', ' ', full_description).strip()
-            return full_description[:1000]  # Limit to 1000 chars
+            # Remove duplicates (keep unique sentences)
+            sentences = full_description.split('. ')
+            unique_sentences = []
+            seen = set()
+            for sentence in sentences:
+                sentence = sentence.strip()
+                if sentence and sentence.lower() not in seen:
+                    seen.add(sentence.lower())
+                    unique_sentences.append(sentence)
+            full_description = '. '.join(unique_sentences)
+            return full_description[:1500]  # Limit to 1500 chars
         
         return ""
     
@@ -788,6 +874,15 @@ class ArchitonicScraper:
             soup = BeautifulSoup(response.content, 'html.parser')
             
             products_data = self._extract_products_from_soup(soup, url, brand_name)
+            
+            # Enrich products with descriptions from product detail pages
+            products = products_data.get('products', [])
+            if products and len(products) > 0:
+                # Sample up to 10 products to get descriptions (balance speed vs completeness)
+                sample_size = min(10, len(products))
+                logger.info(f"Enriching {sample_size} products with descriptions using requests...")
+                self._enrich_products_with_descriptions_requests(products[:sample_size])
+            
             return products_data
             
         except Exception as e:

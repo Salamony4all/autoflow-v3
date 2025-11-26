@@ -531,13 +531,27 @@ class MASGenerator:
         match = re.search(r'src=["\']([^"\']+)["\']', html_content)
         if match:
             src = match.group(1)
+            
+            # Handle URLs (http/https) - return as-is for download logic to handle
+            if src.startswith('http://') or src.startswith('https://'):
+                return src
+            
             # Handle leading slash
             if src.startswith('/'):
                 src = src[1:]
+            
+            # Handle local paths
+            if src.startswith('outputs/'):
+                return src
+            
             # Handle relative path
-            if not src.startswith('outputs/'):
-                src = f'outputs/{session_id}/{file_id}/{src}'
-            return src
+            full_path = f'outputs/{session_id}/{file_id}/{src}'
+            if os.path.exists(full_path):
+                return full_path
+            # Also check if src exists as-is
+            if os.path.exists(src):
+                return src
+            return full_path  # Return even if doesn't exist yet, let download logic handle it
         return None
     
     def extract_table_rows(self, markdown_text):

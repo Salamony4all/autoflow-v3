@@ -4043,7 +4043,7 @@
             // Check if we should show hero section (from landing page "Get Started")
             const urlParams = new URLSearchParams(window.location.search);
             const showHero = urlParams.get('showHero') === 'true';
-            
+
             if (showHero) {
                 // Show hero section (main app home page with carousel, title, cards)
                 const heroSection = document.getElementById('heroSection');
@@ -4076,15 +4076,15 @@
 
         // Define Multi-Budget functions IMMEDIATELY (before DOMContentLoaded)
         // This ensures they're available when event listeners try to use them
-        (function() {
+        (function () {
             // Initialize variables if not already defined
             if (typeof window.currentBudgetTier === 'undefined') {
                 window.currentBudgetTier = 'budgetary';
             }
-            
+
             // Define switchBudgetTab immediately
             if (!window.switchBudgetTab) {
-                window.switchBudgetTab = function(tier) {
+                window.switchBudgetTab = function (tier) {
                     window.currentBudgetTier = tier;
                     // Update tab buttons
                     document.querySelectorAll('.budget-tab').forEach(btn => {
@@ -4113,25 +4113,25 @@
                     }
                 };
             }
-            
+
             // Define stub functions that will be replaced by full implementations later
             // This ensures they exist when event listeners try to call them
             if (!window.generateFromBOQ) {
-                window.generateFromBOQ = async function() {
+                window.generateFromBOQ = async function () {
                     console.warn('generateFromBOQ: Full implementation loading...');
                     // Will be replaced by full implementation in later script tag
                 };
             }
-            
+
             if (!window.createNewBOQ) {
-                window.createNewBOQ = function() {
+                window.createNewBOQ = function () {
                     console.warn('createNewBOQ: Full implementation loading...');
                     // Will be replaced by full implementation in later script tag
                 };
             }
-            
+
             if (!window.openAddBrandModal) {
-                window.openAddBrandModal = async function() {
+                window.openAddBrandModal = async function () {
                     console.warn('openAddBrandModal: Full implementation loading...');
                     // Will be replaced by full implementation in later script tag
                 };
@@ -4140,11 +4140,11 @@
 
         // Multi-Budget Offers Button Event Listeners - Using Event Delegation
         // This works even when the card is hidden initially
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Use event delegation on document body to catch all clicks
-            document.body.addEventListener('click', function(e) {
+            document.body.addEventListener('click', function (e) {
                 const target = e.target;
-                
+
                 // Generate from BOQ button
                 if (target.id === 'generateFromBOQBtn' || target.closest('#generateFromBOQBtn')) {
                     e.preventDefault();
@@ -4240,7 +4240,7 @@
             // Only attach if not already attached (check for existing listeners)
             if (generateBtn && !generateBtn.hasAttribute('data-listener-attached')) {
                 generateBtn.setAttribute('data-listener-attached', 'true');
-                generateBtn.addEventListener('click', function() {
+                generateBtn.addEventListener('click', function () {
                     if (typeof window.generateFromBOQ === 'function') {
                         window.generateFromBOQ();
                     }
@@ -4249,7 +4249,7 @@
 
             if (createBtn && !createBtn.hasAttribute('data-listener-attached')) {
                 createBtn.setAttribute('data-listener-attached', 'true');
-                createBtn.addEventListener('click', function() {
+                createBtn.addEventListener('click', function () {
                     if (typeof window.createNewBOQ === 'function') {
                         window.createNewBOQ();
                     }
@@ -4258,7 +4258,7 @@
 
             if (addBrandBtn && !addBrandBtn.hasAttribute('data-listener-attached')) {
                 addBrandBtn.setAttribute('data-listener-attached', 'true');
-                addBrandBtn.addEventListener('click', function() {
+                addBrandBtn.addEventListener('click', function () {
                     if (typeof window.openAddBrandModal === 'function') {
                         window.openAddBrandModal();
                     }
@@ -4267,7 +4267,7 @@
 
             if (budgetaryTab && !budgetaryTab.hasAttribute('data-listener-attached')) {
                 budgetaryTab.setAttribute('data-listener-attached', 'true');
-                budgetaryTab.addEventListener('click', function() {
+                budgetaryTab.addEventListener('click', function () {
                     if (typeof window.switchBudgetTab === 'function') {
                         window.switchBudgetTab('budgetary');
                     }
@@ -4276,7 +4276,7 @@
 
             if (midRangeTab && !midRangeTab.hasAttribute('data-listener-attached')) {
                 midRangeTab.setAttribute('data-listener-attached', 'true');
-                midRangeTab.addEventListener('click', function() {
+                midRangeTab.addEventListener('click', function () {
                     if (typeof window.switchBudgetTab === 'function') {
                         window.switchBudgetTab('mid_range');
                     }
@@ -4285,7 +4285,7 @@
 
             if (highEndTab && !highEndTab.hasAttribute('data-listener-attached')) {
                 highEndTab.setAttribute('data-listener-attached', 'true');
-                highEndTab.addEventListener('click', function() {
+                highEndTab.addEventListener('click', function () {
                     if (typeof window.switchBudgetTab === 'function') {
                         window.switchBudgetTab('high_end');
                     }
@@ -4323,9 +4323,9 @@
             const mainContent = document.querySelector('.main-content');
             const uploadSection = mainContent ? mainContent.querySelector('.card:first-child') : null;
             const uploadArea = document.getElementById('uploadArea');
-            
+
             let targetCard = null;
-            
+
             // Determine which workflow-specific card to show
             if (workflowType === 'quote-pricelist') {
                 targetCard = uploadSection;
@@ -4375,9 +4375,9 @@
             const mainContent = document.querySelector('.main-content');
             const uploadSection = mainContent ? mainContent.querySelector('.card:first-child') : null;
             const uploadArea = document.getElementById('uploadArea');
-            
+
             let targetCard = null;
-            
+
             // Determine which workflow-specific card to show
             if (workflowType === 'quote-pricelist') {
                 // Quote workflow uses the upload section
@@ -4412,7 +4412,7 @@
                     uploadSection.style.opacity = '1';
                     uploadSection.style.transform = 'translateY(0)';
                 }
-                
+
                 if (targetCard && targetCard !== uploadSection) {
                     targetCard.style.opacity = '1';
                     targetCard.style.transform = 'translateY(0)';
@@ -4440,8 +4440,8 @@
                 const progress = Math.min(timeElapsed / duration, 1);
 
                 // Easing function for smooth deceleration
-                const ease = progress < 0.5 
-                    ? 2 * progress * progress 
+                const ease = progress < 0.5
+                    ? 2 * progress * progress
                     : 1 - Math.pow(-2 * progress + 2, 3) / 2;
 
                 window.scrollTo(0, startPosition + distance * ease);
@@ -4491,10 +4491,11 @@
             <!-- 2. Logo Section (Above Carousel) -->
             <div class="hero-logo-section"
                 style="width: 100%; max-width: 1000px; margin: 0 auto 40px; padding: 0 20px; z-index: 2; text-align: center;">
-                <img src="{{ url_for('static', filename='images/al-shaya-logo-white@2x.png') }}" 
-                     alt="AlShaya Enterprises" 
-                     style="max-width: 300px; height: auto; display: block; margin: 0 auto 20px;">
-                <h1 style="font-size: 3em; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); letter-spacing: -1px;">
+                <img src="{{ url_for('static', filename='images/al-shaya-logo-white@2x.png') }}"
+                    alt="AlShaya Enterprises"
+                    style="max-width: 300px; height: auto; display: block; margin: 0 auto 20px;">
+                <h1
+                    style="font-size: 3em; font-weight: 800; color: #ffffff; margin: 0; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); letter-spacing: -1px;">
                     Transform Your Workflow
                 </h1>
             </div>
@@ -4542,14 +4543,16 @@
                     </div>
                 </div>
 
-                <div class="hero-cards-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 35px;">
+                <div class="hero-cards-grid"
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 35px;">
                     <!-- Card 1: Quote with Price List -->
                     <div class="feature-card" data-card="quote-pricelist" onclick="showMainApp('quote-pricelist')">
                         <span class="card-badge">Popular</span>
                         <span class="card-icon">💰</span>
                         <h2 class="card-title">Quote with Price List</h2>
                         <p class="card-description">
-                            Upload your BOQ with price list to generate professional quotations instantly with accurate pricing
+                            Upload your BOQ with price list to generate professional quotations instantly with accurate
+                            pricing
                             and margins.
                         </p>
                         <ul class="card-features">
@@ -4569,7 +4572,8 @@
                         <span class="card-icon">🎯</span>
                         <h2 class="card-title">Multi-Budget Offers</h2>
                         <p class="card-description">
-                            Upload BOQ only (no prices) and let AI generate three budget tiers: Budgetary, Mid-Range, and
+                            Upload BOQ only (no prices) and let AI generate three budget tiers: Budgetary, Mid-Range,
+                            and
                             High-End options.
                         </p>
                         <ul class="card-features">
@@ -4609,7 +4613,8 @@
                         <span class="card-icon">📋</span>
                         <h2 class="card-title">MAS Generator</h2>
                         <p class="card-description">
-                            Generate Material Approval Sheets automatically from your BOQ for streamlined approval workflows.
+                            Generate Material Approval Sheets automatically from your BOQ for streamlined approval
+                            workflows.
                         </p>
                         <ul class="card-features">
                             <li>Upload BOQ data</li>
@@ -4882,7 +4887,8 @@
                                 <input type="checkbox" id="upload-setting-useDocUnwarping"
                                     style="width: 16px; height: 16px; cursor: pointer;">
                                 <label for="upload-setting-useDocUnwarping"
-                                    style="color: #e0e0e0; cursor: pointer; font-size: 0.9em;">Image Distortion Correction</label>
+                                    style="color: #e0e0e0; cursor: pointer; font-size: 0.9em;">Image Distortion
+                                    Correction</label>
                             </div>
                             <div style="display: flex; align-items: center; gap: 8px;">
                                 <input type="checkbox" id="upload-setting-visualize"
@@ -4894,42 +4900,57 @@
 
                         <!-- Table Recognition Advanced Settings -->
                         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
-                            <h4 style="color: #e0e0e0; margin-bottom: 10px; font-size: 0.9em;">📊 Table Recognition Advanced</h4>
-                            <div style="background: #2a1f0e; border-left: 3px solid #ff9800; padding: 8px; margin-bottom: 10px; border-radius: 4px;">
+                            <h4 style="color: #e0e0e0; margin-bottom: 10px; font-size: 0.9em;">📊 Table Recognition
+                                Advanced</h4>
+                            <div
+                                style="background: #2a1f0e; border-left: 3px solid #ff9800; padding: 8px; margin-bottom: 10px; border-radius: 4px;">
                                 <p style="color: #ff9800; margin: 0; font-size: 0.75em;">
                                     ⚠️ Wired/Wireless to HTML or E2E modes may lose images
                                 </p>
                             </div>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 8px;">
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <input type="checkbox" id="upload-setting-useWiredTableCellsTransToHtml"
                                         style="width: 14px; height: 14px; cursor: pointer;">
-                                    <label for="upload-setting-useWiredTableCellsTransToHtml" style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">Wired Table to HTML</label>
+                                    <label for="upload-setting-useWiredTableCellsTransToHtml"
+                                        style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">Wired Table to
+                                        HTML</label>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <input type="checkbox" id="upload-setting-useWirelessTableCellsTransToHtml"
                                         style="width: 14px; height: 14px; cursor: pointer;">
-                                    <label for="upload-setting-useWirelessTableCellsTransToHtml" style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">Wireless Table to HTML</label>
+                                    <label for="upload-setting-useWirelessTableCellsTransToHtml"
+                                        style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">Wireless Table to
+                                        HTML</label>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <input type="checkbox" id="upload-setting-useTableOrientationClassify"
                                         style="width: 14px; height: 14px; cursor: pointer;">
-                                    <label for="upload-setting-useTableOrientationClassify" style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">Table Orientation</label>
+                                    <label for="upload-setting-useTableOrientationClassify"
+                                        style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">Table
+                                        Orientation</label>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <input type="checkbox" id="upload-setting-useOcrResultsWithTableCells"
                                         style="width: 14px; height: 14px; cursor: pointer;">
-                                    <label for="upload-setting-useOcrResultsWithTableCells" style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">Cell Recognition</label>
+                                    <label for="upload-setting-useOcrResultsWithTableCells"
+                                        style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">Cell
+                                        Recognition</label>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <input type="checkbox" id="upload-setting-useE2eWiredTableRecModel"
                                         style="width: 14px; height: 14px; cursor: pointer;">
-                                    <label for="upload-setting-useE2eWiredTableRecModel" style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">E2E Wired Table</label>
+                                    <label for="upload-setting-useE2eWiredTableRecModel"
+                                        style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">E2E Wired
+                                        Table</label>
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <input type="checkbox" id="upload-setting-useE2eWirelessTableRecModel"
                                         style="width: 14px; height: 14px; cursor: pointer;">
-                                    <label for="upload-setting-useE2eWirelessTableRecModel" style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">E2E Wireless Table</label>
+                                    <label for="upload-setting-useE2eWirelessTableRecModel"
+                                        style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">E2E Wireless
+                                        Table</label>
                                 </div>
                             </div>
                         </div>
@@ -4937,24 +4958,32 @@
                         <!-- Layout Detection Settings -->
                         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
                             <h4 style="color: #e0e0e0; margin-bottom: 10px; font-size: 0.9em;">📐 Layout Detection</h4>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-layoutThreshold" style="color: #e0e0e0; font-size: 0.8em;">Layout Threshold</label>
-                                    <input type="number" id="upload-setting-layoutThreshold" step="0.1" min="0" max="1" value="0.5"
+                                    <label for="upload-setting-layoutThreshold"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Layout Threshold</label>
+                                    <input type="number" id="upload-setting-layoutThreshold" step="0.1" min="0" max="1"
+                                        value="0.5"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; align-items: center; gap: 6px;">
                                     <input type="checkbox" id="upload-setting-layoutNms"
                                         style="width: 14px; height: 14px; cursor: pointer;">
-                                    <label for="upload-setting-layoutNms" style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">NMS Postprocessing</label>
+                                    <label for="upload-setting-layoutNms"
+                                        style="color: #e0e0e0; cursor: pointer; font-size: 0.85em;">NMS
+                                        Postprocessing</label>
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-layoutUnclipRatio" style="color: #e0e0e0; font-size: 0.8em;">Expansion Coeff</label>
-                                    <input type="number" id="upload-setting-layoutUnclipRatio" step="0.1" min="0" value="1.0"
+                                    <label for="upload-setting-layoutUnclipRatio"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Expansion Coeff</label>
+                                    <input type="number" id="upload-setting-layoutUnclipRatio" step="0.1" min="0"
+                                        value="1.0"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-layoutMergeBboxesMode" style="color: #e0e0e0; font-size: 0.8em;">Box Filtering</label>
+                                    <label for="upload-setting-layoutMergeBboxesMode"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Box Filtering</label>
                                     <select id="upload-setting-layoutMergeBboxesMode"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                         <option value="large">Large</option>
@@ -4968,14 +4997,17 @@
                         <!-- Text Detection Settings -->
                         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
                             <h4 style="color: #e0e0e0; margin-bottom: 10px; font-size: 0.9em;">🔤 Text Detection</h4>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-textDetLimitSideLen" style="color: #e0e0e0; font-size: 0.8em;">Side Length Limit</label>
+                                    <label for="upload-setting-textDetLimitSideLen"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Side Length Limit</label>
                                     <input type="number" id="upload-setting-textDetLimitSideLen" min="1" value="64"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-textDetLimitType" style="color: #e0e0e0; font-size: 0.8em;">Limit Type</label>
+                                    <label for="upload-setting-textDetLimitType"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Limit Type</label>
                                     <select id="upload-setting-textDetLimitType"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                         <option value="min">Min</option>
@@ -4983,23 +5015,31 @@
                                     </select>
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-textDetThresh" style="color: #e0e0e0; font-size: 0.8em;">Pixel Threshold</label>
-                                    <input type="number" id="upload-setting-textDetThresh" step="0.1" min="0" value="0.3"
+                                    <label for="upload-setting-textDetThresh"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Pixel Threshold</label>
+                                    <input type="number" id="upload-setting-textDetThresh" step="0.1" min="0"
+                                        value="0.3"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-textDetBoxThresh" style="color: #e0e0e0; font-size: 0.8em;">Box Threshold</label>
-                                    <input type="number" id="upload-setting-textDetBoxThresh" step="0.1" min="0" value="0.6"
+                                    <label for="upload-setting-textDetBoxThresh"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Box Threshold</label>
+                                    <input type="number" id="upload-setting-textDetBoxThresh" step="0.1" min="0"
+                                        value="0.6"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-textDetUnclipRatio" style="color: #e0e0e0; font-size: 0.8em;">Expansion Coeff</label>
-                                    <input type="number" id="upload-setting-textDetUnclipRatio" step="0.1" min="0" value="1.5"
+                                    <label for="upload-setting-textDetUnclipRatio"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Expansion Coeff</label>
+                                    <input type="number" id="upload-setting-textDetUnclipRatio" step="0.1" min="0"
+                                        value="1.5"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-textRecScoreThresh" style="color: #e0e0e0; font-size: 0.8em;">Recognition Threshold</label>
-                                    <input type="number" id="upload-setting-textRecScoreThresh" step="0.1" min="0" value="0.0"
+                                    <label for="upload-setting-textRecScoreThresh"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Recognition Threshold</label>
+                                    <input type="number" id="upload-setting-textRecScoreThresh" step="0.1" min="0"
+                                        value="0.0"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                             </div>
@@ -5008,14 +5048,17 @@
                         <!-- Seal Detection Settings -->
                         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #333;">
                             <h4 style="color: #e0e0e0; margin-bottom: 10px; font-size: 0.9em;">🔖 Seal Detection</h4>
-                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+                            <div
+                                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-sealDetLimitSideLen" style="color: #e0e0e0; font-size: 0.8em;">Side Length Limit</label>
+                                    <label for="upload-setting-sealDetLimitSideLen"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Side Length Limit</label>
                                     <input type="number" id="upload-setting-sealDetLimitSideLen" min="1" value="736"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-sealDetLimitType" style="color: #e0e0e0; font-size: 0.8em;">Limit Type</label>
+                                    <label for="upload-setting-sealDetLimitType"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Limit Type</label>
                                     <select id="upload-setting-sealDetLimitType"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                         <option value="min">Min</option>
@@ -5023,23 +5066,31 @@
                                     </select>
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-sealDetThresh" style="color: #e0e0e0; font-size: 0.8em;">Pixel Threshold</label>
-                                    <input type="number" id="upload-setting-sealDetThresh" step="0.1" min="0" value="0.2"
+                                    <label for="upload-setting-sealDetThresh"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Pixel Threshold</label>
+                                    <input type="number" id="upload-setting-sealDetThresh" step="0.1" min="0"
+                                        value="0.2"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-sealDetBoxThresh" style="color: #e0e0e0; font-size: 0.8em;">Box Threshold</label>
-                                    <input type="number" id="upload-setting-sealDetBoxThresh" step="0.1" min="0" value="0.6"
+                                    <label for="upload-setting-sealDetBoxThresh"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Box Threshold</label>
+                                    <input type="number" id="upload-setting-sealDetBoxThresh" step="0.1" min="0"
+                                        value="0.6"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-sealDetUnclipRatio" style="color: #e0e0e0; font-size: 0.8em;">Expansion Coeff</label>
-                                    <input type="number" id="upload-setting-sealDetUnclipRatio" step="0.1" min="0" value="0.5"
+                                    <label for="upload-setting-sealDetUnclipRatio"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Expansion Coeff</label>
+                                    <input type="number" id="upload-setting-sealDetUnclipRatio" step="0.1" min="0"
+                                        value="0.5"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                                    <label for="upload-setting-sealRecScoreThresh" style="color: #e0e0e0; font-size: 0.8em;">Recognition Threshold</label>
-                                    <input type="number" id="upload-setting-sealRecScoreThresh" step="0.1" min="0" value="0.0"
+                                    <label for="upload-setting-sealRecScoreThresh"
+                                        style="color: #e0e0e0; font-size: 0.8em;">Recognition Threshold</label>
+                                    <input type="number" id="upload-setting-sealRecScoreThresh" step="0.1" min="0"
+                                        value="0.0"
                                         style="padding: 4px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; font-size: 0.85em;">
                                 </div>
                             </div>
@@ -5143,8 +5194,8 @@
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <input type="checkbox" id="setting-useDocUnwarping"
                                 style="width: 18px; height: 18px; cursor: pointer;">
-                            <label for="setting-useDocUnwarping"
-                                style="color: #e0e0e0; cursor: pointer;">Image Distortion Correction</label>
+                            <label for="setting-useDocUnwarping" style="color: #e0e0e0; cursor: pointer;">Image
+                                Distortion Correction</label>
                         </div>
                         <div style="display: flex; align-items: center; gap: 10px;">
                             <input type="checkbox" id="setting-visualize"
@@ -5156,42 +5207,57 @@
 
                     <!-- Table Recognition Advanced Settings -->
                     <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #333;">
-                        <h3 style="color: #e0e0e0; margin-bottom: 15px; font-size: 1em;">📊 Table Recognition Advanced</h3>
-                        <div style="background: #2a1f0e; border-left: 3px solid #ff9800; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
+                        <h3 style="color: #e0e0e0; margin-bottom: 15px; font-size: 1em;">📊 Table Recognition Advanced
+                        </h3>
+                        <div
+                            style="background: #2a1f0e; border-left: 3px solid #ff9800; padding: 10px; margin-bottom: 15px; border-radius: 4px;">
                             <p style="color: #ff9800; margin: 0; font-size: 0.85em;">
-                                ⚠️ <strong>Warning:</strong> Enabling "Wired/Wireless Table to HTML" or "End-to-End Table" modes may cause images in table cells to be lost. Keep these disabled if you need product images.
+                                ⚠️ <strong>Warning:</strong> Enabling "Wired/Wireless Table to HTML" or "End-to-End
+                                Table" modes may cause images in table cells to be lost. Keep these disabled if you need
+                                product images.
                             </p>
                         </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="setting-useWiredTableCellsTransToHtml"
                                     style="width: 18px; height: 18px; cursor: pointer;">
-                                <label for="setting-useWiredTableCellsTransToHtml" style="color: #e0e0e0; cursor: pointer;">Wired Table to HTML <span style="color: #ff9800; font-size: 0.85em;">⚠️ May lose images</span></label>
+                                <label for="setting-useWiredTableCellsTransToHtml"
+                                    style="color: #e0e0e0; cursor: pointer;">Wired Table to HTML <span
+                                        style="color: #ff9800; font-size: 0.85em;">⚠️ May lose images</span></label>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="setting-useWirelessTableCellsTransToHtml"
                                     style="width: 18px; height: 18px; cursor: pointer;">
-                                <label for="setting-useWirelessTableCellsTransToHtml" style="color: #e0e0e0; cursor: pointer;">Wireless Table to HTML <span style="color: #ff9800; font-size: 0.85em;">⚠️ May lose images</span></label>
+                                <label for="setting-useWirelessTableCellsTransToHtml"
+                                    style="color: #e0e0e0; cursor: pointer;">Wireless Table to HTML <span
+                                        style="color: #ff9800; font-size: 0.85em;">⚠️ May lose images</span></label>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="setting-useTableOrientationClassify"
                                     style="width: 18px; height: 18px; cursor: pointer;">
-                                <label for="setting-useTableOrientationClassify" style="color: #e0e0e0; cursor: pointer;">Table Orientation Correction</label>
+                                <label for="setting-useTableOrientationClassify"
+                                    style="color: #e0e0e0; cursor: pointer;">Table Orientation Correction</label>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="setting-useOcrResultsWithTableCells"
                                     style="width: 18px; height: 18px; cursor: pointer;">
-                                <label for="setting-useOcrResultsWithTableCells" style="color: #e0e0e0; cursor: pointer;">Cell-by-Cell Recognition</label>
+                                <label for="setting-useOcrResultsWithTableCells"
+                                    style="color: #e0e0e0; cursor: pointer;">Cell-by-Cell Recognition</label>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="setting-useE2eWiredTableRecModel"
                                     style="width: 18px; height: 18px; cursor: pointer;">
-                                <label for="setting-useE2eWiredTableRecModel" style="color: #e0e0e0; cursor: pointer;">End-to-End Wired Table <span style="color: #ff9800; font-size: 0.85em;">⚠️ May lose images</span></label>
+                                <label for="setting-useE2eWiredTableRecModel"
+                                    style="color: #e0e0e0; cursor: pointer;">End-to-End Wired Table <span
+                                        style="color: #ff9800; font-size: 0.85em;">⚠️ May lose images</span></label>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="setting-useE2eWirelessTableRecModel"
                                     style="width: 18px; height: 18px; cursor: pointer;">
-                                <label for="setting-useE2eWirelessTableRecModel" style="color: #e0e0e0; cursor: pointer;">End-to-End Wireless Table <span style="color: #ff9800; font-size: 0.85em;">⚠️ May lose images</span></label>
+                                <label for="setting-useE2eWirelessTableRecModel"
+                                    style="color: #e0e0e0; cursor: pointer;">End-to-End Wireless Table <span
+                                        style="color: #ff9800; font-size: 0.85em;">⚠️ May lose images</span></label>
                             </div>
                         </div>
                     </div>
@@ -5199,24 +5265,29 @@
                     <!-- Layout Detection Settings -->
                     <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #333;">
                         <h3 style="color: #e0e0e0; margin-bottom: 15px; font-size: 1em;">📐 Layout Detection</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-layoutThreshold" style="color: #e0e0e0; font-size: 0.9em;">Layout Threshold (0-1)</label>
+                                <label for="setting-layoutThreshold" style="color: #e0e0e0; font-size: 0.9em;">Layout
+                                    Threshold (0-1)</label>
                                 <input type="number" id="setting-layoutThreshold" step="0.1" min="0" max="1" value="0.5"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <input type="checkbox" id="setting-layoutNms"
                                     style="width: 18px; height: 18px; cursor: pointer;">
-                                <label for="setting-layoutNms" style="color: #e0e0e0; cursor: pointer;">NMS Postprocessing</label>
+                                <label for="setting-layoutNms" style="color: #e0e0e0; cursor: pointer;">NMS
+                                    Postprocessing</label>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-layoutUnclipRatio" style="color: #e0e0e0; font-size: 0.9em;">Expansion Coefficient</label>
+                                <label for="setting-layoutUnclipRatio"
+                                    style="color: #e0e0e0; font-size: 0.9em;">Expansion Coefficient</label>
                                 <input type="number" id="setting-layoutUnclipRatio" step="0.1" min="0" value="1.0"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-layoutMergeBboxesMode" style="color: #e0e0e0; font-size: 0.9em;">Overlapping Box Filtering</label>
+                                <label for="setting-layoutMergeBboxesMode"
+                                    style="color: #e0e0e0; font-size: 0.9em;">Overlapping Box Filtering</label>
                                 <select id="setting-layoutMergeBboxesMode"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                                     <option value="large">Large (Keep Largest)</option>
@@ -5230,14 +5301,17 @@
                     <!-- Text Detection Settings -->
                     <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #333;">
                         <h3 style="color: #e0e0e0; margin-bottom: 15px; font-size: 1em;">🔤 Text Detection</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-textDetLimitSideLen" style="color: #e0e0e0; font-size: 0.9em;">Image Side Length Limit</label>
+                                <label for="setting-textDetLimitSideLen" style="color: #e0e0e0; font-size: 0.9em;">Image
+                                    Side Length Limit</label>
                                 <input type="number" id="setting-textDetLimitSideLen" min="1" value="64"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-textDetLimitType" style="color: #e0e0e0; font-size: 0.9em;">Side Length Limit Type</label>
+                                <label for="setting-textDetLimitType" style="color: #e0e0e0; font-size: 0.9em;">Side
+                                    Length Limit Type</label>
                                 <select id="setting-textDetLimitType"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                                     <option value="min">Min (Shortest Side)</option>
@@ -5245,22 +5319,26 @@
                                 </select>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-textDetThresh" style="color: #e0e0e0; font-size: 0.9em;">Pixel Threshold</label>
+                                <label for="setting-textDetThresh" style="color: #e0e0e0; font-size: 0.9em;">Pixel
+                                    Threshold</label>
                                 <input type="number" id="setting-textDetThresh" step="0.1" min="0" value="0.3"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-textDetBoxThresh" style="color: #e0e0e0; font-size: 0.9em;">Box Threshold</label>
+                                <label for="setting-textDetBoxThresh" style="color: #e0e0e0; font-size: 0.9em;">Box
+                                    Threshold</label>
                                 <input type="number" id="setting-textDetBoxThresh" step="0.1" min="0" value="0.6"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-textDetUnclipRatio" style="color: #e0e0e0; font-size: 0.9em;">Expansion Coefficient</label>
+                                <label for="setting-textDetUnclipRatio"
+                                    style="color: #e0e0e0; font-size: 0.9em;">Expansion Coefficient</label>
                                 <input type="number" id="setting-textDetUnclipRatio" step="0.1" min="0" value="1.5"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-textRecScoreThresh" style="color: #e0e0e0; font-size: 0.9em;">Recognition Score Threshold</label>
+                                <label for="setting-textRecScoreThresh"
+                                    style="color: #e0e0e0; font-size: 0.9em;">Recognition Score Threshold</label>
                                 <input type="number" id="setting-textRecScoreThresh" step="0.1" min="0" value="0.0"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
@@ -5270,14 +5348,17 @@
                     <!-- Seal Detection Settings -->
                     <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #333;">
                         <h3 style="color: #e0e0e0; margin-bottom: 15px; font-size: 1em;">🔖 Seal Detection</h3>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-sealDetLimitSideLen" style="color: #e0e0e0; font-size: 0.9em;">Image Side Length Limit</label>
+                                <label for="setting-sealDetLimitSideLen" style="color: #e0e0e0; font-size: 0.9em;">Image
+                                    Side Length Limit</label>
                                 <input type="number" id="setting-sealDetLimitSideLen" min="1" value="736"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-sealDetLimitType" style="color: #e0e0e0; font-size: 0.9em;">Side Length Limit Type</label>
+                                <label for="setting-sealDetLimitType" style="color: #e0e0e0; font-size: 0.9em;">Side
+                                    Length Limit Type</label>
                                 <select id="setting-sealDetLimitType"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                                     <option value="min">Min (Shortest Side)</option>
@@ -5285,22 +5366,26 @@
                                 </select>
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-sealDetThresh" style="color: #e0e0e0; font-size: 0.9em;">Pixel Threshold</label>
+                                <label for="setting-sealDetThresh" style="color: #e0e0e0; font-size: 0.9em;">Pixel
+                                    Threshold</label>
                                 <input type="number" id="setting-sealDetThresh" step="0.1" min="0" value="0.2"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-sealDetBoxThresh" style="color: #e0e0e0; font-size: 0.9em;">Box Threshold</label>
+                                <label for="setting-sealDetBoxThresh" style="color: #e0e0e0; font-size: 0.9em;">Box
+                                    Threshold</label>
                                 <input type="number" id="setting-sealDetBoxThresh" step="0.1" min="0" value="0.6"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-sealDetUnclipRatio" style="color: #e0e0e0; font-size: 0.9em;">Expansion Coefficient</label>
+                                <label for="setting-sealDetUnclipRatio"
+                                    style="color: #e0e0e0; font-size: 0.9em;">Expansion Coefficient</label>
                                 <input type="number" id="setting-sealDetUnclipRatio" step="0.1" min="0" value="0.5"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
                             <div style="display: flex; flex-direction: column; gap: 5px;">
-                                <label for="setting-sealRecScoreThresh" style="color: #e0e0e0; font-size: 0.9em;">Recognition Score Threshold</label>
+                                <label for="setting-sealRecScoreThresh"
+                                    style="color: #e0e0e0; font-size: 0.9em;">Recognition Score Threshold</label>
                                 <input type="number" id="setting-sealRecScoreThresh" step="0.1" min="0" value="0.0"
                                     style="padding: 6px; border-radius: 4px; border: 1px solid #555; background: #2a2a2a; color: #e0e0e0; width: 100%;">
                             </div>
@@ -5445,13 +5530,19 @@
 
                 <!-- Action Buttons -->
                 <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                    <button id="generateFromBOQBtn" class="btn btn-primary" onclick="if(typeof window.generateFromBOQ==='function'){window.generateFromBOQ();}else{alert('Function loading... Please refresh.');}" style="flex: 1; min-width: 180px;">
+                    <button id="generateFromBOQBtn" class="btn btn-primary"
+                        onclick="if(typeof window.generateFromBOQ==='function'){window.generateFromBOQ();}else{alert('Function loading... Please refresh.');}"
+                        style="flex: 1; min-width: 180px;">
                         📋 Generate from BOQ
                     </button>
-                    <button id="createNewBOQBtn" class="btn btn-success" onclick="if(typeof window.createNewBOQ==='function'){window.createNewBOQ();}else{alert('Function loading... Please refresh.');}" style="flex: 1; min-width: 180px;">
+                    <button id="createNewBOQBtn" class="btn btn-success"
+                        onclick="if(typeof window.createNewBOQ==='function'){window.createNewBOQ();}else{alert('Function loading... Please refresh.');}"
+                        style="flex: 1; min-width: 180px;">
                         ➕ Create New BOQ
                     </button>
-                    <button id="openAddBrandModalBtn" class="btn btn-secondary" onclick="if(typeof window.openAddBrandModal==='function'){window.openAddBrandModal();}else{alert('Function loading... Please refresh.');}" style="flex: 1; min-width: 180px;">
+                    <button id="openAddBrandModalBtn" class="btn btn-secondary"
+                        onclick="if(typeof window.openAddBrandModal==='function'){window.openAddBrandModal();}else{alert('Function loading... Please refresh.');}"
+                        style="flex: 1; min-width: 180px;">
                         ➕ Add Brand
                     </button>
                 </div>
@@ -5459,15 +5550,18 @@
                 <!-- Budget Tier Tabs -->
                 <div class="budget-tabs"
                     style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #1a365d;">
-                    <button id="budgetaryTab" class="budget-tab active" data-tier="budgetary" onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('budgetary');}else{console.error('switchBudgetTab not found');}"
+                    <button id="budgetaryTab" class="budget-tab active" data-tier="budgetary"
+                        onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('budgetary');}else{console.error('switchBudgetTab not found');}"
                         style="flex: 1; padding: 12px 20px; background: #1a365d; color: #d4af37; border: none; border-bottom: 3px solid #d4af37; cursor: pointer; font-weight: bold; transition: all 0.3s;">
                         💰 Budgetary
                     </button>
-                    <button id="midRangeTab" class="budget-tab" data-tier="mid_range" onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('mid_range');}else{console.error('switchBudgetTab not found');}"
+                    <button id="midRangeTab" class="budget-tab" data-tier="mid_range"
+                        onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('mid_range');}else{console.error('switchBudgetTab not found');}"
                         style="flex: 1; padding: 12px 20px; background: #2d4a6b; color: #e0e0e0; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: bold; transition: all 0.3s;">
                         ⭐ Mid-Range
                     </button>
-                    <button id="highEndTab" class="budget-tab" data-tier="high_end" onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('high_end');}else{console.error('switchBudgetTab not found');}"
+                    <button id="highEndTab" class="budget-tab" data-tier="high_end"
+                        onclick="if(typeof window.switchBudgetTab==='function'){window.switchBudgetTab('high_end');}else{console.error('switchBudgetTab not found');}"
                         style="flex: 1; padding: 12px 20px; background: #2d4a6b; color: #e0e0e0; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-weight: bold; transition: all 0.3s;">
                         👑 High-End
                     </button>
@@ -5673,16 +5767,7 @@
                         <p style="color: #94a3b8; margin-bottom: 20px; font-size: 0.9em;">Download or upload brand
                             database as Excel for manual editing.</p>
 
-                        <!-- Brand Selection for Download/Upload -->
-                        <div style="margin-bottom: 20px;">
-                            <label style="display: block; color: #e0e0e0; margin-bottom: 8px; font-weight: bold;">Select
-                                Brand</label>
-                            <select id="dbBrandSelect"
-                                style="width: 100%; padding: 12px; border: 1px solid #475569; border-radius: 6px; background: #0f172a; color: #e0e0e0; font-size: 14px;">
-                                <option value="">-- Select Brand --</option>
-                            </select>
-                        </div>
-
+                        <!-- Budget Tier Selection (moved to top) -->
                         <div style="margin-bottom: 20px;">
                             <label style="display: block; color: #e0e0e0; margin-bottom: 8px; font-weight: bold;">Budget
                                 Tier</label>
@@ -5691,6 +5776,16 @@
                                 <option value="budgetary">💰 Budgetary</option>
                                 <option value="mid_range" selected>⭐ Mid-Range</option>
                                 <option value="high_end">👑 High-End</option>
+                            </select>
+                        </div>
+
+                        <!-- Brand Selection for Download/Upload (moved below tier) -->
+                        <div style="margin-bottom: 20px;">
+                            <label style="display: block; color: #e0e0e0; margin-bottom: 8px; font-weight: bold;">Select
+                                Brand</label>
+                            <select id="dbBrandSelect"
+                                style="width: 100%; padding: 12px; border: 1px solid #475569; border-radius: 6px; background: #0f172a; color: #e0e0e0; font-size: 14px;">
+                                <option value="">-- Select Brand --</option>
                             </select>
                         </div>
 
@@ -5706,9 +5801,12 @@
                         <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #475569;">
                             <label style="display: block; color: #e0e0e0; margin-bottom: 8px; font-weight: bold;">Upload
                                 Updated Excel File</label>
-                            <input type="file" id="dbFileUpload" accept=".xlsx,.xls"
-                                style="width: 100%; padding: 12px; border: 1px solid #475569; border-radius: 6px; background: #0f172a; color: #e0e0e0; font-size: 14px; margin-bottom: 15px;">
-                            <button type="button" onclick="uploadBrandDatabase()" class="btn btn-primary"
+                            <!-- Hidden file input -->
+                            <input type="file" id="dbFileUpload" accept=".xlsx,.xls" style="display: none;"
+                                onchange="uploadBrandDatabase()">
+                            <!-- Button triggers file input -->
+                            <button type="button" onclick="document.getElementById('dbFileUpload').click()"
+                                class="btn btn-primary"
                                 style="width: 100%; padding: 12px 24px; background: #3b82f6; color: white; font-weight: bold; cursor: pointer; border: none; border-radius: 6px;">
                                 📤 Upload Database (Excel)
                             </button>
@@ -6279,11 +6377,11 @@
                 // Ensure hero section is visible
                 heroSection.style.display = 'flex';
                 heroSection.style.visibility = 'visible';
-                
+
                 // Fade in with smooth transition
                 heroSection.style.opacity = '0';
                 heroSection.style.transition = 'opacity 0.6s ease-in';
-                
+
                 // Force reflow and then fade in
                 heroSection.offsetHeight; // Force reflow
                 setTimeout(() => {
@@ -7752,7 +7850,7 @@
             document.getElementById('setting-useDocOrientationClassify').checked = false;
             document.getElementById('setting-useDocUnwarping').checked = false;
             document.getElementById('setting-visualize').checked = false;
-            
+
             // Table Recognition Advanced
             document.getElementById('setting-useWiredTableCellsTransToHtml').checked = false;
             document.getElementById('setting-useWirelessTableCellsTransToHtml').checked = false;
@@ -7760,13 +7858,13 @@
             document.getElementById('setting-useOcrResultsWithTableCells').checked = false;
             document.getElementById('setting-useE2eWiredTableRecModel').checked = false;
             document.getElementById('setting-useE2eWirelessTableRecModel').checked = false;
-            
+
             // Layout Detection
             document.getElementById('setting-layoutThreshold').value = '0.5';
             document.getElementById('setting-layoutNms').checked = false;
             document.getElementById('setting-layoutUnclipRatio').value = '1.0';
             document.getElementById('setting-layoutMergeBboxesMode').value = 'large';
-            
+
             // Text Detection
             document.getElementById('setting-textDetLimitSideLen').value = '64';
             document.getElementById('setting-textDetLimitType').value = 'min';
@@ -7774,7 +7872,7 @@
             document.getElementById('setting-textDetBoxThresh').value = '0.6';
             document.getElementById('setting-textDetUnclipRatio').value = '1.5';
             document.getElementById('setting-textRecScoreThresh').value = '0.0';
-            
+
             // Seal Detection
             document.getElementById('setting-sealDetLimitSideLen').value = '736';
             document.getElementById('setting-sealDetLimitType').value = 'min';
@@ -7782,7 +7880,7 @@
             document.getElementById('setting-sealDetBoxThresh').value = '0.6';
             document.getElementById('setting-sealDetUnclipRatio').value = '0.5';
             document.getElementById('setting-sealRecScoreThresh').value = '0.0';
-            
+
             showAlert('Settings reset to defaults from example JSON', 'success');
         }
 
@@ -9935,7 +10033,7 @@
             // Check URL params to determine what to show
             const urlParams = new URLSearchParams(window.location.search);
             const showHero = urlParams.get('showHero') === 'true';
-            
+
             const heroSection = document.getElementById('heroSection');
             const mainAppContainer = document.getElementById('mainAppContainer');
             const cardsContainer = document.getElementById('cardsContainer');
@@ -10086,7 +10184,8 @@
 
         <!-- Footer with Home Button -->
         <div class="main-app-footer" style="text-align: center; padding: 40px 20px; margin-top: 60px;">
-            <button class="nav-home-btn" onclick="goToLandingPage()" style="background: #3b82f6; color: white; font-size: 1.1em; padding: 14px 32px;">
+            <button class="nav-home-btn" onclick="goToLandingPage()"
+                style="background: #3b82f6; color: white; font-size: 1.1em; padding: 14px 32px;">
                 🏠 Home
             </button>
         </div>
@@ -11967,19 +12066,19 @@
                     });
                     const priceIndex = headers.findIndex(th => {
                         const text = th.textContent.toLowerCase().trim();
-                        return (text.includes('price') || text.includes('rate')) && 
-                               !text.includes('total') && !text.includes('unit');
+                        return (text.includes('price') || text.includes('rate')) &&
+                            !text.includes('total') && !text.includes('unit');
                     });
 
                     if (qtyIndex >= 0 || priceIndex >= 0) {
                         const tbody = table.querySelector('tbody');
                         if (tbody) {
-                            tbody.addEventListener('input', function(e) {
+                            tbody.addEventListener('input', function (e) {
                                 const cell = e.target;
                                 if (cell.tagName === 'TD' && cell.contentEditable === 'true') {
                                     const row = cell.closest('tr');
                                     const cellIndex = Array.from(row.children).indexOf(cell);
-                                    
+
                                     // Check if this is Qty or Price cell
                                     if (cellIndex === qtyIndex || cellIndex === priceIndex) {
                                         calculateRowTotal(row, headers, Array.from(row.children));
@@ -11987,12 +12086,12 @@
                                 }
                             });
 
-                            tbody.addEventListener('blur', function(e) {
+                            tbody.addEventListener('blur', function (e) {
                                 const cell = e.target;
                                 if (cell.tagName === 'TD' && cell.contentEditable === 'true') {
                                     const row = cell.closest('tr');
                                     const cellIndex = Array.from(row.children).indexOf(cell);
-                                    
+
                                     // Check if this is Qty or Price cell
                                     if (cellIndex === qtyIndex || cellIndex === priceIndex) {
                                         calculateRowTotal(row, headers, Array.from(row.children));
@@ -12549,10 +12648,10 @@
                                 // Find and update Price cell
                                 const priceIndex = headers.findIndex(th => {
                                     const text = th.textContent.toLowerCase().trim();
-                                    return (text.includes('price') || text.includes('rate')) && 
-                                           !text.includes('total') && !text.includes('unit');
+                                    return (text.includes('price') || text.includes('rate')) &&
+                                        !text.includes('total') && !text.includes('unit');
                                 });
-                                
+
                                 if (priceIndex >= 0 && priceIndex < cells.length) {
                                     const priceCell = cells[priceIndex];
                                     if (price && price !== 'null' && price !== '') {
@@ -12588,14 +12687,14 @@
                                         descCell.innerHTML = '';
                                     }
                                 }
-                                
+
                                 // Clear Price cell if no model selected
                                 const priceIndex = headers.findIndex(th => {
                                     const text = th.textContent.toLowerCase().trim();
-                                    return (text.includes('price') || text.includes('rate')) && 
-                                           !text.includes('total') && !text.includes('unit');
+                                    return (text.includes('price') || text.includes('rate')) &&
+                                        !text.includes('total') && !text.includes('unit');
                                 });
-                                
+
                                 if (priceIndex >= 0 && priceIndex < cells.length) {
                                     const priceCell = cells[priceIndex];
                                     priceCell.textContent = '';
@@ -12636,13 +12735,13 @@
                 const text = th.textContent.toLowerCase().trim();
                 return (text.includes('qty') || text.includes('quantity')) && !text.includes('unit');
             });
-            
+
             const priceIndex = headers.findIndex(th => {
                 const text = th.textContent.toLowerCase().trim();
-                return (text.includes('price') || text.includes('rate')) && 
-                       !text.includes('total') && !text.includes('unit');
+                return (text.includes('price') || text.includes('rate')) &&
+                    !text.includes('total') && !text.includes('unit');
             });
-            
+
             const totalIndex = headers.findIndex(th => {
                 const text = th.textContent.toLowerCase().trim();
                 return text.includes('total') || text.includes('amount');
@@ -12651,12 +12750,12 @@
             // Get values
             let qty = 0;
             let price = 0;
-            
+
             if (qtyIndex >= 0 && qtyIndex < cells.length) {
                 const qtyText = cells[qtyIndex].textContent.trim().replace(/[^0-9.-]/g, '');
                 qty = parseFloat(qtyText) || 0;
             }
-            
+
             if (priceIndex >= 0 && priceIndex < cells.length) {
                 const priceText = cells[priceIndex].textContent.trim().replace(/[^0-9.-]/g, '');
                 price = parseFloat(priceText) || 0;

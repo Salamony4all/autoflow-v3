@@ -144,13 +144,13 @@ class ItalianFurnitureScraper:
                 # Try English version first for English content
                 logger.info(f"Trying English URL: {english_website}")
                 soup = scraper.get_page(english_website, wait_for_selector='body', wait_time=10)
-            
-            if not soup:
-                if use_selenium and scraper:
-                    logger.warning("Failed to load English page, trying Italian...")
-                    logger.info(f"Loading Italian URL: {website}")
-                    soup = scraper.get_page(website, wait_for_selector='body', wait_time=10)
-                    english_website = website  # Use Italian URL for remaining requests
+                
+                if not soup:
+                    if use_selenium and scraper:
+                        logger.warning("Failed to load English page, trying Italian...")
+                        logger.info(f"Loading Italian URL: {website}")
+                        soup = scraper.get_page(website, wait_for_selector='body', wait_time=10)
+                        english_website = website  # Use Italian URL for remaining requests
                 else:
                     # Already tried requests, no soup means failure
                     logger.error("Failed to load page with requests")
@@ -177,7 +177,7 @@ class ItalianFurnitureScraper:
                 time.sleep(2)
                 
                 # Refresh soup after scrolling
-                soup = BeautifulSoup(scraper.driver.page_source, 'html.parser')
+            soup = BeautifulSoup(scraper.driver.page_source, 'html.parser')
             
             # Find category links (use the website URL that actually worked)
             category_links = self._find_category_links(soup, website)
@@ -583,7 +583,7 @@ class ItalianFurnitureScraper:
         except Exception as e:
             logger.debug(f"Error extracting product data from {product_url}: {e}")
             return None
-    
+
     def _scrape_product_page_requests(self, soup: BeautifulSoup, product_url: str, category: str, brand_name: str) -> Optional[Dict]:
         """Scrape individual product page using requests (no Selenium)"""
         try:

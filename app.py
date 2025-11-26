@@ -996,6 +996,9 @@ def extract_table(file_id):
             os.makedirs(images_dir, exist_ok=True)
 
             # Download and save images from API response
+            # Track successfully downloaded images
+            successfully_downloaded_images = {}
+            
             for i, res in enumerate(result.get("layoutParsingResults", [])):
                 # Save markdown
                 md_filename = os.path.join(output_dir, f"doc_{i}.md")
@@ -1005,60 +1008,115 @@ def extract_table(file_id):
                 markdown_text = markdown_data.get("text", "")
                 images_dict = markdown_data.get("images", {})
                 
+                logger.info(f'Page {i+1}: Found {len(images_dict)} images to download')
+                
                 # Download images and replace URLs with local paths
                 for img_path, img_url in images_dict.items():
-                    try:
-                        img_response = requests.get(img_url, timeout=30)
-                        if img_response.status_code == 200:
-                            # Save image locally
-                            local_img_path = os.path.join(images_dir, os.path.basename(img_path))
-                            with open(local_img_path, 'wb') as img_file:
-                                img_file.write(img_response.content)
+                    # Skip if already downloaded
+                    if img_path in successfully_downloaded_images:
+                        logger.info(f'Image already downloaded: {img_path}')
+                        continue
+                    
+                    # Retry logic for image downloads
+                    max_retries = 3
+                    download_success = False
+                    
+                    for attempt in range(max_retries):
+                        try:
+                            # Increase timeout to 60 seconds for large images
+                            logger.info(f'Downloading image (attempt {attempt + 1}/{max_retries}): {img_url}')
+                            img_response = requests.get(img_url, timeout=60, stream=True)
                             
-                            # Create URL-safe path for serving
-                            relative_img_path = f"imgs/{os.path.basename(img_path)}"
-                            local_url = url_for('serve_output', session_id=session_id, filename=f"{file_id}/{relative_img_path}")
-                            
-                            # Replace remote URL with local URL in markdown
-                            markdown_text = markdown_text.replace(img_path, local_url)
-                            
-                            logger.info(f'Downloaded image: {img_path} -> {local_img_path}')
-                        else:
-                            logger.warning(f'Failed to download image {img_url}: HTTP {img_response.status_code}')
-                    except requests.exceptions.Timeout:
-                        logger.warning(f'Image download timeout for {img_url}')
-                    except requests.exceptions.ConnectionError:
-                        logger.warning(f'Image download connection error for {img_url}')
-                    except Exception as e:
-                        logger.error(f'Failed to download image {img_url}: {str(e)}')
+                            if img_response.status_code == 200:
+                                # Save image locally
+                                local_img_path = os.path.join(images_dir, os.path.basename(img_path))
+                                with open(local_img_path, 'wb') as img_file:
+                                    # Write in chunks to handle large images
+                                    for chunk in img_response.iter_content(chunk_size=8192):
+                                        if chunk:
+                                            img_file.write(chunk)
+                                
+                                # Verify file was saved
+                                if os.path.exists(local_img_path) and os.path.getsize(local_img_path) > 0:
+                                    # Create URL-safe path for serving
+                                    relative_img_path = f"imgs/{os.path.basename(img_path)}"
+                                    local_url = url_for('serve_output', session_id=session_id, filename=f"{file_id}/{relative_img_path}")
+                                    
+                                    # Track successful download
+                                    successfully_downloaded_images[img_path] = local_url
+                                    
+                                    # Replace remote URL with local URL in markdown
+                                    markdown_text = markdown_text.replace(img_path, local_url)
+                                    
+                                    logger.info(f'✓ Downloaded image: {img_path} -> {local_img_path} ({os.path.getsize(local_img_path)} bytes)')
+                                    download_success = True
+                                    break
+                                else:
+                                    logger.warning(f'Image file is empty or not saved: {local_img_path}')
+                            else:
+                                logger.warning(f'Failed to download image {img_url}: HTTP {img_response.status_code}')
+                                if attempt < max_retries - 1:
+                                    time.sleep(1)  # Wait before retry
+                                    continue
+                        except requests.exceptions.Timeout:
+                            logger.warning(f'Image download timeout for {img_url} (attempt {attempt + 1}/{max_retries})')
+                            if attempt < max_retries - 1:
+                                time.sleep(2)  # Wait before retry
+                                continue
+                        except requests.exceptions.ConnectionError as ce:
+                            logger.warning(f'Image download connection error for {img_url}: {ce}')
+                            if attempt < max_retries - 1:
+                                time.sleep(2)  # Wait before retry
+                                continue
+                        except Exception as e:
+                            logger.error(f'Failed to download image {img_url}: {str(e)}')
+                            if attempt < max_retries - 1:
+                                time.sleep(1)  # Wait before retry
+                                continue
+                    
+                    if not download_success:
+                        logger.error(f'✗ Failed to download image after {max_retries} attempts: {img_url}')
                 
                 # Also update block_content in prunedResult if it exists
+                # ONLY replace URLs for successfully downloaded images
                 pruned_result = res.get("prunedResult", {})
                 parsing_res_list = pruned_result.get("parsing_res_list", [])
                 for block in parsing_res_list:
                     if block.get("block_content"):
                         block_content = block["block_content"]
-                        # Replace image paths in block content
-                        for img_path, img_url in images_dict.items():
-                            relative_img_path = f"imgs/{os.path.basename(img_path)}"
-                            local_url = url_for('serve_output', session_id=session_id, filename=f"{file_id}/{relative_img_path}")
+                        # Replace image paths in block content - ONLY for successfully downloaded images
+                        for img_path, local_url in successfully_downloaded_images.items():
+                            # Replace both the path and any remote URLs
                             block_content = block_content.replace(img_path, local_url)
+                            # Also try to replace the remote URL if it exists
+                            if img_path in images_dict:
+                                remote_url = images_dict[img_path]
+                                block_content = block_content.replace(remote_url, local_url)
                         block["block_content"] = block_content
                 
                 # Save updated markdown with UTF-8 encoding to handle Unicode characters
                 with open(md_filename, "w", encoding='utf-8') as md_file:
                     md_file.write(markdown_text)
 
+            # Log image download summary
+            total_images_found = len(images_dict) if 'images_dict' in locals() else 0
+            images_downloaded = len(successfully_downloaded_images)
+            logger.info(f'Image download summary: {images_downloaded}/{total_images_found} images downloaded successfully')
+
             # Update file status
             file_info['status'] = 'extracted'
             file_info['extraction_result'] = result
             file_info['output_dir'] = output_dir
+            file_info['images_downloaded'] = images_downloaded
+            file_info['total_images'] = total_images_found
             session.modified = True
 
             return jsonify({
                 'success': True,
                 'result': result,
-                'message': 'Extraction completed successfully'
+                'message': f'Extraction completed successfully. Downloaded {images_downloaded}/{total_images_found} images.',
+                'images_downloaded': images_downloaded,
+                'total_images': total_images_found
             })
         else:
             # Try to parse body for helpful details
@@ -2547,14 +2605,17 @@ def add_brand():
 
 @app.route('/api/brands/scrape-and-add', methods=['POST'])
 def scrape_and_add_brand():
-    """Scrape a brand's website and add it to the database (supports Universal and Firecrawl)"""
+    """
+    Unified scraper: Always uses Requests with automatic Selenium fallback
+    Supports: Requests (default) → Selenium fallback, Firecrawl (optional)
+    """
     try:
         data = request.get_json()
         brand_name = data.get('brand_name')
         website = data.get('website')
         country = data.get('country', 'Unknown')
         tier = data.get('tier', 'mid_range')
-        scraping_method = data.get('scraping_method', 'universal')
+        scraping_method = data.get('scraping_method', 'requests')  # Default to 'requests'
         crawl_limit = data.get('crawl_limit', 50)
         
         logger.info(f"Received scrape request data: {data}")
@@ -2563,24 +2624,26 @@ def scrape_and_add_brand():
             return jsonify({'error': 'Brand name and website are required'}), 400
         
         logger.info(f"🔍 SCRAPING METHOD: {scraping_method.upper()}")
-        logger.info(f"Starting {scraping_method} scrape for {brand_name} ({website})")
+        logger.info(f"Starting unified scrape for {brand_name} ({website})")
         
-        # Check if this is an Architonic URL first (use specialized scraper)
-        from utils.architonic_scraper import ArchitonicScraper
-        from utils.italian_furniture_scraper import ItalianFurnitureScraper
-        
-        # Respect the scraping method choice - only use Selenium if not 'requests'
-        use_selenium = scraping_method != 'requests'
+        # Check Selenium availability
         try:
             from utils.selenium_scraper import SELENIUM_AVAILABLE
         except ImportError:
             SELENIUM_AVAILABLE = False
         
+        # PRIORITY: Check if this is an Architonic URL first (use specialized scraper)
+        from utils.architonic_scraper import ArchitonicScraper
+        use_selenium = scraping_method != 'requests'
         architonic_scraper = ArchitonicScraper(use_selenium=use_selenium and SELENIUM_AVAILABLE)
-        italian_scraper = ItalianFurnitureScraper()
         
-        if architonic_scraper.is_architonic_url(website):
-            logger.info(f"🏛️ Detected Architonic URL - Using specialized ArchitonicScraper (Selenium: {architonic_scraper.use_selenium})")
+        is_architonic = architonic_scraper.is_architonic_url(website)
+        logger.info(f"🔍 Architonic URL check: {website} → is_architonic={is_architonic}")
+        
+        if is_architonic:
+            method_used = "Selenium" if architonic_scraper.use_selenium else "Requests"
+            logger.info(f"🏛️ Detected Architonic URL - Using specialized ArchitonicScraper")
+            logger.info(f"   📋 Scraping Method: {scraping_method} → Using {method_used} for Architonic")
             scraped_data = architonic_scraper.scrape_collection(
                 url=website,
                 brand_name=brand_name
@@ -2588,25 +2651,110 @@ def scrape_and_add_brand():
             # Convert collections to category_tree format
             if 'collections' in scraped_data and not scraped_data.get('category_tree'):
                 scraped_data['category_tree'] = architonic_scraper._convert_collections_to_category_tree(scraped_data['collections'])
-        # Check if this is an Italian furniture manufacturer website
-        elif italian_scraper.is_italian_furniture_site(website):
-            logger.info(f"🇮🇹 Detected Italian Furniture Site - Using specialized ItalianFurnitureScraper")
-            # Don't limit Italian scraper - we want all categories and products for complete coverage
-            scraped_data = italian_scraper.scrape_brand_website(
-                website=website,
-                brand_name=brand_name,
-                limit=None  # No limit to ensure we get all 8 categories
-            )
-        # Choose scraper based on method
-        elif scraping_method == 'requests':
-            logger.info(f"🚀 Using RequestsBrandScraper (Recommended - no API limits)")
+        # UNIFIED SCRAPER: Requests with automatic Selenium fallback
+        elif scraping_method == 'requests' or scraping_method == 'universal':
+            logger.info(f"🚀 Using Unified Scraper (Requests → Selenium fallback)")
             from utils.requests_brand_scraper import RequestsBrandScraper
-            scraper = RequestsBrandScraper(delay=0.5)
+            scraper = RequestsBrandScraper(delay=0.5, fetch_descriptions=True)
             scraped_data = scraper.scrape_brand_website(
                 website=website,
                 brand_name=brand_name,
                 limit=crawl_limit
             )
+            
+            # Check if we should trigger Selenium fallback
+            # Trigger if: no products, error, or categories found but no products in them (JS-rendered)
+            total_products = scraped_data.get('total_products', 0)
+            category_tree = scraped_data.get('category_tree', {})
+            collections = scraped_data.get('collections', {})
+            requires_javascript = scraped_data.get('requires_javascript', False)
+            categories_found = scraped_data.get('categories_found', 0)
+            
+            logger.info(f"📊 Requests scraper results:")
+            logger.info(f"   - Success: {scraped_data.get('success')}")
+            logger.info(f"   - Total products: {total_products}")
+            logger.info(f"   - Category tree size: {len(category_tree)}")
+            logger.info(f"   - Collections size: {len(collections)}")
+            logger.info(f"   - Requires JavaScript: {requires_javascript}")
+            
+            # Check if categories exist but have no products (indicates JS-rendered content)
+            categories_with_products = 0
+            if category_tree:
+                for cat_data in category_tree.values():
+                    for subcat_data in cat_data.get('subcategories', {}).values():
+                        products = subcat_data.get('products', [])
+                        if products and len(products) > 0:
+                            categories_with_products += 1
+            elif collections:
+                for coll_data in collections.values():
+                    products = coll_data.get('products', [])
+                    if products and len(products) > 0:
+                        categories_with_products += 1
+            
+            # ALWAYS trigger fallback if:
+            # 1. total_products == 0 (no products found)
+            # 2. requires_javascript flag is set (site needs JS)
+            # 3. Categories found but have very few products (< 5 per category) - indicates JS-rendered content
+            # 4. Categories exist but categories_with_products == 0
+            # 5. Success but empty results
+            
+            # Calculate average products per category
+            avg_products_per_category = 0
+            if categories_found > 0:
+                avg_products_per_category = total_products / categories_found if categories_found > 0 else 0
+            
+            should_fallback = (
+                scraped_data.get('success') == False or 
+                total_products == 0 or  # PRIMARY CONDITION - always trigger if no products
+                'error' in scraped_data or
+                requires_javascript or  # If JS required, always use Selenium
+                # If categories found but very few products per category (< 5), likely JS-rendered
+                (categories_found > 0 and avg_products_per_category < 5 and requires_javascript) or
+                (categories_found > 0 and categories_with_products == 0) or
+                (len(category_tree) > 0 or len(collections) > 0) and categories_with_products == 0 or
+                # If requests scraper succeeded but found nothing, likely needs Selenium
+                (scraped_data.get('success') == True and total_products == 0 and len(category_tree) == 0 and len(collections) == 0)
+            )
+            
+            logger.info(f"🔍 Fallback check: should_fallback={should_fallback}")
+            logger.info(f"   - Average products per category: {avg_products_per_category:.1f}")
+            
+            if should_fallback:
+                logger.warning(f"⚠️  Requests scraper issues detected:")
+                logger.warning(f"   - Success: {scraped_data.get('success')}")
+                logger.warning(f"   - Total products: {total_products}")
+                logger.warning(f"   - Categories found: {len(category_tree) + len(collections)}")
+                logger.warning(f"   - Categories with products: {categories_with_products}")
+                logger.warning(f"   - Requires JavaScript: {requires_javascript}")
+                logger.warning(f"   - Category tree empty: {len(category_tree) == 0}")
+                logger.info(f"🔄 Attempting automatic fallback to Selenium scraper...")
+                logger.info(f"   ⏳ This may take 1-2 minutes for JavaScript-heavy sites like LAS.it...")
+                if SELENIUM_AVAILABLE:
+                    try:
+                        from utils.universal_brand_scraper import UniversalBrandScraper
+                        selenium_scraper = UniversalBrandScraper()
+                        logger.info(f"🌐 Loading page with Selenium (this may take a minute)...")
+                        selenium_data = selenium_scraper.scrape_brand_website(website, brand_name, use_selenium=True)
+                        
+                        # If Selenium found products or better structure, use that
+                        selenium_products = selenium_data.get('total_products', 0)
+                        selenium_collections = selenium_data.get('collections', {})
+                        selenium_category_tree = selenium_data.get('category_tree', {})
+                        
+                        if selenium_products > 0:
+                            logger.info(f"✅ Selenium fallback successful! Found {selenium_products} products across {len(selenium_collections) + len(selenium_category_tree)} collections")
+                            scraped_data = selenium_data
+                        elif len(selenium_collections) > 0 or len(selenium_category_tree) > 0:
+                            logger.info(f"✅ Selenium found {len(selenium_collections) + len(selenium_category_tree)} categories (products may require additional scraping)")
+                            scraped_data = selenium_data
+                        else:
+                            logger.warning(f"⚠️  Selenium fallback also returned no categories/products")
+                    except Exception as e:
+                        logger.error(f"❌ Selenium fallback failed: {e}")
+                        import traceback
+                        logger.error(traceback.format_exc())
+                else:
+                    logger.warning("⚠️  Selenium not available for fallback. Install Selenium for JavaScript-heavy sites: pip install selenium webdriver-manager")
         elif scraping_method == 'firecrawl':
             logger.info(f"🔥 Using FirecrawlBrandScraper (AI-powered, API limits)")
             from utils.firecrawl_brand_scraper import FirecrawlBrandScraper
@@ -2634,6 +2782,32 @@ def scrape_and_add_brand():
             brands_data = {'brands': []}
         
         # Handle both collections (old format) and category_tree (new format)
+        # Convert UniversalBrandScraper collections format to category_tree if needed
+        if scraped_data.get('collections') and not scraped_data.get('category_tree'):
+            # Convert collections format to category_tree format
+            category_tree = {}
+            collections = scraped_data.get('collections', {})
+            logger.info(f"Converting {len(collections)} collections to category_tree format...")
+            
+            for coll_name, coll_data in collections.items():
+                # Use category from coll_data, or fall back to coll_name if category not set
+                category = coll_data.get('category') or coll_name
+                subcategory = coll_data.get('subcategory') or 'General'
+                products = coll_data.get('products', [])
+                
+                logger.info(f"  Converting collection '{coll_name}': category='{category}', subcategory='{subcategory}', products={len(products)}")
+                
+                if category not in category_tree:
+                    category_tree[category] = {'subcategories': {}}
+                
+                if subcategory not in category_tree[category]['subcategories']:
+                    category_tree[category]['subcategories'][subcategory] = {'products': []}
+                
+                category_tree[category]['subcategories'][subcategory]['products'].extend(products)
+            
+            scraped_data['category_tree'] = category_tree
+            logger.info(f"✅ Converted collections format to category_tree: {len(category_tree)} categories with {scraped_data.get('total_products', 0)} total products")
+        
         categories_data = scraped_data.get('collections', {}) or scraped_data.get('category_tree', {})
         
         # Check if brand already exists
@@ -2714,8 +2888,9 @@ def _scrape_single_brand(brand_info):
         }
         tier = tier_map.get(tier.lower(), tier.lower())
         
-        from utils.brand_scraper import BrandScraper
-        scraper = BrandScraper()
+        # Use unified scraper (Requests → Selenium fallback)
+        from utils.requests_brand_scraper import RequestsBrandScraper
+        from utils.universal_brand_scraper import UniversalBrandScraper
         
         logger.info(f"[Parallel] Scraping {brand_name} ({website}) for tier {tier}")
         
@@ -2730,7 +2905,26 @@ def _scrape_single_brand(brand_info):
             logger.info(f"[Parallel] Scraping attempt {retry_count}/{max_retries} for {brand_name}")
             
             try:
-                scraped_data = scraper.scrape_brand_website(website, brand_name, use_selenium=True)
+                # Check if Architonic URL first
+                from utils.architonic_scraper import ArchitonicScraper
+                architonic_scraper = ArchitonicScraper(use_selenium=True)
+                
+                if architonic_scraper.is_architonic_url(website):
+                    logger.info(f"[Parallel] Using Architonic scraper for {brand_name}")
+                    scraped_data = architonic_scraper.scrape_collection(website, brand_name)
+                else:
+                    # Try Requests scraper first
+                    requests_scraper = RequestsBrandScraper(delay=0.5, fetch_descriptions=True)
+                    scraped_data = requests_scraper.scrape_brand_website(website, brand_name, limit=100)
+                    
+                    # Check if we need Selenium fallback
+                    total_products = scraped_data.get('total_products', 0)
+                    requires_javascript = scraped_data.get('requires_javascript', False)
+                    
+                    if total_products == 0 or requires_javascript:
+                        logger.info(f"[Parallel] Falling back to Selenium for {brand_name}")
+                        selenium_scraper = UniversalBrandScraper()
+                        scraped_data = selenium_scraper.scrape_brand_website(website, brand_name, use_selenium=True)
                 
                 if 'error' in scraped_data:
                     last_error = scraped_data['error']
@@ -2998,7 +3192,7 @@ def _scrape_single_brand(brand_info):
                 organized_data['categories'][category][subcategory].append(model_entry)
         
         # Save to brands_data folder as separate JSON file
-        filepath = scraper.save_brand_data(organized_data, tier, output_dir='brands_data')
+        filepath = save_brand_data_to_file(organized_data, tier, output_dir='brands_data')
         
         # Count total products
         if is_collections_format:
@@ -3255,55 +3449,589 @@ def download_brand_excel():
         
         # Prepare data for Excel - flatten structure
         rows = []
+        
+        # Ensure brand_data is a dict
+        if not isinstance(brand_data, dict):
+            logger.error(f"Brand data is not a dictionary: {type(brand_data)}")
+            return jsonify({'error': 'Invalid brand data format'}), 500
+        
+        logger.info(f"Processing brand data for {brand} ({tier}). Available keys: {list(brand_data.keys())}")
+        
         categories_data = brand_data.get('categories', {})
         
-        for category_name, subcategories in categories_data.items():
-            for subcategory_name, models in subcategories.items():
-                for model in models:
+        # Handle different data structures
+        if not isinstance(categories_data, dict):
+            categories_data = {}
+        
+        # Log what we found
+        has_collections = 'collections' in brand_data and isinstance(brand_data.get('collections'), dict) and len(brand_data.get('collections', {})) > 0
+        has_category_tree = 'category_tree' in brand_data and isinstance(brand_data.get('category_tree'), dict) and len(brand_data.get('category_tree', {})) > 0
+        has_all_products = 'all_products' in brand_data and isinstance(brand_data.get('all_products'), list) and len(brand_data.get('all_products', [])) > 0
+        has_categories = isinstance(categories_data, dict) and len(categories_data) > 0
+        
+        logger.info(f"Data structure check - categories: {has_categories}, collections: {has_collections}, category_tree: {has_category_tree}, all_products: {has_all_products}")
+        
+        for category_name, category_info in categories_data.items():
+            # Handle case where category_info might not be a dict
+            if not isinstance(category_info, dict):
+                continue
+            
+            # Check if this category has products directly (Architonic format)
+            if 'products' in category_info:
+                products = category_info.get('products', [])
+                if isinstance(products, list):
+                    subcategory_name = category_info.get('subcategory') or 'General'
+                    # Clean category name (remove product count if present)
+                    clean_category_name = category_name.split('\n')[0].strip() if '\n' in category_name else category_name
+                    
+                    for product in products:
+                        if not isinstance(product, dict):
+                            logger.warning(f"Skipping non-dict product in category {category_name}: {type(product)}")
+                            continue
+                        
+                        # Safely extract product data
+                        model = ''
+                        if 'model' in product and product['model'] is not None:
+                            model = str(product['model'])
+                        elif 'name' in product and product['name'] is not None:
+                            model = str(product['name'])
+                        
+                        description = ''
+                        if 'description' in product and product['description'] is not None:
+                            description = str(product['description'])
+                        
+                        price = product.get('price') if 'price' in product else None
+                        price_range = product.get('price_range', 'Contact for price') if 'price_range' in product else 'Contact for price'
+                        product_id = str(product.get('product_id', '')) if 'product_id' in product else ''
+                        
+                        url = ''
+                        if 'source_url' in product and product['source_url']:
+                            url = str(product['source_url'])
+                        elif 'url' in product and product['url']:
+                            url = str(product['url'])
+                        
+                        image_url = str(product.get('image_url', '')) if 'image_url' in product else ''
+                        
+                        features = ''
+                        if 'features' in product:
+                            if isinstance(product['features'], list):
+                                features = ', '.join(str(f) for f in product['features'])
+                            elif product['features'] is not None:
+                                features = str(product['features'])
+                        
+                        rows.append({
+                            'Brand': brand_data.get('brand', brand),
+                            'Category': clean_category_name,
+                            'Sub-Category': subcategory_name if subcategory_name else 'General',
+                            'Model': model,
+                            'Price': price,
+                            'Price Range': price_range,
+                            'Description': description,
+                            'Product ID': product_id,
+                            'URL': url,
+                            'Image URL': image_url,
+                            'Features': features
+                        })
+                continue
+            
+            # Handle nested subcategories structure (legacy format)
+            # Skip metadata keys that are not subcategories
+            skip_keys = {'url', 'category', 'subcategory', 'product_count', 'products', 'category_tree', 'collections', 'all_products'}
+            
+            for subcategory_name, models in category_info.items():
+                # Skip metadata keys
+                if subcategory_name in skip_keys:
+                    continue
+                
+                # Skip non-dict/list values (like strings, numbers, etc.)
+                if not isinstance(models, (dict, list)):
+                    continue
+                
+                # If models is a list directly
+                if isinstance(models, list):
+                    for model in models:
+                        if not isinstance(model, dict):
+                            if isinstance(model, str):
+                                rows.append({
+                                    'Brand': brand_data.get('brand', brand),
+                                    'Category': category_name,
+                                    'Sub-Category': 'General',
+                                    'Model': model,
+                                    'Price': None,
+                                    'Price Range': 'Contact for price',
+                                    'Description': '',
+                                    'Product ID': '',
+                                    'URL': '',
+                                    'Image URL': '',
+                                    'Features': ''
+                                })
+                            continue
+                        
+                        # Safely extract model data
+                        model_name = ''
+                        if 'model' in model and model['model'] is not None:
+                            model_name = str(model['model'])
+                        elif 'name' in model and model['name'] is not None:
+                            model_name = str(model['name'])
+                        
+                        description = ''
+                        if 'description' in model and model['description'] is not None:
+                            description = str(model['description'])
+                        
+                        price = model.get('price') if 'price' in model else None
+                        price_range = model.get('price_range', 'Contact for price') if 'price_range' in model else 'Contact for price'
+                        product_id = str(model.get('product_id', '')) if 'product_id' in model else ''
+                        
+                        url = ''
+                        if 'source_url' in model and model['source_url']:
+                            url = str(model['source_url'])
+                        elif 'url' in model and model['url']:
+                            url = str(model['url'])
+                        
+                        image_url = str(model.get('image_url', '')) if 'image_url' in model else ''
+                        
+                        features = ''
+                        if 'features' in model:
+                            if isinstance(model['features'], list):
+                                features = ', '.join(str(f) for f in model['features'])
+                            elif model['features'] is not None:
+                                features = str(model['features'])
+                        
+                        rows.append({
+                            'Brand': brand_data.get('brand', brand),
+                            'Category': category_name,
+                            'Sub-Category': 'General',
+                            'Model': model_name,
+                            'Price': price,
+                            'Price Range': price_range,
+                            'Description': description,
+                            'Product ID': product_id,
+                            'URL': url,
+                            'Image URL': image_url,
+                            'Features': features
+                        })
+                # If models is a dict (nested subcategories)
+                elif isinstance(models, dict):
+                    if 'products' in models:
+                        products = models.get('products', [])
+                        if isinstance(products, list):
+                            for product in products:
+                                if not isinstance(product, dict):
+                                    continue
+                                
+                                # Safely extract product data
+                                model = ''
+                                if 'model' in product and product['model'] is not None:
+                                    model = str(product['model'])
+                                elif 'name' in product and product['name'] is not None:
+                                    model = str(product['name'])
+                                
+                                description = ''
+                                if 'description' in product and product['description'] is not None:
+                                    description = str(product['description'])
+                                
+                                price = product.get('price') if 'price' in product else None
+                                price_range = product.get('price_range', 'Contact for price') if 'price_range' in product else 'Contact for price'
+                                product_id = str(product.get('product_id', '')) if 'product_id' in product else ''
+                                
+                                url = ''
+                                if 'source_url' in product and product['source_url']:
+                                    url = str(product['source_url'])
+                                elif 'url' in product and product['url']:
+                                    url = str(product['url'])
+                                
+                                image_url = str(product.get('image_url', '')) if 'image_url' in product else ''
+                                
+                                features = ''
+                                if 'features' in product:
+                                    if isinstance(product['features'], list):
+                                        features = ', '.join(str(f) for f in product['features'])
+                                    elif product['features'] is not None:
+                                        features = str(product['features'])
+                                
                     rows.append({
                         'Brand': brand_data.get('brand', brand),
                         'Category': category_name,
                         'Sub-Category': subcategory_name,
-                        'Model': model.get('model', ''),
-                        'Price': model.get('price'),
-                        'Price Range': model.get('price_range', 'Contact for price'),
-                        'Description': model.get('description', ''),
-                        'Product ID': model.get('product_id', ''),
-                        'URL': model.get('source_url', ''),
-                        'Image URL': model.get('image_url', ''),
-                        'Features': ', '.join(model.get('features', [])) if isinstance(model.get('features'), list) else str(model.get('features', ''))
+                                    'Model': model,
+                                    'Price': price,
+                                    'Price Range': price_range,
+                                    'Description': description,
+                                    'Product ID': product_id,
+                                    'URL': url,
+                                    'Image URL': image_url,
+                                    'Features': features
                     })
         
         # If collections format exists, also include those
         if 'collections' in brand_data:
-            for collection_name, collection_data in brand_data.get('collections', {}).items():
-                clean_collection_name = collection_name.split('\n')[0].strip()
-                for product in collection_data.get('products', []):
+            collections_data = brand_data.get('collections', {})
+            if isinstance(collections_data, dict):
+                for collection_name, collection_data in collections_data.items():
+                    if not isinstance(collection_data, dict):
+                        continue
+                    
+                    clean_collection_name = collection_name.split('\n')[0].strip() if isinstance(collection_name, str) else str(collection_name)
+                    products = collection_data.get('products', [])
+                    if not isinstance(products, list):
+                        continue
+                    
+                    for product in products:
+                        # Handle case where product might not be a dict
+                        if not isinstance(product, dict):
+                            logger.warning(f"Skipping non-dict product in collection {collection_name}: {type(product)}")
+                            continue
+                        
+                        # Safely extract product data
+                        model = ''
+                        if 'name' in product and product['name'] is not None:
+                            model = str(product['name'])
+                        elif 'model' in product and product['model'] is not None:
+                            model = str(product['model'])
+                        
+                        description = ''
+                        if 'description' in product and product['description'] is not None:
+                            description = str(product['description'])
+                        
+                        price = product.get('price') if 'price' in product else None
+                        price_range = product.get('price_range', 'Contact for price') if 'price_range' in product else 'Contact for price'
+                        product_id = str(product.get('product_id', '')) if 'product_id' in product else ''
+                        
+                        url = ''
+                        if 'url' in product and product['url']:
+                            url = str(product['url'])
+                        elif 'source_url' in product and product['source_url']:
+                            url = str(product['source_url'])
+                        
+                        image_url = str(product.get('image_url', '')) if 'image_url' in product else ''
+                        
+                        features = ''
+                        if 'features' in product:
+                            if isinstance(product['features'], list):
+                                features = ', '.join(str(f) for f in product['features'])
+                            elif product['features'] is not None:
+                                features = str(product['features'])
+                        
                     rows.append({
                         'Brand': brand_data.get('brand', brand),
                         'Category': clean_collection_name,
                         'Sub-Category': 'general',
-                        'Model': product.get('name', product.get('model', '')),
-                        'Price': None,
-                        'Price Range': 'Contact for price',
-                        'Description': '',
-                        'Product ID': product.get('product_id', ''),
-                        'URL': product.get('url', ''),
-                        'Image URL': product.get('image_url', ''),
-                        'Features': ''
+                            'Model': model,
+                            'Price': price,
+                            'Price Range': price_range,
+                            'Description': description,
+                            'Product ID': product_id,
+                            'URL': url,
+                            'Image URL': image_url,
+                            'Features': features
+                        })
+        
+        # Also check all_products array (check even if rows exist)
+        if 'all_products' in brand_data:
+            all_products = brand_data.get('all_products', [])
+            if isinstance(all_products, list) and len(all_products) > 0:
+                logger.info(f"Processing all_products array with {len(all_products)} products")
+                for product in all_products:
+                    if not isinstance(product, dict):
+                        continue
+                    
+                    # Use direct access with type checking
+                    category = str(product.get('category', 'General')) if 'category' in product else 'General'
+                    subcategory = str(product.get('subcategory', 'General')) if 'subcategory' in product else 'General'
+                    
+                    model = ''
+                    if 'name' in product:
+                        model = str(product['name']) if product['name'] is not None else ''
+                    elif 'model' in product:
+                        model = str(product['model']) if product['model'] is not None else ''
+                    
+                    description = ''
+                    if 'description' in product:
+                        description = str(product['description']) if product['description'] is not None else ''
+                    
+                    price = product.get('price') if 'price' in product else None
+                    price_range = product.get('price_range', 'Contact for price') if 'price_range' in product else 'Contact for price'
+                    product_id = str(product.get('product_id', '')) if 'product_id' in product else ''
+                    url = product.get('url', product.get('source_url', '')) if 'url' in product or 'source_url' in product else ''
+                    image_url = str(product.get('image_url', '')) if 'image_url' in product else ''
+                    
+                    features = ''
+                    if 'features' in product and isinstance(product['features'], list):
+                        features = ', '.join(product['features'])
+                    elif 'features' in product:
+                        features = str(product['features'])
+                    
+                    rows.append({
+                        'Brand': brand_data.get('brand', brand),
+                        'Category': category,
+                        'Sub-Category': subcategory,
+                        'Model': model,
+                        'Price': price,
+                        'Price Range': price_range,
+                        'Description': description,
+                        'Product ID': product_id,
+                        'URL': url,
+                        'Image URL': image_url,
+                        'Features': features
+                    })
+        
+        # Also check category_tree format (check even if rows exist, as it might have more products)
+        if 'category_tree' in brand_data:
+            category_tree = brand_data.get('category_tree', {})
+            if isinstance(category_tree, dict) and len(category_tree) > 0:
+                logger.info(f"Processing category_tree with {len(category_tree)} categories")
+                for category_name, category_info in category_tree.items():
+                    if not isinstance(category_info, dict):
+                        continue
+                    
+                    subcategories = category_info.get('subcategories', {})
+                    if not isinstance(subcategories, dict):
+                        continue
+                    
+                    for subcategory_name, subcategory_info in subcategories.items():
+                        if not isinstance(subcategory_info, dict):
+                            continue
+                        
+                        products = subcategory_info.get('products', [])
+                        if not isinstance(products, list):
+                            continue
+                        
+                        for product in products:
+                            if not isinstance(product, dict):
+                                continue
+                            
+                            # Use direct access with type checking
+                            model = ''
+                            if 'name' in product:
+                                model = str(product['name']) if product['name'] is not None else ''
+                            elif 'model' in product:
+                                model = str(product['model']) if product['model'] is not None else ''
+                            
+                            description = ''
+                            if 'description' in product:
+                                description = str(product['description']) if product['description'] is not None else ''
+                            
+                            price = product.get('price') if 'price' in product else None
+                            price_range = product.get('price_range', 'Contact for price') if 'price_range' in product else 'Contact for price'
+                            product_id = str(product.get('product_id', '')) if 'product_id' in product else ''
+                            
+                            url = ''
+                            if 'url' in product and product['url']:
+                                url = str(product['url'])
+                            elif 'source_url' in product and product['source_url']:
+                                url = str(product['source_url'])
+                            
+                            image_url = str(product.get('image_url', '')) if 'image_url' in product else ''
+                            
+                            features = ''
+                            if 'features' in product and isinstance(product['features'], list):
+                                features = ', '.join(product['features'])
+                            elif 'features' in product:
+                                features = str(product['features'])
+                            
+                            rows.append({
+                                'Brand': brand_data.get('brand', brand),
+                                'Category': str(category_name) if category_name else 'General',
+                                'Sub-Category': str(subcategory_name) if subcategory_name else 'General',
+                                'Model': model,
+                                'Price': price,
+                                'Price Range': price_range,
+                                'Description': description,
+                                'Product ID': product_id,
+                                'URL': url,
+                                'Image URL': image_url,
+                                'Features': features
                     })
         
         if not rows:
+            logger.error(f"No products found in brand data for {brand} ({tier})")
+            logger.error(f"Brand data keys: {list(brand_data.keys()) if isinstance(brand_data, dict) else 'Not a dict'}")
+            logger.error(f"Categories data type: {type(categories_data)}, length: {len(categories_data) if isinstance(categories_data, dict) else 'N/A'}")
+            logger.error(f"Has collections: {'collections' in brand_data}, type: {type(brand_data.get('collections')) if 'collections' in brand_data else 'N/A'}")
+            logger.error(f"Has category_tree: {'category_tree' in brand_data}, type: {type(brand_data.get('category_tree')) if 'category_tree' in brand_data else 'N/A'}")
+            if 'category_tree' in brand_data:
+                cat_tree = brand_data.get('category_tree')
+                if isinstance(cat_tree, dict):
+                    logger.error(f"Category tree has {len(cat_tree)} categories")
+                    for cat_name, cat_info in list(cat_tree.items())[:3]:  # Log first 3
+                        logger.error(f"  Category: {cat_name}, type: {type(cat_info)}")
+                        if isinstance(cat_info, dict) and 'subcategories' in cat_info:
+                            subcats = cat_info.get('subcategories', {})
+                            logger.error(f"    Has {len(subcats) if isinstance(subcats, dict) else 0} subcategories")
+            logger.error(f"Has all_products: {'all_products' in brand_data}, type: {type(brand_data.get('all_products')) if 'all_products' in brand_data else 'N/A'}")
             return jsonify({'error': 'No products found in brand data'}), 404
         
-        # Create DataFrame
-        df = pd.DataFrame(rows)
+        logger.info(f"Successfully extracted {len(rows)} products for {brand} ({tier})")
         
-        # Create Excel file in memory
+        # Validate all rows are dicts
+        valid_rows = []
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                logger.warning(f"Row {idx} is not a dict: {type(row)}, value: {row}")
+                continue
+            valid_rows.append(row)
+        
+        if not valid_rows:
+            logger.error("No valid rows after validation")
+            return jsonify({'error': 'No valid product data found'}), 404
+        
+        rows = valid_rows
+        
+        # Create Excel file with formatting using openpyxl directly
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+        from openpyxl.utils import get_column_letter
+        
+        wb = Workbook()
+        ws = wb.active
+        ws.title = 'Products'
+        
+        # Define styles
+        header_fill = PatternFill(start_color='366092', end_color='366092', fill_type='solid')
+        header_font = Font(bold=True, color='FFFFFF', size=11)
+        price_fill = PatternFill(start_color='FFF2CC', end_color='FFF2CC', fill_type='solid')  # Light yellow
+        price_range_fill = PatternFill(start_color='E7F3FF', end_color='E7F3FF', fill_type='solid')  # Light blue
+        border_style = Border(
+            left=Side(style='thin'),
+            right=Side(style='thin'),
+            top=Side(style='thin'),
+            bottom=Side(style='thin')
+        )
+        center_align = Alignment(horizontal='center', vertical='center')
+        wrap_align = Alignment(wrap_text=True, vertical='top')
+        
+        # Simplified column order - only Product Name, Description, and PRICE
+        column_order = ['Product Name', 'Description', 'PRICE']
+        
+        # Prepare simplified rows with only the required columns
+        simplified_rows = []
+        for idx, row in enumerate(rows):
+            if not isinstance(row, dict):
+                logger.warning(f"Row {idx} is not a dict, skipping: {type(row)}")
+                continue
+            
+            try:
+                # Get product name (try model, then name) - ensure it's a string
+                product_name = ''
+                if 'Model' in row:
+                    product_name = str(row['Model']) if row['Model'] is not None else ''
+                elif 'model' in row:
+                    product_name = str(row['model']) if row['model'] is not None else ''
+                elif 'name' in row:
+                    product_name = str(row['name']) if row['name'] is not None else ''
+                
+                # Get description - ensure it's a string
+                description = ''
+                if 'Description' in row:
+                    description = str(row['Description']) if row['Description'] is not None else ''
+                elif 'description' in row:
+                    description = str(row['description']) if row['description'] is not None else ''
+                
+                # Get price - can be number or string
+                price = ''
+                if 'Price' in row:
+                    price = row['Price'] if row['Price'] is not None else ''
+                elif 'price' in row:
+                    price = row['price'] if row['price'] is not None else ''
+                
+                # Store original identifiers for matching on upload
+                product_id = ''
+                if 'Product ID' in row:
+                    product_id = str(row['Product ID']) if row['Product ID'] is not None else ''
+                elif 'product_id' in row:
+                    product_id = str(row['product_id']) if row['product_id'] is not None else ''
+                
+                url = ''
+                if 'URL' in row:
+                    url = str(row['URL']) if row['URL'] is not None else ''
+                elif 'url' in row:
+                    url = str(row['url']) if row['url'] is not None else ''
+                elif 'source_url' in row:
+                    url = str(row['source_url']) if row['source_url'] is not None else ''
+                
+                # Only add if we have at least a product name
+                if product_name.strip():
+                    simplified_rows.append({
+                        'Product Name': product_name.strip(),
+                        'Description': description.strip(),
+                        'PRICE': price,
+                        '_product_id': product_id,
+                        '_url': url
+                    })
+            except Exception as e:
+                logger.error(f"Error processing row {idx}: {e}, row type: {type(row)}")
+                continue
+        
+        if not simplified_rows:
+            logger.error(f"No valid products found after processing {len(rows)} rows")
+            return jsonify({'error': 'No valid products found'}), 404
+        
+        available_columns = column_order
+        
+        # Add header row
+        ws.append(available_columns)
+        
+        # Style header row
+        for col_idx, col_name in enumerate(available_columns, 1):
+            cell = ws.cell(row=1, column=col_idx)
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.alignment = center_align
+            cell.border = border_style
+            
+            # Set column widths (simplified)
+            if col_name == 'Product Name':
+                ws.column_dimensions[get_column_letter(col_idx)].width = 40
+            elif col_name == 'Description':
+                ws.column_dimensions[get_column_letter(col_idx)].width = 60
+            elif col_name == 'PRICE':
+                ws.column_dimensions[get_column_letter(col_idx)].width = 20
+        
+        # Add data rows (using simplified_rows)
+        rows = simplified_rows  # Use simplified rows for Excel generation
+        for row_idx, row_data in enumerate(rows):
+            # Ensure row_data is a dict
+            if not isinstance(row_data, dict):
+                logger.error(f"Row {row_idx} is not a dict: {type(row_data)}, value: {row_data}")
+                continue
+            
+            try:
+                row_values = [row_data.get(col, '') for col in available_columns]
+                ws.append(row_values)
+            except Exception as e:
+                logger.error(f"Error processing row {row_idx}: {e}, row_data type: {type(row_data)}")
+                continue
+            
+            # Style data row
+            current_row = ws.max_row
+            for col_idx, col_name in enumerate(available_columns, 1):
+                cell = ws.cell(row=current_row, column=col_idx)
+                cell.border = border_style
+                
+                # Highlight PRICE column prominently
+                if col_name == 'PRICE':
+                    cell.fill = price_fill  # Light yellow background
+                    cell.alignment = center_align
+                    cell.font = Font(bold=True, size=11)  # Make price bold
+                    # Format as currency if it's a number
+                    if isinstance(cell.value, (int, float)) and cell.value:
+                        cell.number_format = '#,##0.00'
+                    elif cell.value == '' or cell.value is None:
+                        cell.value = ''  # Empty cells for user to fill
+                elif col_name == 'Description':
+                    cell.alignment = wrap_align
+                else:
+                    cell.alignment = Alignment(vertical='top', horizontal='left')
+        
+        # Freeze header row
+        ws.freeze_panes = 'A2'
+        
+        # Auto-filter
+        ws.auto_filter.ref = ws.dimensions
+        
+        # Save to BytesIO
         output = BytesIO()
-        with pd.ExcelWriter(output, engine='openpyxl') as writer:
-            df.to_excel(writer, sheet_name='Products', index=False)
-        
+        wb.save(output)
         output.seek(0)
         
         # Generate filename
@@ -3322,7 +4050,7 @@ def download_brand_excel():
 
 @app.route('/api/brands/upload-excel', methods=['POST'])
 def upload_brand_excel():
-    """Upload and convert Excel file to brand JSON format"""
+    """Upload Excel file and update PRICE field in existing brand JSON"""
     try:
         import pandas as pd
         import json
@@ -3341,6 +4069,9 @@ def upload_brand_excel():
         if not file.filename.endswith(('.xlsx', '.xls')):
             return jsonify({'error': 'Invalid file format. Please upload an Excel file (.xlsx or .xls)'}), 400
         
+        if not brand:
+            return jsonify({'error': 'Brand name is required'}), 400
+        
         # Normalize tier name
         tier_map = {
             'budgetary': 'budgetary',
@@ -3358,19 +4089,164 @@ def upload_brand_excel():
             return jsonify({'error': f'Error reading Excel file: {str(e)}'}), 400
         
         # Validate required columns
-        required_columns = ['Brand', 'Category', 'Model']
+        required_columns = ['Product Name', 'PRICE']
         missing_columns = [col for col in required_columns if col not in df.columns]
         if missing_columns:
-            return jsonify({'error': f'Missing required columns: {", ".join(missing_columns)}'}), 400
+            return jsonify({'error': f'Missing required columns: {", ".join(missing_columns)}. Excel must have "Product Name" and "PRICE" columns.'}), 400
         
-        # Get brand name from data if not provided in form
-        if not brand and 'Brand' in df.columns:
-            brand = df['Brand'].iloc[0] if len(df) > 0 else 'Unknown'
+        # Load existing brand data
+        safe_brand_name = re.sub(r'[^\w\-_]', '', brand.replace(' ', '_'))
+        filename = f"{safe_brand_name}_{tier}.json"
+        filepath = os.path.join('brands_data', filename)
         
-        if not brand:
-            return jsonify({'error': 'Brand name is required'}), 400
+        if not os.path.exists(filepath):
+            # Try case-insensitive search
+            brands_data_dir = 'brands_data'
+            if os.path.exists(brands_data_dir):
+                for f in os.listdir(brands_data_dir):
+                    if f.lower() == filename.lower():
+                        filepath = os.path.join(brands_data_dir, f)
+                        break
         
-        # Convert Excel to JSON structure
+        if not os.path.exists(filepath):
+            return jsonify({'error': f'Brand data not found for {brand} ({tier}). Please download the database first.'}), 404
+        
+        # Load existing JSON
+        with open(filepath, 'r', encoding='utf-8') as f:
+            brand_data = json.load(f)
+        
+        # Create a mapping from Excel: Product Name -> PRICE
+        price_updates = {}
+        for _, row in df.iterrows():
+            product_name = str(row.get('Product Name', '')).strip()
+            price = row.get('PRICE', '')
+            
+            # Handle empty or NaN prices
+            if pd.isna(price) or price == '' or price is None:
+                continue
+            
+            # Convert price to number if possible
+            try:
+                if isinstance(price, str):
+                    # Remove currency symbols and commas
+                    price_clean = re.sub(r'[^\d.]', '', str(price))
+                    if price_clean:
+                        price = float(price_clean)
+                    else:
+                        continue
+                elif isinstance(price, (int, float)):
+                    price = float(price)
+                else:
+                    continue
+            except (ValueError, TypeError):
+                continue
+            
+            if product_name:
+                price_updates[product_name.lower()] = price
+        
+        # Update prices in brand_data by matching product names
+        updated_count = 0
+        
+        def update_product_price(product, product_name_key):
+            """Update price in a product dict if name matches"""
+            nonlocal updated_count
+            if not isinstance(product, dict):
+                return False
+            
+            # Try to match by product name (model or name field)
+            product_name = str(product.get('model', product.get('name', product.get('Model', '')))).strip().lower()
+            
+            if product_name in price_updates:
+                product['price'] = price_updates[product_name]
+                updated_count += 1
+                return True
+            return False
+        
+        # Update prices in categories structure
+        categories_data = brand_data.get('categories', {})
+        if isinstance(categories_data, dict):
+            for category_name, category_info in categories_data.items():
+                if not isinstance(category_info, dict):
+                    continue
+                
+                # Check if category has products directly
+                if 'products' in category_info:
+                    products = category_info.get('products', [])
+                    if isinstance(products, list):
+                        for product in products:
+                            update_product_price(product, 'model')
+                
+                # Check nested subcategories
+                for key, value in category_info.items():
+                    if key in {'url', 'category', 'subcategory', 'product_count', 'products'}:
+                        continue
+                    
+                    if isinstance(value, list):
+                        for item in value:
+                            if isinstance(item, dict):
+                                update_product_price(item, 'model')
+                    elif isinstance(value, dict) and 'products' in value:
+                        products = value.get('products', [])
+                        if isinstance(products, list):
+                            for product in products:
+                                update_product_price(product, 'model')
+        
+        # Update prices in collections structure
+        if 'collections' in brand_data:
+            collections_data = brand_data.get('collections', {})
+            if isinstance(collections_data, dict):
+                for collection_name, collection_info in collections_data.items():
+                    if not isinstance(collection_info, dict):
+                        continue
+                    
+                    products = collection_info.get('products', [])
+                    if isinstance(products, list):
+                        for product in products:
+                            update_product_price(product, 'name')
+        
+        # Update prices in category_tree structure
+        if 'category_tree' in brand_data:
+            category_tree = brand_data.get('category_tree', {})
+            if isinstance(category_tree, dict):
+                for category_name, category_info in category_tree.items():
+                    if not isinstance(category_info, dict):
+                        continue
+                    
+                    subcategories = category_info.get('subcategories', {})
+                    if isinstance(subcategories, dict):
+                        for subcategory_name, subcategory_info in subcategories.items():
+                            if not isinstance(subcategory_info, dict):
+                                continue
+                            
+                            products = subcategory_info.get('products', [])
+                            if isinstance(products, list):
+                                for product in products:
+                                    update_product_price(product, 'name')
+        
+        # Update prices in all_products array
+        if 'all_products' in brand_data:
+            all_products = brand_data.get('all_products', [])
+            if isinstance(all_products, list):
+                for product in all_products:
+                    update_product_price(product, 'name')
+        
+        # Save updated JSON
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(brand_data, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"Updated {updated_count} product prices for {brand} ({tier})")
+        
+        return jsonify({
+            'success': True,
+            'message': f'Successfully updated {updated_count} product prices for {brand}',
+            'updated_count': updated_count,
+            'total_in_excel': len(price_updates),
+            'filepath': filepath
+        })
+        
+    except Exception as e:
+        logger.exception('Error uploading Excel file')
+        return jsonify({'error': str(e)}), 500
         organized_data = {
             'brand': brand,
             'website': request.form.get('website', ''),
@@ -3418,9 +4294,7 @@ def upload_brand_excel():
             organized_data['categories'][category][subcategory].append(model_entry)
         
         # Save to brands_data folder
-        from utils.brand_scraper import BrandScraper
-        scraper = BrandScraper()
-        filepath = scraper.save_brand_data(organized_data, tier, output_dir='brands_data')
+        filepath = save_brand_data_to_file(organized_data, tier, output_dir='brands_data')
         
         # Count total products
         total_products = 0
@@ -3466,6 +4340,43 @@ def save_brand_database(database):
         logger.info(f"Brand database saved to {db_file}")
     except Exception as e:
         logger.error(f"Error saving brand database: {e}")
+
+def save_brand_data_to_file(brand_data: dict, tier: str, output_dir: str = 'brands_data') -> str:
+    """
+    Save brand data to separate JSON file in brands_data folder
+    Utility function to replace BrandScraper.save_brand_data()
+    
+    Args:
+        brand_data: Dictionary with brand products data
+        tier: Budget tier (budgetary, mid_range, high_end)
+        output_dir: Output directory (default: brands_data)
+        
+    Returns:
+        Path to saved file
+    """
+    try:
+        import re
+        # Create output directory if it doesn't exist
+        os.makedirs(output_dir, exist_ok=True)
+        
+        # Generate filename from brand name and tier
+        brand_name = brand_data.get('brand', 'unknown').replace(' ', '_').replace('/', '_')
+        safe_brand_name = re.sub(r'[^\w\-_]', '', brand_name)
+        safe_tier = tier.replace('-', '_').lower()
+        
+        filename = f"{safe_brand_name}_{safe_tier}.json"
+        filepath = os.path.join(output_dir, filename)
+        
+        # Save to JSON file
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(brand_data, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"Brand data saved to {filepath}")
+        return filepath
+        
+    except Exception as e:
+        logger.error(f"Error saving brand data: {e}")
+        raise
 
 def save_individual_brand_file(brand_name: str, website: str, country: str, tier: str, scraped_data: dict):
     """
