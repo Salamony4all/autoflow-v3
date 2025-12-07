@@ -289,39 +289,35 @@ class OfferGenerator:
             table_rows = []
             
             # Headers - clean and format, exclude Action and Product Selection columns
+            # CRITICAL FIX: Ensure ALL headers are clean strings, reject any objects
             headers = table_data['headers']
-            # Create mapping of original headers to clean string versions
             header_mapping = {}
             filtered_headers = []
+            
             for h in headers:
-                h_str = None
+                # Force convert to string and clean immediately
+                h_raw = str(h) if h is not None else ''
                 
-                # CRITICAL: If header is a Paragraph object, extract its text content
-                if hasattr(h, '__class__') and h.__class__.__name__ == 'Paragraph':
-                    # Try to extract text from Paragraph - use the text parameter if available
-                    try:
-                        if hasattr(h, 'text'):
-                            h_str = str(h.text).strip()
-                        elif hasattr(h, '_content'):
-                            h_str = str(h._content).strip()
-                        else:
-                            # Skip this malformed header
-                            continue
-                    except:
-                        continue
-                else:
-                    h_str = str(h).strip()
+                # Skip empty headers
+                if not h_raw or not h_raw.strip():
+                    continue
                 
-                # Safety check: If string representation looks like Paragraph object, extract actual text
-                # Format: '<Paragraph at 0x7fb454196850>SN' -> extract 'SN'
-                if '<Paragraph at ' in h_str:
-                    # Match pattern: <Paragraph at 0xHEXDIGITS>TEXT
-                    match = re.search(r'<Paragraph at 0x[0-9a-fA-F]+>(.+)$', h_str)
-                    if match:
+                # REJECT any Paragraph object representations immediately
+                if '<' in h_raw and 'at 0x' in h_raw:
+                    # This is an object representation, try to extract text
+                    # Pattern: '<ClassName at 0xHEX>TEXT' or just '<ClassName at 0xHEX>'
+                    match = re.search(r'>([^<]+)$', h_raw)
+                    if match and match.group(1).strip():
                         h_str = match.group(1).strip()
                     else:
-                        # No text after Paragraph object, skip
+                        # No extractable text, skip this header
                         continue
+                else:
+                    h_str = h_raw.strip()
+                
+                # Final validation: must be plain text (no angle brackets)
+                if '<' in h_str or '>' in h_str:
+                    continue
                 
                 h_lower = h_str.lower()
                 # Exclude action columns and original price columns
