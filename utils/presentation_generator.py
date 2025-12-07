@@ -179,16 +179,34 @@ class PresentationGenerator:
             headers = [h for h in table.get('headers', []) if str(h).lower() not in ['action', 'actions', 'product selection', 'productselection']]
             
             for row in table.get('rows', []):
-                # Find description column
+                # Log all available columns for debugging
+                logger.info(f"Row headers: {list(row.keys())}")
+                
+                # Find description column - try multiple column names
                 description = ''
                 raw_description = ''
+                description_found = False
+                
+                # Priority order: DESCRIPTION > Item > Product
                 for h in headers:
                     h_str = str(h).lower() if h else ''
-                    if 'descript' in h_str or 'discript' in h_str or 'item' in h_str:  # Handle misspelling
+                    # Check for description column (most detailed)
+                    if 'descript' in h_str or 'discript' in h_str:
                         raw_description = row.get(h, '')
                         description = self.strip_html(raw_description)
-                        logger.info(f"Found description (length: {len(description)}): {description[:100]}...")
+                        logger.info(f"Found DESCRIPTION column '{h}' (length: {len(description)}): {description[:150]}...")
+                        description_found = True
                         break
+                
+                # If no description column found, try item or product columns
+                if not description_found:
+                    for h in headers:
+                        h_str = str(h).lower() if h else ''
+                        if 'item' in h_str or 'product' in h_str:
+                            raw_description = row.get(h, '')
+                            description = self.strip_html(raw_description)
+                            logger.info(f"Found ITEM/PRODUCT column '{h}' (length: {len(description)}): {description[:150]}...")
+                            break
                 
                 # Find quantity
                 qty = ''
@@ -295,13 +313,24 @@ class PresentationGenerator:
             logger.debug(f"Looking for description in headers: {headers}")
             logger.debug(f"Row data keys: {list(row_data.keys())}")
             
+            description_found = False
+            # Priority: DESCRIPTION column first
             for h in headers:
-                # Ensure header is a string
                 h_str = str(h).lower() if h else ''
-                if 'descript' in h_str or 'item' in h_str or 'discript' in h_str:  # Handle misspelling
+                if 'descript' in h_str or 'discript' in h_str:
                     description = self.strip_html(row_data.get(h, ''))
-                    logger.debug(f"Found description in header '{h}': {description[:50] if description else 'empty'}")
+                    logger.info(f"Stitched: Found DESCRIPTION in '{h}' (length: {len(description)}): {description[:150]}...")
+                    description_found = True
                     break
+            
+            # If no description found, try item or product columns
+            if not description_found:
+                for h in headers:
+                    h_str = str(h).lower() if h else ''
+                    if 'item' in h_str or 'product' in h_str:
+                        description = self.strip_html(row_data.get(h, ''))
+                        logger.info(f"Stitched: Found ITEM/PRODUCT in '{h}' (length: {len(description)}): {description[:150]}...")
+                        break
             
             if not description:
                 logger.warning(f"No description found in row. Headers: {headers}, Row data keys: {list(row_data.keys())}")

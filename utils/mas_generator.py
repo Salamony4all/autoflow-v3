@@ -163,8 +163,10 @@ class MASGenerator:
                 
                 # Iterate through row dictionary items
                 image_paths = []
+                description_found = False
+                
+                # First pass: look for DESCRIPTION column specifically
                 for header, cell_value in row.items():
-                    # Ensure header is a string
                     header_str = str(header) if header else ''
                     header_lower = header_str.lower()
                     cell_value = str(cell_value) if cell_value else ''
@@ -175,10 +177,26 @@ class MASGenerator:
                         if paths:
                             image_paths.extend(paths)
                     
-                    # Extract data based on header
-                    if any(h in header_lower for h in ['descript', 'discript', 'item', 'product']):  # Handle misspelling
-                        description = re.sub(r'<[^>]+>', '', cell_value)
-                    elif 'qty' in header_lower or 'quantity' in header_lower:
+                    # Priority: DESCRIPTION column first
+                    if ('descript' in header_lower or 'discript' in header_lower) and not description_found:
+                        description = re.sub(r'<[^>]+>', ' ', cell_value).strip()
+                        description = re.sub(r'\s+', ' ', description)  # Normalize whitespace
+                        description_found = True
+                        logger.info(f"MAS: Found DESCRIPTION (length: {len(description)}): {description[:150]}...")
+                
+                # Second pass: other fields and fallback for description
+                for header, cell_value in row.items():
+                    header_str = str(header) if header else ''
+                    header_lower = header_str.lower()
+                    cell_value = str(cell_value) if cell_value else ''
+                    
+                    # Fallback: if no description found, try item/product columns
+                    if not description_found and any(h in header_lower for h in ['item', 'product']):
+                        description = re.sub(r'<[^>]+>', ' ', cell_value).strip()
+                        description = re.sub(r'\s+', ' ', description)
+                    
+                    # Extract other fields
+                    if 'qty' in header_lower or 'quantity' in header_lower:
                         qty = re.sub(r'<[^>]+>', '', cell_value)
                     elif 'unit' in header_lower and 'rate' not in header_lower:
                         unit = re.sub(r'<[^>]+>', '', cell_value)
