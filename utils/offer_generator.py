@@ -294,7 +294,16 @@ class OfferGenerator:
             header_mapping = {}
             filtered_headers = []
             for h in headers:
+                # CRITICAL: If header is a Paragraph object, skip it
+                if hasattr(h, '__class__') and h.__class__.__name__ == 'Paragraph':
+                    continue
+                
                 h_str = str(h).strip()
+                
+                # Safety check: If string representation looks like Paragraph object, skip
+                if '<Paragraph at ' in h_str or (h_str.startswith('<') and 'object at' in h_str):
+                    continue
+                
                 h_lower = h_str.lower()
                 # Exclude action columns and original price columns
                 if h_lower not in ['action', 'actions', 'product selection', 'productselection'] and '_original' not in h_str:
