@@ -34,14 +34,19 @@ class ExcelProcessor:
         
         # Convert .xls to .xlsx for uniform processing
         if self.original_extension == '.xls':
-            logger.info(f"Converting .xls file to .xlsx format: {filepath}")
+            logger.info(f"Detected .xls file (Excel 97-2003 format): {filepath}")
+            logger.info(f"Converting to .xlsx format for processing...")
             try:
                 self.filepath = self._convert_xls_to_xlsx(filepath)
                 self.extension = '.xlsx'
+                logger.info(f"✓ Conversion successful, processing as .xlsx")
             except ValueError as ve:
                 # Conversion failed - provide helpful error
-                logger.error(str(ve))
-                raise ValueError(f"❌ .XLS file format is not supported due to compatibility issues. Please save your file as .XLSX format in Excel/LibreOffice and upload again.")
+                logger.error(f"❌ .xls conversion failed: {str(ve)}")
+                raise
+            except Exception as e:
+                logger.error(f"❌ Unexpected error converting .xls: {str(e)}")
+                raise ValueError(f"Failed to process .xls file. Please save the file as .xlsx format in Excel/LibreOffice and upload again.")
         else:
             self.filepath = filepath
             self.extension = self.original_extension
@@ -64,31 +69,51 @@ class ExcelProcessor:
             # Create output path (same directory, .xlsx extension)
             xlsx_filepath = xls_filepath.replace('.xls', '_converted.xlsx')
             
-            # Try reading with xlrd - but this may fail for some .xls files
+            # Try reading with xlrd
             try:
+                logger.info(f"Attempting to read .xls file with xlrd: {xls_filepath}")
                 xls_file = pd.ExcelFile(xls_filepath, engine='xlrd')
-            except (AssertionError, Exception) as xlrd_error:
+                logger.info(f"Successfully opened .xls file with {len(xls_file.sheet_names)} sheets")
+            except Exception as xlrd_error:
+                error_msg = str(xlrd_error).lower()
                 logger.error(f"xlrd failed to read .xls file: {str(xlrd_error)}")
-                logger.error("This .xls file has compatibility issues. Please convert it to .xlsx format manually.")
-                raise ValueError("Cannot read .xls file: The file format is incompatible. Please save the file as .xlsx format and upload again.")
+                
+                # Provide specific error messages based on the error type
+                if 'unsupported format' in error_msg or 'not a valid' in error_msg:
+                    raise ValueError("The .xls file format is not valid or corrupted. Please open the file in Excel and save it as .xlsx format.")
+                elif 'password' in error_msg or 'encrypted' in error_msg:
+                    raise ValueError("The .xls file is password protected or encrypted. Please remove the password and save as .xlsx format.")
+                else:
+                    raise ValueError(f"Cannot read .xls file (error: {str(xlrd_error)}). Please save the file as .xlsx format in Excel and upload again.")
             
             # Create Excel writer for .xlsx
+            logger.info(f"Converting sheets to .xlsx format...")
             with pd.ExcelWriter(xlsx_filepath, engine='openpyxl') as writer:
                 for sheet_name in xls_file.sheet_names:
-                    # Read each sheet
-                    df = pd.read_excel(xls_file, sheet_name=sheet_name, header=None)
-                    # Write to xlsx
-                    df.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
+                    try:
+                        logger.info(f"Converting sheet: {sheet_name}")
+                        # Read each sheet
+                        df = pd.read_excel(xls_file, sheet_name=sheet_name, header=None)
+                        # Write to xlsx
+                        df.to_excel(writer, sheet_name=sheet_name, index=False, header=False)
+                    except Exception as sheet_error:
+                        logger.error(f"Error converting sheet {sheet_name}: {str(sheet_error)}")
+                        # Continue with other sheets
+                        continue
             
-            logger.info(f"Successfully converted .xls to .xlsx: {xlsx_filepath}")
+            # Verify the converted file exists
+            if not os.path.exists(xlsx_filepath) or os.path.getsize(xlsx_filepath) == 0:
+                raise ValueError("Conversion produced an empty or invalid file. Please save as .xlsx format manually.")
+            
+            logger.info(f"✓ Successfully converted .xls to .xlsx: {xlsx_filepath}")
             return xlsx_filepath
             
         except ValueError:
             # Re-raise ValueError with our custom message
             raise
         except Exception as e:
-            logger.error(f"Failed to convert .xls to .xlsx: {str(e)}")
-            raise ValueError(f"Cannot convert .xls file: {str(e)}. Please save as .xlsx format and upload again.")
+            logger.error(f"Unexpected error during .xls to .xlsx conversion: {str(e)}")
+            raise ValueError(f"Cannot convert .xls file to .xlsx format. Please open the file in Excel and save it as .xlsx format, then upload again.")
     
     def _extract_images_from_sheet(self, sheet, output_dir):
         """
