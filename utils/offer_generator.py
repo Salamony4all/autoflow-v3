@@ -285,8 +285,23 @@ class OfferGenerator:
             
             # Headers - clean and format, exclude Action and Product Selection columns
             headers = table_data['headers']
+            
+            # Clean headers: extract text from any Paragraph object representations
+            cleaned_headers = []
+            for h in headers:
+                h_str = str(h) if h is not None else ''
+                # If header looks like '<Paragraph at 0xHEX>TEXT', extract just TEXT
+                if '<Paragraph at ' in h_str or '<paragraph at ' in h_str.lower():
+                    match = re.search(r'>([^<]+)$', h_str)
+                    if match:
+                        h_str = match.group(1).strip()
+                    else:
+                        # No text after >, skip this header
+                        continue
+                cleaned_headers.append(h_str)
+            
             # Filter out Action/Actions and Product Selection columns
-            filtered_headers = [h for h in headers if h.lower() not in ['action', 'actions', 'product selection', 'productselection']]
+            filtered_headers = [h for h in cleaned_headers if h.lower() not in ['action', 'actions', 'product selection', 'productselection']]
             
             # Use tiny header style for tables with many columns (10+) to fit in 1-2 lines max
             num_cols = len(filtered_headers)
@@ -299,11 +314,19 @@ class OfferGenerator:
             for row in table_data['rows']:
                 table_row = []
                 
+                # Build mapping from cleaned headers back to original keys
+                header_mapping = {}
+                for i, orig_h in enumerate(headers):
+                    if i < len(cleaned_headers):
+                        header_mapping[cleaned_headers[i]] = orig_h
+                
                 for h in filtered_headers:
-                    cell_value = row.get(h, '')
+                    # Get original header for data lookup
+                    original_h = header_mapping.get(h, h)
+                    cell_value = row.get(original_h, '')
                     
                     # Skip original price fields
-                    if '_original' in h:
+                    if '_original' in str(original_h):
                         continue
                     
                     # Check if this cell contains an image reference
