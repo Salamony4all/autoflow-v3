@@ -389,7 +389,7 @@ class MASGenerator:
             ('LINEBELOW', (0, 0), (-1, -1), 2, colors.HexColor('#d4af37')),
         ]))
         story.append(line_table)
-        story.append(Spacer(1, 0.15*inch))
+        story.append(Spacer(1, 0.08*inch))  # Reduced from 0.15
         
         # Project info - more compact
         project_data = [
@@ -411,23 +411,20 @@ class MASGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ]))
         story.append(project_table)
-        story.append(Spacer(1, 0.15*inch))
+        story.append(Spacer(1, 0.08*inch))  # Reduced from 0.15
         
         # Item details section
         details_title = Paragraph('<b>ITEM DETAILS</b>', self.header_style)
         story.append(details_title)
-        story.append(Spacer(1, 0.08*inch))
+        story.append(Spacer(1, 0.05*inch))  # Reduced from 0.08
         
-        # Use full description - don't truncate
+        # Limit description length to fit on one page
         description_text = item.get('description', 'N/A')
+        if len(description_text) > 400:
+            description_text = description_text[:397] + '...'
         
-        # Adjust font size based on description length for better fitting
-        if len(description_text) > 1000:
-            desc_style = ParagraphStyle('DescSmall', parent=self.normal_style, fontSize=7, leading=9)
-        elif len(description_text) > 500:
-            desc_style = ParagraphStyle('DescMedium', parent=self.normal_style, fontSize=8, leading=10)
-        else:
-            desc_style = self.normal_style
+        # Smaller font for compact layout
+        desc_style = ParagraphStyle('DescCompact', parent=self.normal_style, fontSize=7, leading=8)
         
         details_data = [
             ['Description:', Paragraph(description_text, desc_style)],
@@ -437,25 +434,25 @@ class MASGenerator:
             ['Warranty:', item.get('warranty', '5 Years')],
         ]
         
-        details_table = Table(details_data, colWidths=[1.5*inch, 5.5*inch])
+        details_table = Table(details_data, colWidths=[1.3*inch, 5.7*inch])
         details_table.setStyle(TableStyle([
             ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 9),
+            ('FONTSIZE', (0, 0), (-1, -1), 8),
             ('GRID', (0, 0), (-1, -1), 0.5, colors.grey),
             ('BACKGROUND', (0, 0), (0, -1), colors.HexColor('#f8f9fa')),
             ('VALIGN', (0, 0), (-1, -1), 'TOP'),
-            ('LEFTPADDING', (0, 0), (-1, -1), 6),
-            ('RIGHTPADDING', (0, 0), (-1, -1), 6),
-            ('TOPPADDING', (0, 0), (-1, -1), 4),
-            ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ('LEFTPADDING', (0, 0), (-1, -1), 4),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         story.append(details_table)
-        story.append(Spacer(1, 0.15*inch))
+        story.append(Spacer(1, 0.08*inch))  # Reduced from 0.15
         
         # Product image section - support multiple images in grid
         image_title = Paragraph('<b>PRODUCT IMAGE(S)</b>', self.header_style)
         story.append(image_title)
-        story.append(Spacer(1, 0.08*inch))
+        story.append(Spacer(1, 0.05*inch))  # Reduced from 0.08
         
         image_paths = item.get('image_paths', [])
         if not image_paths and item.get('image_path'):
@@ -464,7 +461,7 @@ class MASGenerator:
         if image_paths:
             # Process and display images
             valid_images = []
-            for image_path in image_paths[:6]:  # Max 6 images per item
+            for image_path in image_paths[:4]:  # Max 4 images per item (reduced from 6)
                 # If it's a URL, download it first
                 if image_path.startswith('http'):
                     from utils.image_helper import download_image
@@ -475,16 +472,20 @@ class MASGenerator:
                 if image_path and os.path.exists(image_path):
                     valid_images.append(image_path)
             
-            # Create image grid if multiple images
+            # Create image grid if multiple images - MUCH SMALLER to fit on one page
             if len(valid_images) == 1:
-                # Single image - show larger
+                # Single image - smaller than before
                 try:
                     from PIL import Image as PILImage
                     pil_img = PILImage.open(valid_images[0])
                     img_width, img_height = pil_img.size
                     aspect_ratio = img_height / img_width
-                    target_width = 2.5 * inch
+                    target_width = 1.8 * inch  # Reduced from 2.5
                     target_height = target_width * aspect_ratio
+                    # Cap max height to prevent overflow
+                    if target_height > 1.8 * inch:
+                        target_height = 1.8 * inch
+                        target_width = target_height / aspect_ratio
                     img = RLImage(valid_images[0], width=target_width, height=target_height)
                     img.hAlign = 'CENTER'
                     story.append(img)
@@ -492,7 +493,7 @@ class MASGenerator:
                     logger.error(f"Failed to add image: {e}")
             
             elif len(valid_images) > 1:
-                # Multiple images - create grid (2 columns)
+                # Multiple images - create grid (2 columns) - MUCH SMALLER
                 try:
                     from PIL import Image as PILImage
                     image_elements = []
@@ -501,8 +502,12 @@ class MASGenerator:
                         pil_img = PILImage.open(img_path)
                         img_width, img_height = pil_img.size
                         aspect_ratio = img_height / img_width
-                        target_width = 1.8 * inch
+                        target_width = 1.2 * inch  # Reduced from 1.8
                         target_height = target_width * aspect_ratio
+                        # Cap max height
+                        if target_height > 1.2 * inch:
+                            target_height = 1.2 * inch
+                            target_width = target_height / aspect_ratio
                         img_elem = RLImage(img_path, width=target_width, height=target_height)
                         image_elements.append(img_elem)
                     
@@ -518,37 +523,37 @@ class MASGenerator:
                     img_table.setStyle(TableStyle([
                         ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
-                        ('LEFTPADDING', (0, 0), (-1, -1), 6),
-                        ('RIGHTPADDING', (0, 0), (-1, -1), 6),
+                        ('LEFTPADDING', (0, 0), (-1, -1), 3),
+                        ('RIGHTPADDING', (0, 0), (-1, -1), 3),
                     ]))
                     story.append(img_table)
                 except Exception as e:
                     logger.error(f"Failed to create image grid: {e}")
         
-        story.append(Spacer(1, 0.15*inch))
+        story.append(Spacer(1, 0.08*inch))  # Reduced from 0.15
         
         # Technical specifications - compact
         spec_title = Paragraph('<b>SPECIFICATIONS</b>', self.header_style)
         story.append(spec_title)
-        story.append(Spacer(1, 0.06*inch))
+        story.append(Spacer(1, 0.04*inch))  # Reduced from 0.06
         
         specifications = item.get('specifications', [])
         if specifications:
-            # Limit to 4 specs to fit on page
-            specs_to_show = specifications[:4]
+            # Limit to 3 specs to fit on page (reduced from 4)
+            specs_to_show = specifications[:3]
             spec_text = '<br/>'.join([f'• {spec}' for spec in specs_to_show])
-            spec_para = Paragraph(spec_text, self.normal_style)
+            spec_para = Paragraph(spec_text, ParagraphStyle('SpecCompact', parent=self.normal_style, fontSize=7, leading=8))
             story.append(spec_para)
         else:
             compact_specs = '• As per manufacturer standard specifications<br/>• Comply with relevant standards'
-            story.append(Paragraph(compact_specs, self.normal_style))
+            story.append(Paragraph(compact_specs, ParagraphStyle('SpecCompact', parent=self.normal_style, fontSize=7, leading=8)))
         
-        story.append(Spacer(1, 0.15*inch))
+        story.append(Spacer(1, 0.08*inch))  # Reduced from 0.15
         
         # Approval section - more compact
         approval_title = Paragraph('<b>APPROVAL</b>', self.header_style)
         story.append(approval_title)
-        story.append(Spacer(1, 0.06*inch))
+        story.append(Spacer(1, 0.04*inch))  # Reduced from 0.06
         
         approval_data = [
             ['Submitted By:', '', 'Date:', ''],
@@ -557,13 +562,13 @@ class MASGenerator:
             ['', '', '', ''],
         ]
         
-        approval_table = Table(approval_data, colWidths=[1.3*inch, 2.7*inch, 0.8*inch, 2.2*inch])
+        approval_table = Table(approval_data, colWidths=[1.2*inch, 2.5*inch, 0.7*inch, 2.6*inch])
         approval_table.setStyle(TableStyle([
             ('FONTNAME', (0, 0), (0, 0), 'Helvetica-Bold'),
             ('FONTNAME', (0, 2), (0, 2), 'Helvetica-Bold'),
             ('FONTNAME', (2, 0), (2, 0), 'Helvetica-Bold'),
             ('FONTNAME', (2, 2), (2, 2), 'Helvetica-Bold'),
-            ('FONTSIZE', (0, 0), (-1, -1), 8),
+            ('FONTSIZE', (0, 0), (-1, -1), 7),  # Reduced from 8
             ('LINEBELOW', (1, 1), (1, 1), 1, colors.black),
             ('LINEBELOW', (3, 1), (3, 1), 1, colors.black),
             ('LINEBELOW', (1, 3), (1, 3), 1, colors.black),
@@ -573,10 +578,10 @@ class MASGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
         ]))
         story.append(approval_table)
-        story.append(Spacer(1, 0.1*inch))
+        story.append(Spacer(1, 0.06*inch))  # Reduced from 0.1
         
-        # Remarks - compact
-        remarks = Paragraph('<b>Remarks:</b> _______________________________________________', self.normal_style)
+        # Remarks - compact with smaller font
+        remarks = Paragraph('<b>Remarks:</b> _______________________________________________', ParagraphStyle('RemarksCompact', parent=self.normal_style, fontSize=7))
         story.append(remarks)
         
         return story

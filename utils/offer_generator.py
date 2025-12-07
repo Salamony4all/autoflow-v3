@@ -247,8 +247,8 @@ class OfferGenerator:
             # Headers - clean and format, exclude Action and Product Selection columns
             headers = table_data['headers']
             # Filter out Action/Actions and Product Selection columns
-            filtered_headers = [h for h in headers if h.lower() not in ['action', 'actions', 'product selection', 'productselection']]
-            header_row = [Paragraph(f"<b>{h}</b>", self.table_cell_style) for h in filtered_headers]
+            filtered_headers = [str(h).strip() for h in headers if str(h).lower().strip() not in ['action', 'actions', 'product selection', 'productselection']]
+            header_row = [Paragraph(f"<b>{str(h)}</b>", self.table_cell_style) for h in filtered_headers]
             table_rows.append(header_row)
             
             # Data rows - show only final costed prices with images
