@@ -159,8 +159,6 @@ class MASGenerator:
                 description = ''
                 qty = ''
                 unit = ''
-                unit_rate = ''
-                total = ''
                 image_path = None
                 
                 # Iterate through row dictionary items
@@ -183,10 +181,6 @@ class MASGenerator:
                         qty = re.sub(r'<[^>]+>', '', cell_value)
                     elif 'unit' in header_lower and 'rate' not in header_lower:
                         unit = re.sub(r'<[^>]+>', '', cell_value)
-                    elif 'unit rate' in header_lower or ('rate' in header_lower and 'unit' not in header_lower):
-                        unit_rate = re.sub(r'<[^>]+>', '', cell_value)
-                    elif 'total' in header_lower or 'amount' in header_lower:
-                        total = re.sub(r'<[^>]+>', '', cell_value)
                 
                 if description:
                     brand = self.extract_brand(description)
@@ -196,11 +190,11 @@ class MASGenerator:
                         'description': description,
                         'qty': qty,
                         'unit': unit,
-                        'unit_rate': unit_rate,
-                        'total': total,
                         'brand': brand,
                         'specifications': specifications,
-                        'image_path': image_path
+                        'image_path': image_path,
+                        'finish': 'As per manufacturer standard',
+                        'warranty': '5 Years'
                     }
                     items.append(item)
         
@@ -260,8 +254,6 @@ class MASGenerator:
             description = ''
             qty = ''
             unit = ''
-            unit_rate = ''
-            total = ''
             image_path = None
             
             for header, cell_value in row_data.items():
@@ -284,10 +276,6 @@ class MASGenerator:
                     qty = cell_text
                 elif 'unit' in header_str and 'rate' not in header_str:
                     unit = cell_text
-                elif 'unit rate' in header_str or 'rate' in header_str:
-                    unit_rate = cell_text
-                elif 'total' in header_str or 'amount' in header_str:
-                    total = cell_text
             
             if description:
                 brand = self.extract_brand(description)
@@ -297,11 +285,11 @@ class MASGenerator:
                     'description': description,
                     'qty': qty,
                     'unit': unit,
-                    'unit_rate': unit_rate,
-                    'total': total,
                     'brand': brand,
                     'specifications': specifications,
-                    'image_path': image_path
+                    'image_path': image_path,
+                    'finish': 'As per manufacturer standard',
+                    'warranty': '5 Years'
                 }
                 items.append(item)
         
@@ -323,8 +311,6 @@ class MASGenerator:
                 description = row.get('description', row.get('item', row.get('product', 'N/A')))
                 qty = row.get('qty', row.get('quantity', 'N/A'))
                 unit = row.get('unit', '')
-                unit_rate = row.get('unit rate', row.get('rate', ''))
-                total = row.get('total', row.get('amount', ''))
                 
                 brand = self.extract_brand(description)
                 specifications = self.extract_specifications(description)
@@ -343,11 +329,11 @@ class MASGenerator:
                     'description': description,
                     'qty': qty,
                     'unit': unit,
-                    'unit_rate': unit_rate,
-                    'total': total,
                     'brand': brand,
                     'specifications': specifications,
-                    'image_path': image_path
+                    'image_path': image_path,
+                    'finish': 'As per manufacturer standard',
+                    'warranty': '5 Years'
                 }
                 items.append(item)
         
@@ -418,12 +404,9 @@ class MASGenerator:
             ['Description:', Paragraph(description_text, self.normal_style)],
             ['Brand:', item.get('brand', 'To be specified')],
             ['Quantity:', f"{item.get('qty', 'N/A')} {item.get('unit', '')}"],
+            ['Finish:', item.get('finish', 'As per manufacturer standard')],
+            ['Warranty:', item.get('warranty', '5 Years')],
         ]
-        
-        if item.get('unit_rate'):
-            details_data.append(['Unit Rate:', item.get('unit_rate', '')])
-        if item.get('total'):
-            details_data.append(['Total:', item.get('total', '')])
         
         details_table = Table(details_data, colWidths=[1.5*inch, 5.5*inch])
         details_table.setStyle(TableStyle([
