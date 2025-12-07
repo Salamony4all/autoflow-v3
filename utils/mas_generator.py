@@ -1,5 +1,6 @@
 import os
 import re
+import logging
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -9,6 +10,8 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from datetime import datetime
 from bs4 import BeautifulSoup
+
+logger = logging.getLogger(__name__)
 
 class MASGenerator:
     """Generate Material Approval Sheets (MAS) with company template"""

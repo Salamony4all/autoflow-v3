@@ -6,6 +6,8 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, 
 from reportlab.pdfgen import canvas
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import json
 from datetime import datetime
 import re
@@ -18,14 +20,26 @@ class OfferGenerator:
         self.setup_custom_styles()
     
     def setup_custom_styles(self):
-        """Setup custom paragraph styles"""
+        """Setup custom paragraph styles with Arabic support"""
+        # Try to register Arabic font (fallback to Helvetica if not available)
+        try:
+            # Register DejaVu Sans which supports Arabic
+            pdfmetrics.registerFont(TTFont('Arabic', 'DejaVuSans.ttf'))
+            arabic_font = 'Arabic'
+        except:
+            # Fallback to Helvetica if Arabic font not available
+            arabic_font = 'Helvetica'
+        
+        self.arabic_font = arabic_font
+        
         self.title_style = ParagraphStyle(
             'CustomTitle',
             parent=self.styles['Heading1'],
             fontSize=24,
             textColor=colors.HexColor('#1a365d'),
             spaceAfter=30,
-            alignment=TA_CENTER
+            alignment=TA_CENTER,
+            fontName=arabic_font
         )
         
         self.header_style = ParagraphStyle(
@@ -36,7 +50,7 @@ class OfferGenerator:
             spaceAfter=12
         )
         
-        # Compact style for table cells
+        # Compact style for table cells with Arabic support
         self.table_cell_style = ParagraphStyle(
             'TableCell',
             parent=self.styles['Normal'],
@@ -46,7 +60,8 @@ class OfferGenerator:
             spaceBefore=0,
             leftIndent=0,
             rightIndent=0,
-            wordWrap='CJK'  # Better word wrapping
+            fontName=arabic_font,
+            wordWrap='CJK'  # Better word wrapping for all languages
         )
 
     def _get_logo_path(self):
@@ -456,39 +471,70 @@ class OfferGenerator:
         return any(keyword in header.lower() for keyword in numeric_keywords)
     
     def calculate_column_widths(self, headers, num_cols):
-        """Calculate appropriate column widths based on headers - prioritize description and images"""
+        """Calculate dynamic column widths based on content - prioritize description and images"""
         total_width = 7.5 * inch  # A4 page width minus margins
         
         # Identify column types and assign appropriate widths
         widths = []
+        has_description = False
+        has_image = False
+        
         for header in headers:
             h_lower = header.lower()
-            # Check for misspellings too
-            if 'si' in h_lower or 'sl' in h_lower or ('no' in h_lower and len(header) <= 5) or '#' in h_lower:
-                widths.append(0.4 * inch)  # Serial number - very narrow
-            elif 'img' in h_lower or 'image' in h_lower or 'ref' in h_lower:
-                widths.append(1.0 * inch)  # Image column - adequate for small images
-            elif 'descript' in h_lower or 'discript' in h_lower or 'item' in h_lower:
-                widths.append(3.5 * inch)  # Description - much wider for long text
+            
+            # Serial number column - minimal
+            if 'sn' in h_lower or 'sl' in h_lower or 'si' in h_lower or (h_lower in ['no', '#']) or 'serial' in h_lower:
+                widths.append(0.35 * inch)
+            
+            # Image/reference column - space for thumbnail
+            elif 'img' in h_lower or 'image' in h_lower or 'indicative' in h_lower or 'ref' in h_lower:
+                widths.append(0.9 * inch)
+                has_image = True
+            
+            # Description column - largest for detailed text
+            elif 'descript' in h_lower or 'discript' in h_lower:
+                widths.append(3.2 * inch)  # Large space for full descriptions
+                has_description = True
+            
+            # Item/Product name - medium if no description column
+            elif 'item' in h_lower or 'product' in h_lower:
+                widths.append(1.4 * inch if has_description else 2.8 * inch)
+            
+            # Location - compact
+            elif 'location' in h_lower or 'loc' in h_lower:
+                widths.append(0.75 * inch)
+            
+            # Quantity - minimal
             elif 'qty' in h_lower or 'quantity' in h_lower:
-                widths.append(0.5 * inch)  # Quantity - narrow
+                widths.append(0.45 * inch)
+            
+            # Unit - minimal
             elif 'unit' in h_lower and 'rate' not in h_lower and 'price' not in h_lower:
-                widths.append(0.5 * inch)  # Unit - narrow
+                widths.append(0.45 * inch)
+            
+            # Rate/Price - compact numbers
             elif 'rate' in h_lower or 'price' in h_lower:
-                widths.append(0.8 * inch)  # Rate - compact
+                widths.append(0.75 * inch)
+            
+            # Total/Amount - compact numbers  
             elif 'amount' in h_lower or 'total' in h_lower:
-                widths.append(0.9 * inch)  # Total - compact
+                widths.append(0.85 * inch)
+            
+            # Supplier/Brand - medium
+            elif 'supplier' in h_lower or 'brand' in h_lower or 'model' in h_lower:
+                widths.append(0.8 * inch)
+            
+            # Default for unknown columns
             else:
-                widths.append(0.8 * inch)  # Default - compact
+                widths.append(0.7 * inch)
         
         # Normalize to fit total width
         current_total = sum(widths)
         if current_total > total_width:
             scale_factor = total_width / current_total
             widths = [w * scale_factor for w in widths]
-        current_total = sum(widths)
-        if current_total > total_width:
-            scale_factor = total_width / current_total
+        elif current_total < total_width * 0.95:  # If too small, expand proportionally
+            scale_factor = (total_width * 0.98) / current_total
             widths = [w * scale_factor for w in widths]
         
         return widths
