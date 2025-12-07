@@ -322,14 +322,29 @@ class OfferGenerator:
                 h_lower = h_str.lower()
                 # Exclude action columns and original price columns
                 if h_lower not in ['action', 'actions', 'product selection', 'productselection'] and '_original' not in h_str and h_str:
-                    filtered_headers.append(h_str)
-                    header_mapping[h_str] = h  # Map clean string to original header
+                    # FINAL VALIDATION: Absolutely no angle brackets allowed
+                    if '<' not in h_str and '>' not in h_str:
+                        filtered_headers.append(h_str)
+                        header_mapping[h_str] = h  # Map clean string to original header
+            
+            # Safety check: If no valid headers found, log error and return early
+            if not filtered_headers:
+                logger.error("No valid headers found after filtering - all contained objects or were empty")
+                return None
             
             # Use tiny header style for tables with many columns (10+)
             num_cols = len(filtered_headers)
             header_style = self.table_header_tiny_style if num_cols > 10 else self.table_header_style
             
-            header_row = [Paragraph(f"<b>{h}</b>", header_style) for h in filtered_headers]
+            # Create header row with triple-checked clean strings
+            header_row = []
+            for h in filtered_headers:
+                # One more safety check before creating Paragraph
+                if '<' in h or '>' in h or 'Paragraph' in h:
+                    logger.error(f"Malformed header detected: {h}")
+                    header_row.append(Paragraph("<b>Column</b>", header_style))
+                else:
+                    header_row.append(Paragraph(f"<b>{h}</b>", header_style))
             table_rows.append(header_row)
             
             # Data rows - show only final costed prices with images
