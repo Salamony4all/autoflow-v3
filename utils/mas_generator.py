@@ -456,28 +456,14 @@ class MASGenerator:
             
             if image_path and os.path.exists(image_path):
                 try:
-                    # Smaller image to ensure page fit
-                    img = RLImage(image_path, width=2.2*inch, height=2.2*inch)
+                    # Use width only to preserve aspect ratio
+                    # Image will scale proportionally
+                    img = RLImage(image_path, width=2.2*inch)
                     img.hAlign = 'CENTER'
                     story.append(img)
                 except Exception as e:
-                    placeholder = Paragraph(
-                        '<para align="center">[Image not available]</para>',
-                        self.normal_style
-                    )
-                    story.append(placeholder)
-            else:
-                placeholder = Paragraph(
-                    '<para align="center">[Product image will be displayed here]</para>',
-                    self.normal_style
-                )
-                story.append(placeholder)
-        else:
-            placeholder = Paragraph(
-                '<para align="center">[Product image will be displayed here]</para>',
-                self.normal_style
-            )
-            story.append(placeholder)
+                    # Silently skip if image fails
+                    pass
         
         story.append(Spacer(1, 0.15*inch))
         
