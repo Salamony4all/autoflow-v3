@@ -456,9 +456,18 @@ class MASGenerator:
             
             if image_path and os.path.exists(image_path):
                 try:
-                    # Use width only to preserve aspect ratio
-                    # Image will scale proportionally
-                    img = RLImage(image_path, width=2.2*inch)
+                    from PIL import Image as PILImage
+                    # Get original image dimensions
+                    pil_img = PILImage.open(image_path)
+                    img_width, img_height = pil_img.size
+                    aspect_ratio = img_height / img_width
+                    
+                    # Set target width and calculate height to preserve aspect ratio
+                    target_width = 2.2 * inch
+                    target_height = target_width * aspect_ratio
+                    
+                    # Create image with proper aspect ratio
+                    img = RLImage(image_path, width=target_width, height=target_height)
                     img.hAlign = 'CENTER'
                     story.append(img)
                 except Exception as e:

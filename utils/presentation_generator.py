@@ -674,7 +674,6 @@ class PresentationGenerator:
                 except Exception as e:
                     # Silently skip if image fails
                     pass
-            img_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         
         # Details box (right side) - adjusted position for taller header
         details_box = slide.shapes.add_textbox(Inches(5.2), Inches(1.8), Inches(4.3), Inches(5.0))
