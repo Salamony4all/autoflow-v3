@@ -672,22 +672,8 @@ class PresentationGenerator:
                         pic.top = Inches(1.8) + vertical_offset
                         
                 except Exception as e:
-                    # If image fails, add placeholder
-                    img_placeholder = slide.shapes.add_textbox(Inches(0.6), Inches(3.3), Inches(4.2), Inches(1))
-                    img_frame = img_placeholder.text_frame
-                    img_frame.text = "[Image Not Available]"
-                    img_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-            else:
-                # Add placeholder
-                img_placeholder = slide.shapes.add_textbox(Inches(0.6), Inches(3.3), Inches(4.2), Inches(1))
-                img_frame = img_placeholder.text_frame
-                img_frame.text = "[Image Not Available]"
-                img_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
-        else:
-            # Add placeholder
-            img_placeholder = slide.shapes.add_textbox(Inches(0.6), Inches(3.3), Inches(4.2), Inches(1))
-            img_frame = img_placeholder.text_frame
-            img_frame.text = "[Image Not Available]"
+                    # Silently skip if image fails
+                    pass
             img_frame.paragraphs[0].alignment = PP_ALIGN.CENTER
         
         # Details box (right side) - adjusted position for taller header
