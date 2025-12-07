@@ -245,13 +245,34 @@ class ExcelProcessor:
             
             # Load workbook for image extraction (.xlsx format)
             if self.workbook is None:
-                self.workbook = openpyxl.load_workbook(self.filepath, data_only=False)
+                try:
+                    logger.info(f"Loading workbook with openpyxl: {self.filepath}")
+                    self.workbook = openpyxl.load_workbook(self.filepath, data_only=False)
+                    logger.info(f"✓ Workbook loaded successfully")
+                except Exception as wb_error:
+                    error_msg = str(wb_error)
+                    logger.error(f"Failed to load workbook: {error_msg}")
+                    
+                    # Provide specific error messages based on the error type
+                    if 'XML' in error_msg or 'xml' in error_msg:
+                        raise ValueError("Cannot read Excel file: The file appears to be corrupted or has XML structure issues. Please try:\n1. Open the file in Excel\n2. Save As > Excel Workbook (.xlsx)\n3. Upload the newly saved file")
+                    elif 'zip' in error_msg.lower() or 'corrupt' in error_msg.lower():
+                        raise ValueError("Cannot read Excel file: The file appears to be corrupted or damaged. Please repair the file in Excel (File > Info > Check for Issues) or recreate it.")
+                    elif 'password' in error_msg.lower() or 'encrypted' in error_msg.lower():
+                        raise ValueError("Cannot read Excel file: The file is password protected. Please remove the password and upload again.")
+                    else:
+                        raise ValueError(f"Cannot read Excel file: {error_msg}. Please ensure the file is a valid .xlsx format.")
             
             # Read all sheets
-            excel_file = pd.ExcelFile(self.filepath)
-            sheet_names = excel_file.sheet_names
-            
-            logger.info(f"Found {len(sheet_names)} sheets: {sheet_names}")
+            try:
+                logger.info(f"Reading sheets with pandas...")
+                excel_file = pd.ExcelFile(self.filepath)
+                sheet_names = excel_file.sheet_names
+                logger.info(f"✓ Found {len(sheet_names)} sheets: {sheet_names}")
+            except Exception as pd_error:
+                error_msg = str(pd_error)
+                logger.error(f"Pandas failed to read file: {error_msg}")
+                raise ValueError(f"Cannot read Excel file structure: {error_msg}. Please save the file as a new .xlsx file in Excel and try again.")
             
             results = {}
             for sheet_name in sheet_names:
@@ -749,10 +770,27 @@ def process_excel_file(filepath, output_dir=None, session_id=None, file_id=None)
             'message': f"Successfully extracted {len(sheets_data)} sheet(s) with {total_images} image(s)"
         }
         
-    except Exception as e:
-        logger.error(f"Error processing Excel file: {e}")
+    except ValueError as ve:
+        # User-friendly validation errors - pass them through as-is
+        logger.error(f"Validation error processing Excel file: {ve}")
         return {
             'success': False,
-            'error': str(e),
+            'error': str(ve),
+            'filepath': filepath
+        }
+    except Exception as e:
+        # Unexpected errors - provide generic message with details
+        logger.error(f"Unexpected error processing Excel file: {e}")
+        error_msg = str(e)
+        if 'XML' in error_msg or 'xml' in error_msg:
+            user_message = "Cannot read Excel file: The file has XML structure issues. Please open in Excel, save as a new .xlsx file, and upload again."
+        elif 'corrupt' in error_msg.lower() or 'damaged' in error_msg.lower():
+            user_message = "Cannot read Excel file: The file appears corrupted. Please repair or recreate the file in Excel."
+        else:
+            user_message = f"Cannot read Excel file: {error_msg}"
+        
+        return {
+            'success': False,
+            'error': user_message,
             'filepath': filepath
         }
