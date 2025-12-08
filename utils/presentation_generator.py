@@ -601,12 +601,17 @@ class PresentationGenerator:
         import platform
         import subprocess
         import time
+        import shutil
         
         pptx_abs = os.path.abspath(pptx_file)
         pdf_abs = os.path.abspath(pdf_file)
         output_dir = os.path.dirname(pdf_abs)
         
         logger.info(f"Converting PPTX to PDF: {pptx_abs} -> {pdf_abs}")
+        logger.info(f"Platform: {platform.system()}")
+        
+        # Ensure output directory exists
+        os.makedirs(output_dir, exist_ok=True)
         
         try:
             # Try LibreOffice first (works on Linux/Railway)
@@ -614,45 +619,82 @@ class PresentationGenerator:
                 'libreoffice',
                 'soffice',
                 '/usr/bin/libreoffice',
-                '/usr/bin/soffice'
+                '/usr/bin/soffice',
+                '/opt/libreoffice/program/soffice'
             ]
             
+            # Check which LibreOffice command is available
+            available_cmd = None
             for cmd in libreoffice_cmds:
+                if shutil.which(cmd):
+                    available_cmd = cmd
+                    logger.info(f"Found LibreOffice at: {cmd}")
+                    break
+            
+            if not available_cmd:
+                logger.warning("LibreOffice not found in PATH. Checking common locations...")
+                for cmd in libreoffice_cmds:
+                    if os.path.exists(cmd) or os.path.exists(cmd.split()[0]):
+                        available_cmd = cmd
+                        logger.info(f"Found LibreOffice at: {cmd}")
+                        break
+            
+            if available_cmd:
                 try:
+                    logger.info(f"Attempting LibreOffice conversion with: {available_cmd}")
+                    
                     # LibreOffice headless conversion
                     result = subprocess.run(
-                        [cmd, '--headless', '--convert-to', 'pdf', '--outdir', output_dir, pptx_abs],
+                        [available_cmd, '--headless', '--invisible', '--nologo', '--nofirststartwizard',
+                         '--convert-to', 'pdf', '--outdir', output_dir, pptx_abs],
                         capture_output=True,
                         text=True,
-                        timeout=60
+                        timeout=120,
+                        env={**os.environ, 'HOME': '/tmp'}  # Set HOME for LibreOffice profile
                     )
                     
-                    if result.returncode == 0:
-                        # LibreOffice creates PDF with same name as PPTX
-                        expected_pdf = os.path.join(output_dir, os.path.splitext(os.path.basename(pptx_abs))[0] + '.pdf')
-                        
-                        # Wait for file to be created
-                        for _ in range(20):
-                            if os.path.exists(expected_pdf) and os.path.getsize(expected_pdf) > 1000:
+                    logger.info(f"LibreOffice return code: {result.returncode}")
+                    if result.stdout:
+                        logger.info(f"LibreOffice stdout: {result.stdout}")
+                    if result.stderr:
+                        logger.warning(f"LibreOffice stderr: {result.stderr}")
+                    
+                    # LibreOffice creates PDF with same name as PPTX
+                    expected_pdf = os.path.join(output_dir, os.path.splitext(os.path.basename(pptx_abs))[0] + '.pdf')
+                    logger.info(f"Looking for PDF at: {expected_pdf}")
+                    
+                    # Wait for file to be created
+                    for i in range(30):
+                        if os.path.exists(expected_pdf):
+                            file_size = os.path.getsize(expected_pdf)
+                            logger.info(f"PDF found, size: {file_size} bytes (attempt {i+1})")
+                            if file_size > 1000:
                                 # Rename if necessary
                                 if expected_pdf != pdf_abs:
                                     if os.path.exists(pdf_abs):
                                         os.remove(pdf_abs)
-                                    os.rename(expected_pdf, pdf_abs)
+                                    shutil.move(expected_pdf, pdf_abs)
                                 
-                                logger.info(f"PDF created successfully with LibreOffice: {pdf_abs}")
+                                logger.info(f"✓ PDF created successfully with LibreOffice: {pdf_abs}")
                                 return
-                            time.sleep(0.5)
-                        
-                        logger.warning(f"LibreOffice conversion completed but PDF not found: {expected_pdf}")
+                        time.sleep(1)
+                    
+                    # Check if file exists but is small
+                    if os.path.exists(expected_pdf):
+                        size = os.path.getsize(expected_pdf)
+                        logger.warning(f"LibreOffice created PDF but size is too small: {size} bytes")
                     else:
-                        logger.debug(f"LibreOffice command failed: {result.stderr}")
+                        logger.error(f"LibreOffice conversion completed but PDF not found at: {expected_pdf}")
+                        logger.error(f"Output directory contents: {os.listdir(output_dir)}")
                         
-                except FileNotFoundError:
-                    continue  # Try next command
+                except subprocess.TimeoutExpired:
+                    logger.error("LibreOffice conversion timed out after 120 seconds")
                 except Exception as e:
-                    logger.debug(f"LibreOffice attempt with {cmd} failed: {e}")
-                    continue
+                    logger.error(f"LibreOffice conversion failed: {e}")
+                    import traceback
+                    logger.error(traceback.format_exc())
+            else:
+                logger.error("LibreOffice not found on system. Install with: apt-get install libreoffice")
             
             # Fallback to PowerPoint on Windows
             if platform.system() == 'Windows':
@@ -672,7 +714,7 @@ class PresentationGenerator:
                     # Wait for file
                     for _ in range(20):
                         if os.path.exists(pdf_abs) and os.path.getsize(pdf_abs) > 1000:
-                            logger.info(f"PDF created successfully with PowerPoint: {pdf_abs}")
+                            logger.info(f"✓ PDF created successfully with PowerPoint: {pdf_abs}")
                             return
                         time.sleep(0.5)
                     

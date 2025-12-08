@@ -1,5 +1,16 @@
 [phases.setup]
-aptPkgs = ["libreoffice", "ghostscript", "tesseract-ocr", "poppler-utils", "wkhtmltopdf"]
+aptPkgs = [
+  "libreoffice",
+  "libreoffice-writer",
+  "libreoffice-impress",
+  "libreoffice-java-common",
+  "fonts-liberation",
+  "fonts-dejavu",
+  "ghostscript",
+  "tesseract-ocr",
+  "poppler-utils",
+  "wkhtmltopdf"
+]
 
 [start]
 cmd = "gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 app:app"
