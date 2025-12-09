@@ -119,6 +119,7 @@ class ExcelProcessor:
         """
         Extract all images from an Excel sheet and map them to their cell positions
         Note: Only works with .xlsx files (openpyxl). .xls files don't support image extraction.
+        Supports PNG, JPEG, GIF, BMP formats. WMF/EMF formats are not supported by openpyxl.
         
         Args:
             sheet: openpyxl worksheet object
@@ -131,15 +132,46 @@ class ExcelProcessor:
         os.makedirs(images_dir, exist_ok=True)
         
         row_images = {}  # Map row numbers to images
+        unsupported_formats = []
         
         if not hasattr(sheet, '_images') or not sheet._images:
             logger.info(f"No images found in sheet '{sheet.title}'")
             return row_images
         
-        logger.info(f"Found {len(sheet._images)} images in sheet '{sheet.title}'")
+        total_images = len(sheet._images)
+        logger.info(f"Found {total_images} images in sheet '{sheet.title}'")
         
         for idx, img in enumerate(sheet._images):
             try:
+                # Check image format
+                img_format = None
+                if hasattr(img, 'format'):
+                    img_format = img.format
+                elif hasattr(img, '_data'):
+                    # Try to detect format from data
+                    try:
+                        img_data = img._data()
+                        if img_data[:4] == b'\x89PNG':
+                            img_format = 'png'
+                        elif img_data[:2] == b'\xff\xd8':
+                            img_format = 'jpeg'
+                        elif img_data[:3] == b'GIF':
+                            img_format = 'gif'
+                        elif img_data[:2] == b'BM':
+                            img_format = 'bmp'
+                        elif img_data[:4] == b'\xd7\xcd\xc6\x9a' or img_data[:2] == b'\x01\x00':
+                            img_format = 'wmf'
+                            unsupported_formats.append((idx, 'WMF'))
+                            logger.warning(f"Image {idx} is WMF format (unsupported) - skipping")
+                            continue
+                        elif img_data[:4] == b'\x01\x00\x00\x00':
+                            img_format = 'emf'
+                            unsupported_formats.append((idx, 'EMF'))
+                            logger.warning(f"Image {idx} is EMF format (unsupported) - skipping")
+                            continue
+                    except:
+                        pass
+                
                 # Get image anchor (position)
                 anchor = None
                 if hasattr(img, 'anchor'):
@@ -188,6 +220,16 @@ class ExcelProcessor:
                     
             except Exception as e:
                 logger.error(f"Error extracting image {idx}: {e}", exc_info=True)
+        
+        # Log summary
+        extracted_count = len([img for imgs in row_images.values() for img in imgs])
+        logger.info(f"✓ Successfully extracted {extracted_count} images from {total_images} total")
+        
+        if unsupported_formats:
+            logger.warning(f"⚠ Skipped {len(unsupported_formats)} unsupported image(s):")
+            for idx, fmt in unsupported_formats:
+                logger.warning(f"  - Image {idx}: {fmt} format not supported by openpyxl")
+            logger.warning(f"  Tip: Convert {', '.join(set(fmt for _, fmt in unsupported_formats))} images to PNG/JPEG in Excel and re-upload")
         
         return row_images
     
