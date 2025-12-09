@@ -1,7 +1,7 @@
 """
 Excel File Processor
 Handles reading and extracting data from Excel files (.xls, .xlsx)
-Includes image extraction from cells
+Includes image extraction from cells (PNG, JPEG, GIF, BMP, WMF, EMF)
 """
 
 import pandas as pd
@@ -13,10 +13,94 @@ import os
 import json
 import logging
 import base64
+import io
+import tempfile
+import subprocess
+import platform
 from io import BytesIO
 import shutil
 
 logger = logging.getLogger(__name__)
+
+
+def convert_wmf_emf_to_png(image_data, output_path):
+    """
+    Convert WMF/EMF image data to PNG format
+    
+    Args:
+        image_data: Raw WMF/EMF image bytes
+        output_path: Path where PNG should be saved
+        
+    Returns:
+        bool: True if conversion successful, False otherwise
+    """
+    try:
+        # Try PIL first (works for some WMF files on Windows)
+        try:
+            img = Image.open(BytesIO(image_data))
+            img.save(output_path, 'PNG')
+            logger.info(f"✓ Converted WMF/EMF to PNG using PIL")
+            return True
+        except Exception as pil_error:
+            logger.debug(f"PIL conversion failed: {pil_error}")
+        
+        # Try ImageMagick (if available)
+        if platform.system() in ['Linux', 'Darwin']:  # Unix-like systems
+            try:
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.wmf') as tmp:
+                    tmp.write(image_data)
+                    tmp_path = tmp.name
+                
+                result = subprocess.run(
+                    ['convert', tmp_path, output_path],
+                    capture_output=True,
+                    timeout=10
+                )
+                
+                os.unlink(tmp_path)
+                
+                if result.returncode == 0 and os.path.exists(output_path):
+                    logger.info(f"✓ Converted WMF/EMF to PNG using ImageMagick")
+                    return True
+            except Exception as im_error:
+                logger.debug(f"ImageMagick conversion failed: {im_error}")
+        
+        # Try LibreOffice conversion (if available)
+        try:
+            with tempfile.NamedTemporaryFile(delete=False, suffix='.wmf') as tmp:
+                tmp.write(image_data)
+                tmp_path = tmp.name
+            
+            # LibreOffice can convert WMF to PNG
+            result = subprocess.run(
+                ['soffice', '--headless', '--convert-to', 'png', '--outdir', 
+                 os.path.dirname(output_path), tmp_path],
+                capture_output=True,
+                timeout=15
+            )
+            
+            if result.returncode == 0:
+                # LibreOffice creates PNG with same base name
+                expected_png = os.path.join(
+                    os.path.dirname(output_path),
+                    os.path.splitext(os.path.basename(tmp_path))[0] + '.png'
+                )
+                if os.path.exists(expected_png):
+                    if expected_png != output_path:
+                        shutil.move(expected_png, output_path)
+                    os.unlink(tmp_path)
+                    logger.info(f"✓ Converted WMF/EMF to PNG using LibreOffice")
+                    return True
+            
+            os.unlink(tmp_path)
+        except Exception as lo_error:
+            logger.debug(f"LibreOffice conversion failed: {lo_error}")
+        
+        return False
+        
+    except Exception as e:
+        logger.error(f"All WMF/EMF conversion methods failed: {e}")
+        return False
 
 
 class ExcelProcessor:
@@ -119,7 +203,7 @@ class ExcelProcessor:
         """
         Extract all images from an Excel sheet and map them to their cell positions
         Note: Only works with .xlsx files (openpyxl). .xls files don't support image extraction.
-        Supports PNG, JPEG, GIF, BMP formats. WMF/EMF formats are not supported by openpyxl.
+        Supports PNG, JPEG, GIF, BMP, WMF, EMF formats (WMF/EMF converted to PNG).
         
         Args:
             sheet: openpyxl worksheet object
@@ -132,7 +216,7 @@ class ExcelProcessor:
         os.makedirs(images_dir, exist_ok=True)
         
         row_images = {}  # Map row numbers to images
-        unsupported_formats = []
+        conversion_attempts = []
         
         if not hasattr(sheet, '_images') or not sheet._images:
             logger.info(f"No images found in sheet '{sheet.title}'")
@@ -143,11 +227,15 @@ class ExcelProcessor:
         
         for idx, img in enumerate(sheet._images):
             try:
-                # Check image format
+                # Check image format and detect WMF/EMF
                 img_format = None
+                is_wmf_emf = False
+                img_data = None
+                
                 if hasattr(img, 'format'):
                     img_format = img.format
-                elif hasattr(img, '_data'):
+                
+                if hasattr(img, '_data'):
                     # Try to detect format from data
                     try:
                         img_data = img._data()
@@ -161,14 +249,12 @@ class ExcelProcessor:
                             img_format = 'bmp'
                         elif img_data[:4] == b'\xd7\xcd\xc6\x9a' or img_data[:2] == b'\x01\x00':
                             img_format = 'wmf'
-                            unsupported_formats.append((idx, 'WMF'))
-                            logger.warning(f"Image {idx} is WMF format (unsupported) - skipping")
-                            continue
+                            is_wmf_emf = True
+                            logger.info(f"Image {idx} is WMF format - attempting conversion to PNG")
                         elif img_data[:4] == b'\x01\x00\x00\x00':
                             img_format = 'emf'
-                            unsupported_formats.append((idx, 'EMF'))
-                            logger.warning(f"Image {idx} is EMF format (unsupported) - skipping")
-                            continue
+                            is_wmf_emf = True
+                            logger.info(f"Image {idx} is EMF format - attempting conversion to PNG")
                     except:
                         pass
                 
@@ -193,16 +279,32 @@ class ExcelProcessor:
                     img_filename = f"{sheet.title.replace(' ', '_')}_row{row_num}_img{idx}.png"
                     img_path = os.path.join(images_dir, img_filename)
                     
-                    # Get image data and save
-                    if hasattr(img, '_data'):
-                        with open(img_path, 'wb') as f:
-                            f.write(img._data())
-                    elif hasattr(img, 'ref'):
-                        # Handle embedded images
-                        img_data = img.ref
-                        if hasattr(img_data, '_data'):
-                            with open(img_path, 'wb') as f:
-                                f.write(img_data())
+                    # Handle WMF/EMF conversion
+                    if is_wmf_emf and img_data:
+                        success = convert_wmf_emf_to_png(img_data, img_path)
+                        if success:
+                            conversion_attempts.append((idx, img_format.upper(), 'success'))
+                            logger.info(f"✓ Converted {img_format.upper()} image {idx} at row {row_num}: {img_filename}")
+                        else:
+                            conversion_attempts.append((idx, img_format.upper(), 'failed'))
+                            logger.warning(f"✗ Failed to convert {img_format.upper()} image {idx} - skipping")
+                            continue
+                    else:
+                        # Save standard image formats
+                        try:
+                            if hasattr(img, '_data'):
+                                with open(img_path, 'wb') as f:
+                                    f.write(img._data())
+                            elif hasattr(img, 'ref'):
+                                # Handle embedded images
+                                img_data = img.ref
+                                if hasattr(img_data, '_data'):
+                                    with open(img_path, 'wb') as f:
+                                        f.write(img_data())
+                            logger.info(f"Extracted image {idx} at row {row_num}: {img_filename}")
+                        except Exception as save_error:
+                            logger.error(f"Failed to save image {idx}: {save_error}")
+                            continue
                     
                     # Store relative path mapped to row number
                     rel_path = f"imgs/{img_filename}"
@@ -214,7 +316,6 @@ class ExcelProcessor:
                     if rel_path not in row_images[row_num]:
                         row_images[row_num].append(rel_path)
                     
-                    logger.info(f"Extracted image {idx} at row {row_num}: {img_filename}")
                 else:
                     logger.warning(f"Could not determine anchor for image {idx}")
                     
@@ -225,11 +326,20 @@ class ExcelProcessor:
         extracted_count = len([img for imgs in row_images.values() for img in imgs])
         logger.info(f"✓ Successfully extracted {extracted_count} images from {total_images} total")
         
-        if unsupported_formats:
-            logger.warning(f"⚠ Skipped {len(unsupported_formats)} unsupported image(s):")
-            for idx, fmt in unsupported_formats:
-                logger.warning(f"  - Image {idx}: {fmt} format not supported by openpyxl")
-            logger.warning(f"  Tip: Convert {', '.join(set(fmt for _, fmt in unsupported_formats))} images to PNG/JPEG in Excel and re-upload")
+        if conversion_attempts:
+            successful = [c for c in conversion_attempts if c[2] == 'success']
+            failed = [c for c in conversion_attempts if c[2] == 'failed']
+            
+            if successful:
+                logger.info(f"✓ Converted {len(successful)} WMF/EMF image(s) to PNG:")
+                for idx, fmt, _ in successful:
+                    logger.info(f"  - Image {idx}: {fmt} → PNG")
+            
+            if failed:
+                logger.warning(f"⚠ Failed to convert {len(failed)} WMF/EMF image(s):")
+                for idx, fmt, _ in failed:
+                    logger.warning(f"  - Image {idx}: {fmt} conversion failed")
+                logger.warning(f"  Note: WMF/EMF conversion requires PIL, ImageMagick, or LibreOffice")
         
         return row_images
     
