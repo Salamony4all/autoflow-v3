@@ -598,18 +598,459 @@
             margin: 0;
         }
 
+
         /* Responsive */
+
+        /* Tablet Landscape and below */
+        @media (max-width: 1024px) {
+            .nav-container {
+                padding: 0 1.5rem;
+            }
+
+            .hero h1 {
+                font-size: clamp(2.2rem, 5vw, 3.5rem);
+            }
+
+            .hero .subtitle {
+                font-size: clamp(1rem, 1.8vw, 1.3rem);
+            }
+
+            .features,
+            .how-it-works,
+            .app-integration {
+                padding: 4rem 1.5rem;
+            }
+
+            .section-header h2 {
+                font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+            }
+
+            .section-header p {
+                font-size: 1.1rem;
+            }
+
+            .feature-card,
+            .app-card {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        /* Tablet Portrait */
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
 
+            .nav-container {
+                padding: 0 1rem;
+            }
+
+            .logo {
+                height: 40px;
+            }
+
+            .nav-cta {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.95rem;
+            }
+
+            .hero {
+                padding-top: 100px;
+                min-height: auto;
+                padding-bottom: 60px;
+            }
+
+            .hero-content {
+                padding: 0 1.5rem;
+            }
+
+            .hero h1 {
+                font-size: clamp(2rem, 4.5vw, 3rem);
+                margin-bottom: 1.2rem;
+            }
+
+            .hero .subtitle {
+                font-size: clamp(0.95rem, 1.6vw, 1.2rem);
+                margin-bottom: 1.5rem;
+            }
+
             .hero-cta {
                 flex-direction: column;
+                gap: 0.8rem;
             }
 
             .btn {
                 width: 100%;
+                padding: 0.9rem 1.8rem;
+                font-size: 1rem;
+                min-height: 48px;
+                /* Touch-friendly */
+            }
+
+            .features,
+            .how-it-works,
+            .app-integration {
+                padding: 3.5rem 1rem;
+            }
+
+            .section-header {
+                margin-bottom: 2.5rem;
+            }
+
+            .section-header h2 {
+                font-size: clamp(1.6rem, 3vw, 2.2rem);
+                margin-bottom: 0.8rem;
+            }
+
+            .section-header p {
+                font-size: 1rem;
+            }
+
+            .features-grid,
+            .app-grid {
+                gap: 1.5rem;
+            }
+
+            .feature-card,
+            .app-card {
+                padding: 1.8rem 1.2rem;
+                border-radius: 18px;
+            }
+
+            .card-icon {
+                font-size: 3.5em;
+                margin-bottom: 20px;
+            }
+
+            .card-title {
+                font-size: 1.5em;
+            }
+
+            .card-description {
+                font-size: 0.95em;
+            }
+
+            .app-card-icon {
+                font-size: 2.5rem;
+                margin-bottom: 1.2rem;
+            }
+
+            .app-card h3 {
+                font-size: 1.3rem;
+            }
+
+            .app-card p {
+                font-size: 0.95rem;
+                margin-bottom: 1.2rem;
+            }
+
+            .app-card-btn {
+                padding: 0.65rem 1.3rem;
+                font-size: 0.95rem;
+                min-height: 44px;
+            }
+
+            .step-number {
+                width: 70px;
+                height: 70px;
+                font-size: 1.8rem;
+                margin-bottom: 1.2rem;
+            }
+
+            .step h3 {
+                font-size: 1.2rem;
+            }
+
+            .step p {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Mobile Devices */
+        @media (max-width: 480px) {
+            .navbar {
+                padding: 0.8rem 0;
+            }
+
+            .nav-container {
+                padding: 0 0.75rem;
+            }
+
+            .logo {
+                height: 35px;
+            }
+
+            .nav-cta {
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+                border-radius: 6px;
+            }
+
+            .hero {
+                padding-top: 80px;
+                padding-bottom: 40px;
+            }
+
+            .hero-content {
+                padding: 0 1rem;
+            }
+
+            .hero h1 {
+                font-size: clamp(1.6rem, 4vw, 2.2rem);
+                margin-bottom: 1rem;
+                line-height: 1.3;
+            }
+
+            .hero .subtitle {
+                font-size: clamp(0.9rem, 1.4vw, 1.05rem);
+                margin-bottom: 1.2rem;
+                line-height: 1.5;
+            }
+
+            .hero-cta {
+                gap: 0.7rem;
+            }
+
+            .btn {
+                padding: 0.85rem 1.5rem;
+                font-size: 0.95rem;
+                border-radius: 10px;
+                min-height: 48px;
+            }
+
+            .features,
+            .how-it-works,
+            .app-integration {
+                padding: 2.5rem 0.75rem;
+            }
+
+            .section-header {
+                margin-bottom: 2rem;
+            }
+
+            .section-header h2 {
+                font-size: clamp(1.4rem, 2.8vw, 1.8rem);
+                margin-bottom: 0.6rem;
+            }
+
+            .section-header p {
+                font-size: 0.9rem;
+                line-height: 1.6;
+            }
+
+            .features-grid,
+            .app-grid,
+            .steps {
+                gap: 1.2rem;
+            }
+
+            .feature-card,
+            .app-card {
+                padding: 1.5rem 1rem;
+                border-radius: 15px;
+            }
+
+            .card-icon {
+                font-size: 3em;
+                margin-bottom: 15px;
+            }
+
+            .card-badge {
+                top: 12px;
+                right: 12px;
+                padding: 5px 12px;
+                font-size: 0.7em;
+            }
+
+            .card-title {
+                font-size: 1.3em;
+                margin-bottom: 12px;
+            }
+
+            .card-description {
+                font-size: 0.9em;
+                line-height: 1.6;
+                margin-bottom: 15px;
+            }
+
+            .card-features {
+                margin-top: 15px;
+            }
+
+            .card-features li {
+                font-size: 0.85em;
+                padding: 6px 0;
+            }
+
+            .card-features li::before {
+                width: 20px;
+                height: 20px;
+                line-height: 20px;
+                margin-right: 8px;
+            }
+
+            .card-cta {
+                padding: 12px 20px;
+                font-size: 0.9em;
+                min-height: 44px;
+            }
+
+            .app-card {
+                padding: 1.5rem 1rem;
+            }
+
+            .app-card-icon {
+                font-size: 2.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .app-card h3 {
+                font-size: 1.2rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .app-card p {
+                font-size: 0.9rem;
+                margin-bottom: 1rem;
+                line-height: 1.6;
+            }
+
+            .app-card-btn {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+                min-height: 44px;
+            }
+
+            .step-number {
+                width: 60px;
+                height: 60px;
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .step h3 {
+                font-size: 1.1rem;
+                margin-bottom: 0.6rem;
+            }
+
+            .step p {
+                font-size: 0.9rem;
+                line-height: 1.6;
+            }
+
+            .footer {
+                padding: 2rem 1rem;
+                font-size: 0.9rem;
+            }
+
+            /* Ensure cards grid is single column on mobile */
+            .cards-container {
+                grid-template-columns: 1fr !important;
+                gap: 1.2rem !important;
+                padding: 20px 10px !important;
+            }
+        }
+
+        /* Very Small Devices */
+        @media (max-width: 360px) {
+            .hero h1 {
+                font-size: 1.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 0.85rem;
+            }
+
+            .section-header h2 {
+                font-size: 1.3rem;
+            }
+
+            .card-title {
+                font-size: 1.2em;
+            }
+
+            .btn,
+            .card-cta,
+            .app-card-btn {
+                font-size: 0.85rem;
+                padding: 0.75rem 1.2rem;
+            }
+
+            .step-number {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+        }
+
+        /* Landscape orientation optimizations for mobile */
+        @media screen and (max-height: 600px) and (orientation: landscape) {
+            .hero {
+                min-height: auto;
+                padding-top: 70px;
+                padding-bottom: 40px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1rem;
+                margin-bottom: 1rem;
+            }
+
+            .hero-cta {
+                gap: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.7rem 1.5rem;
+            }
+
+            .section-header {
+                margin-bottom: 2rem;
+            }
+
+            .features,
+            .how-it-works,
+            .app-integration {
+                padding: 2rem 1rem;
+            }
+
+            .step-number {
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+                margin-bottom: 0.8rem;
+            }
+        }
+
+        /* Touch-friendly improvements */
+        @media (max-width: 768px) {
+
+            /* Minimum tap target size for all interactive elements */
+            .btn,
+            .nav-cta,
+            .card-cta,
+            .app-card-btn {
+                min-height: 44px;
+                min-width: 44px;
+                touch-action: manipulation;
+            }
+
+            /* Prevent text size adjustment on orientation change */
+            body {
+                -webkit-text-size-adjust: 100%;
+                -moz-text-size-adjust: 100%;
+                -ms-text-size-adjust: 100%;
+                text-size-adjust: 100%;
+            }
+
+            /* Improve scrolling performance */
+            * {
+                -webkit-overflow-scrolling: touch;
             }
         }
 
@@ -727,14 +1168,16 @@
                 <h2 style="color: white;">Get Started</h2>
                 <p style="color: rgba(255,255,255,0.9);">Choose your workflow to begin</p>
             </div>
-            <div class="cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 35px; padding: 40px 20px; max-width: 1400px; margin: 0 auto;">
+            <div class="cards-container"
+                style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 35px; padding: 40px 20px; max-width: 1400px; margin: 0 auto;">
                 <!-- Card 1: Quote with Price List -->
                 <div class="feature-card" data-card="quote-pricelist">
                     <span class="card-badge">Popular</span>
                     <span class="card-icon">💰</span>
                     <h2 class="card-title">Quote with Price List</h2>
                     <p class="card-description">
-                        Upload your BOQ with price list to generate professional quotations instantly with accurate pricing
+                        Upload your BOQ with price list to generate professional quotations instantly with accurate
+                        pricing
                         and margins.
                     </p>
                     <ul class="card-features">
@@ -794,7 +1237,8 @@
                     <span class="card-icon">📋</span>
                     <h2 class="card-title">MAS Generator</h2>
                     <p class="card-description">
-                        Generate Material Approval Sheets automatically from your BOQ for streamlined approval workflows.
+                        Generate Material Approval Sheets automatically from your BOQ for streamlined approval
+                        workflows.
                     </p>
                     <ul class="card-features">
                         <li>Upload BOQ data</li>
@@ -829,10 +1273,10 @@
             const body = document.body;
             body.style.transition = 'opacity 0.6s ease-out';
             body.style.opacity = '0';
-            
+
             // Store workflow type in sessionStorage and redirect to main app
             sessionStorage.setItem('workflowType', workflowType);
-            
+
             // Redirect after fade out - navigate directly to app with workflow parameter
             setTimeout(() => {
                 window.location.href = `/app?workflow=${workflowType}`;
