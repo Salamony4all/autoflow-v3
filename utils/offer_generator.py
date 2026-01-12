@@ -226,6 +226,11 @@ class OfferGenerator:
                 return p
         return None
 
+    def _get_brand_logo(self, brand_name):
+        """Get brand logo from JSON files or return None"""
+        from utils.image_helper import get_brand_logo_url
+        return get_brand_logo_url(brand_name)
+
     def _draw_header_footer(self, canv: canvas.Canvas, doc):
         """Draw properly placed header logo and footer website."""
         page_width, page_height = doc.pagesize
@@ -285,6 +290,9 @@ class OfferGenerator:
         
         if not file_info:
             raise Exception('File info not found')
+        
+        is_multibudget = file_info.get('multibudget', False)
+        logger.info(f"Generating offer for file_id: {file_id} (multibudget: {is_multibudget})")
         
         # ALWAYS use costed_data - this is the source of truth after costing is applied
         costed_data = None
@@ -487,25 +495,37 @@ class OfferGenerator:
                                 num_images = len(valid_image_paths)
                                 
                                 # Calculate image size based on number of images
-                                # Smaller images when there are more of them
-                                if num_images == 1:
-                                    max_size = 1.2 * inch
-                                elif num_images == 2:
-                                    max_size = 0.7 * inch
-                                elif num_images <= 4:
-                                    max_size = 0.55 * inch
+                                # For Multi-Budget, we want asymmetric sizing if there are 2 images (Main + Ref)
+                                if is_multibudget and num_images == 2:
+                                    # First image (Main) is larger
+                                    main_size = 0.9 * inch
+                                    # Second image (Reference) is smaller
+                                    ref_size = 0.5 * inch
                                 else:
-                                    max_size = 0.45 * inch
+                                    # Standard symmetric sizing
+                                    if num_images == 1:
+                                        max_size = 1.2 * inch
+                                    elif num_images == 2:
+                                        max_size = 0.7 * inch
+                                    elif num_images <= 4:
+                                        max_size = 0.55 * inch
+                                    else:
+                                        max_size = 0.45 * inch
+                                    
+                                    main_size = ref_size = max_size
                                 
                                 # Create image objects
                                 image_objects = []
-                                for img_path in valid_image_paths[:6]:  # Max 6 images
+                                for idx, img_path in enumerate(valid_image_paths[:6]):  # Max 6 images
                                     try:
+                                        # Use asymmetric size for first vs others in multibudget
+                                        current_size = main_size if idx == 0 else ref_size
+                                        
                                         pil_img = PILImage.open(img_path)
                                         img_width, img_height = pil_img.size
                                         
                                         # Scale to fit
-                                        scale_ratio = min(max_size / img_width, max_size / img_height)
+                                        scale_ratio = min(current_size / img_width, current_size / img_height)
                                         final_width = img_width * scale_ratio
                                         final_height = img_height * scale_ratio
                                         
@@ -514,10 +534,58 @@ class OfferGenerator:
                                     except:
                                         pass
                                 
+                                # Prepare content with brand logo if available
+                                content_elements = []
+                                
+                                # Add brand logo above images if available
+                                brand_logo = row.get('brand_logo')
+                                if brand_logo:
+                                    try:
+                                        # Download if URL
+                                        if brand_logo.startswith('http'):
+                                            from utils.image_helper import download_image
+                                            cached_logo = download_image(brand_logo)
+                                            if cached_logo and os.path.exists(cached_logo):
+                                                brand_logo = cached_logo
+                                        
+                                        if brand_logo and os.path.exists(brand_logo):
+                                            pil_logo = PILImage.open(brand_logo)
+                                            logo_width, logo_height = pil_logo.size
+                                            aspect_ratio = logo_height / logo_width
+                                            
+                                            # Logo dimensions: max width 0.9 inches (smaller in offer table)
+                                            logo_final_width = 0.9 * inch
+                                            logo_final_height = logo_final_width * aspect_ratio
+                                            
+                                            # Cap max height
+                                            if logo_final_height > 0.5 * inch:
+                                                logo_final_height = 0.5 * inch
+                                                logo_final_width = logo_final_height / aspect_ratio
+                                            
+                                            logo_img = RLImage(brand_logo, width=logo_final_width, height=logo_final_height)
+                                            logo_img.hAlign = 'CENTER'
+                                            content_elements.append(logo_img)
+                                    except Exception as e:
+                                        logger.warning(f"Could not add brand logo to offer table: {e}")
+                                
                                 if image_objects:
                                     if len(image_objects) == 1:
-                                        # Single image - just add it
-                                        table_row.append(image_objects[0])
+                                        # Single image - add logo if available, then image
+                                        if content_elements:
+                                            content_elements.append(image_objects[0])
+                                            inner_table_data = [[elem] for elem in content_elements]
+                                            inner_table = InnerTable(inner_table_data, colWidths=[1.2*inch])
+                                            inner_table.setStyle(TableStyle([
+                                                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                                                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                                                ('LEFTPADDING', (0, 0), (-1, -1), 1),
+                                                ('RIGHTPADDING', (0, 0), (-1, -1), 1),
+                                                ('TOPPADDING', (0, 0), (-1, -1), 1),
+                                                ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+                                            ]))
+                                            table_row.append(inner_table)
+                                        else:
+                                            table_row.append(image_objects[0])
                                     else:
                                         # Multiple images - arrange in grid (2 columns)
                                         grid_rows = []
@@ -537,7 +605,22 @@ class OfferGenerator:
                                             ('TOPPADDING', (0, 0), (-1, -1), 1),
                                             ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
                                         ]))
-                                        table_row.append(inner_table)
+                                        
+                                        # If logo exists, wrap in another table with logo on top
+                                        if content_elements:
+                                            wrapper_rows = [[elem] for elem in content_elements] + [[inner_table]]
+                                            wrapper_table = InnerTable(wrapper_rows, colWidths=[1.4*inch])
+                                            wrapper_table.setStyle(TableStyle([
+                                                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                                                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                                                ('LEFTPADDING', (0, 0), (-1, -1), 1),
+                                                ('RIGHTPADDING', (0, 0), (-1, -1), 1),
+                                                ('TOPPADDING', (0, 0), (-1, -1), 1),
+                                                ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+                                            ]))
+                                            table_row.append(wrapper_table)
+                                        else:
+                                            table_row.append(inner_table)
                                 else:
                                     table_row.append('[Img]')
                             except Exception as e:

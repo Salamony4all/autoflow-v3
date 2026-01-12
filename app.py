@@ -349,6 +349,22 @@ def get_session_files():
         logger.exception("Error getting session files")
         return jsonify({'success': False, 'error': str(e)}), 500
 
+def fetch_brand_logo_url(brand_name):
+    """Internal helper to get brand logo URL from brand JSON data"""
+    from utils.image_helper import get_brand_logo_url
+    return get_brand_logo_url(brand_name)
+
+@app.route('/get-brand-logo', methods=['GET'])
+def get_brand_logo():
+    """Get brand logo URL from brand JSON file"""
+    try:
+        brand_name = request.args.get('brand', '').strip()
+        logo = fetch_brand_logo_url(brand_name)
+        return jsonify({'logo': logo})
+    except Exception as e:
+        logger.exception("Error in get_brand_logo")
+        return jsonify({'logo': None}), 500
+
 @app.route('/debug/session')
 def debug_session():
     """Debug page to show current session state"""
@@ -2602,6 +2618,12 @@ def store_multibudget_table():
                     )
                     if image_url:
                         product_info['image_url'] = image_url
+                    
+                    # Also fetch brand logo
+                    brand_logo = fetch_brand_logo_url(product_info['brand'])
+                    if brand_logo:
+                        product_info['brand_logo'] = brand_logo
+                        
                     product_selections.append(product_info)
         else:
             # Fallback: try to extract from HTML
@@ -2721,6 +2743,11 @@ def store_multibudget_table():
                                     if image_url:
                                         product_info['image_url'] = image_url
                                 
+                                # Fetch brand logo
+                                brand_logo = fetch_brand_logo_url(brand)
+                                if brand_logo:
+                                    product_info['brand_logo'] = brand_logo
+                                
                                 product_selections.append(product_info)
                         break
         
@@ -2839,6 +2866,19 @@ def apply_multibudget_costing(tier):
         
         # Apply factors
         updated_table = engine.apply_factors_to_table(table_format, factors)
+        
+        # Enrich updated rows with brand info from stored product selections
+        product_selections = session.get('multibudget_tables', {}).get(tier, {}).get('product_selections', [])
+        if product_selections:
+            logger.info(f"Enriching {len(updated_table['rows'])} costed rows with brand info for {tier}")
+            for row_idx, row in enumerate(updated_table['rows']):
+                selection = next((p for p in product_selections if p.get('row_index') == row_idx), None)
+                if selection:
+                    row['brand'] = selection.get('brand')
+                    row['brand_logo'] = selection.get('brand_logo')
+                    row['model'] = selection.get('model')
+                    # ADDED: image_url for Excel/PDF exports
+                    row['image_url'] = selection.get('image_url')
         
         # Calculate summary
         subtotal = 0.0
@@ -3111,9 +3151,24 @@ def get_brands_list():
                             if not has_category:
                                 continue
                         
+                        # Ensure website is a valid URL for logo extraction
+                        website = brand_entry.get('website', '')
+                        # First priority: use logo from JSON if it exists
+                        logo_url = brand_entry.get('logo', '')
+                        
+                        # Fallback only if no logo in JSON
+                        if not logo_url and website:
+                            try:
+                                domain = website.replace('http://', '').replace('https://', '').split('/')[0]
+                                if domain:
+                                    logo_url = f"https://logo.clearbit.com/{domain}"
+                            except:
+                                pass
+
                         brands.append({
                             'name': brand_entry.get('name', 'Unknown'),
-                            'website': brand_entry.get('website', ''),
+                            'website': website,
+                            'logo': logo_url,
                             'country': brand_entry.get('country', 'Unknown'),
                             'tier': tier,
                             'categories': categories_list
@@ -3145,7 +3200,22 @@ def get_brands_list():
                     
                     brand_categories = brand_data.get('categories', {})
                     category_tree = brand_data.get('category_tree', {})
-                    categories_list = list(category_tree.keys()) if category_tree else list(brand_categories.keys())
+                    products_list = brand_data.get('products', [])
+                    collections = brand_data.get('collections', {})
+                    
+                    categories_list = []
+                    if category_tree:
+                        categories_list = list(category_tree.keys())
+                    elif brand_categories:
+                        categories_list = list(brand_categories.keys())
+                    elif collections:
+                        categories_list = list(collections.keys())
+                    elif products_list:
+                        prod_cats = set()
+                        for p in products_list:
+                            cat = p.get('mainCategory') or p.get('category') or 'Products'
+                            prod_cats.add(cat)
+                        categories_list = list(prod_cats) if prod_cats else ['Products']
                     
                     # Filter by category if specified
                     if category:
@@ -3154,9 +3224,23 @@ def get_brands_list():
                         if not has_category:
                             continue
                     
+                    # Ensure website is a valid URL for logo extraction
+                    website = brand_data.get('website', '')
+                    logo_url = brand_data.get('logo') or ''
+                    
+                    if not logo_url and website:
+                        try:
+                            # Use domain for Clearbit logo
+                            domain = website.replace('http://', '').replace('https://', '').split('/')[0]
+                            if domain and '.' in domain:
+                                logo_url = f"https://logo.clearbit.com/{domain}"
+                        except:
+                            pass
+
                     brands.append({
                         'name': brand_name,
-                        'website': brand_data.get('website', ''),
+                        'website': website,
+                        'logo': logo_url,
                         'country': brand_data.get('country', 'Unknown'),
                         'tier': tier,
                         'categories': categories_list
@@ -3284,6 +3368,29 @@ def get_brand_models_api():
                         products_list.append(model_entry)
                     
                     categories_data[clean_name]['subcategories']['general'] = {'products': products_list}
+        
+        # Handle flat products list format (NEW - used in upgraded app sample)
+        if not categories_data and 'products' in brand_data:
+            categories_data = {}
+            for product in brand_data.get('products', []):
+                cat = product.get('mainCategory') or product.get('category') or 'Products'
+                subcat = product.get('subCategory') or product.get('subcategory') or 'General'
+                
+                if cat not in categories_data:
+                    categories_data[cat] = {'subcategories': {}}
+                if subcat not in categories_data[cat]['subcategories']:
+                    categories_data[cat]['subcategories'][subcat] = {'products': []}
+                
+                model_entry = {
+                    'model': product.get('name') or product.get('model', 'Unknown'),
+                    'image_url': product.get('imageUrl') or product.get('image_url', ''),
+                    'source_url': product.get('productUrl') or product.get('source_url', ''),
+                    'description': product.get('description', ''),
+                    'price': product.get('price'),
+                    'price_range': product.get('price_range', 'Contact for price'),
+                    'features': product.get('features', [])
+                }
+                categories_data[cat]['subcategories'][subcat]['products'].append(model_entry)
         
         # Filter by category if specified
         if category:
@@ -3485,6 +3592,15 @@ def get_brands_categories():
         if 'category_tree' in brand_data and brand_data.get('category_tree'):
             categories_data = brand_data.get('category_tree', {})
             logger.info(f"Using category_tree format: {len(categories_data)} categories")
+        # Try flat products format (NEW)
+        if not categories_data and 'products' in brand_data:
+            categories_data = {}
+            for p in brand_data.get('products', []):
+                cat = p.get('mainCategory') or p.get('category') or 'Products'
+                if cat not in categories_data:
+                    categories_data[cat] = {}
+            logger.info(f"Using flat products format: {len(categories_data)} categories")
+
         # Fallback to categories format
         elif 'categories' in brand_data and brand_data.get('categories'):
             categories_data = brand_data.get('categories', {})
@@ -3598,6 +3714,19 @@ def get_subcategories_api():
                     clean_name = collection_name.split('\n')[0].strip()
                     if clean_name not in categories_data:
                         categories_data[clean_name] = {}
+        
+        # Handle flat products format (NEW)
+        if not categories_data and 'products' in brand_data:
+            categories_data = {}
+            for p in brand_data.get('products', []):
+                cat = p.get('mainCategory') or p.get('category') or 'Products'
+                subcat = p.get('subCategory') or p.get('subcategory') or 'General'
+                if cat not in categories_data:
+                    categories_data[cat] = {'subcategories': {}}
+                if subcat not in categories_data[cat]['subcategories']:
+                    categories_data[cat]['subcategories'][subcat] = {'products': []}
+                categories_data[cat]['subcategories'][subcat]['products'].append(p)
+            logger.info(f"Using flat products format for subcategories")
         
         # Find matching category (case-insensitive)
         matching_category = None
@@ -3943,6 +4072,7 @@ def scrape_and_add_brand():
                 brand['website'] = website
                 brand['country'] = country
                 brand['tier'] = tier
+                brand['logo'] = scraped_data.get('logo') or brand.get('logo') # Update logo if found
                 brand['categories'] = scraped_data.get('collections', {})
                 brand['category_tree'] = scraped_data.get('category_tree', {})
                 brand['last_scraped_at'] = datetime.now().isoformat()
@@ -3956,6 +4086,7 @@ def scrape_and_add_brand():
                 'website': website,
                 'country': country,
                 'tier': tier,
+                'logo': scraped_data.get('logo'), # Save logo URL
                 'categories': scraped_data.get('collections', {}),
                 'category_tree': scraped_data.get('category_tree', {}),
                 'added_date': datetime.now().isoformat(),

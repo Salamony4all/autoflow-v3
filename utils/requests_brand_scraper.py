@@ -196,6 +196,7 @@ class RequestsBrandScraper:
                 'success': True,
                 'brand': brand_name,
                 'website': website,
+                'logo': self._extract_brand_logo(soup, website), # Extract logo
                 'category_tree': category_tree,
                 'total_products': total_products,
                 'requires_javascript': js_required,  # Include JS detection flag
@@ -899,3 +900,49 @@ class RequestsBrandScraper:
             logger.warning(f"Error detecting JavaScript requirement: {e}")
             return False
 
+    def _extract_brand_logo(self, soup: BeautifulSoup, base_url: str) -> str:
+        """Extract brand logo with robust selectors"""
+        try:
+            # Priority 0: Meta tags
+            meta_logo = soup.find('meta', property='og:image')
+            if meta_logo and meta_logo.get('content'):
+                content = meta_logo.get('content')
+                if 'logo' in content.lower():
+                    return content if content.startswith('http') else urljoin(base_url, content)
+
+            # Priority 1: Common logo selectors
+            logo_selectors = [
+                '.custom-logo', '.site-logo img', '.logo img', 'a.logo img',
+                'header img[src*="logo"]', '.navbar-brand img', '[class*="logo"] img',
+                'img[alt*="logo" i]', 'img[class*="logo" i]',
+                '#logo img', '.header-logo img'
+            ]
+            
+            for selector in logo_selectors:
+                elements = soup.select(selector)
+                if elements:
+                    el = elements[0]
+                    src = el.get('src') or el.get('data-src') or el.get('srcset')
+                    if src:
+                        logo_url = urljoin(base_url, src.split()[0])
+                        if '?' in logo_url: logo_url = logo_url.split('?')[0]
+                        return logo_url
+
+            # Priority 2: Try specific selectors for brand logo (fallback search)
+            logo_img = soup.find('img', class_=re.compile(r'brand.*logo|logo.*brand|site-logo', re.I))
+            if logo_img:
+                src = logo_img.get('src') or logo_img.get('data-src') or logo_img.get('srcset')
+                if src: return urljoin(base_url, src.split()[0])
+            
+            # Priority 3: Look in any image with 'logo' in the filename or alt text
+            for img in soup.find_all('img'):
+                alt = img.get('alt', '').lower()
+                src = img.get('src', '').lower()
+                if ('logo' in alt or 'logo' in src) and len(src) < 255:
+                    if not any(x in src for x in ['placeholder', 'spinner', 'loading']):
+                        logo_url = urljoin(base_url, img.get('src'))
+                        if '?' in logo_url: logo_url = logo_url.split('?')[0]
+                        return logo_url
+        except:
+            pass
+        return ''

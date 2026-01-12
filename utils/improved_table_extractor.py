@@ -672,16 +672,38 @@ class ImprovedTableExtractor:
                                         
                                         page_num = img_data.get('page', 1)
                                         img_id = f'img_{page_num}_{table_idx}_{row_idx}'
-                                        img_html = f'''<div style="text-align: center;">
+                                        
+                                        # Try to extract brand name from row data
+                                        brand_name = "UNKNOWN"
+                                        if row_idx < len(rows):
+                                            # Look for a "Brand" column in headers
+                                            brand_col_idx = None
+                                            for idx, header in enumerate(headers):
+                                                header_lower = str(header).lower().strip()
+                                                if 'brand' in header_lower:
+                                                    brand_col_idx = idx
+                                                    break
+                                            
+                                            # Extract brand from row if column found
+                                            if brand_col_idx is not None and brand_col_idx < len(rows[row_idx]):
+                                                brand_value = str(rows[row_idx][brand_col_idx]).strip()
+                                                if brand_value and brand_value.lower() not in ['n/a', 'unknown', '']:
+                                                    brand_name = brand_value
+                                        
+                                        # Create image with logo badge overlay
+                                        img_html = f'''<div style="position: relative; display: inline-block; text-align: center; width: 150px;">
                                             <img id="{img_id}" 
                                                  src="{full_img_path}" 
                                                  alt="Image" 
                                                  class="table-image-thumbnail"
-                                                 style="max-width: 150px; max-height: 150px; cursor: pointer; border: 2px solid #ddd; border-radius: 4px; padding: 2px; object-fit: contain; transition: transform 0.2s, box-shadow 0.2s;"
+                                                 style="max-width: 150px; max-height: 150px; cursor: pointer; border: 2px solid #ddd; border-radius: 4px; padding: 2px; object-fit: contain; transition: transform 0.2s, box-shadow 0.2s; display: block;"
                                                  onclick="openImageModal('{full_img_path}', '{img_id}')"
                                                  onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'"
                                                  onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none'"
                                                  title="Click to enlarge" />
+                                            <div style="position: absolute; top: 5px; right: 5px; background: rgba(59, 130, 246, 0.95); color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.7em; font-weight: 700; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.3); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                {brand_name}
+                                            </div>
                                         </div>'''
                                         
                                         # Get SN value for logging
@@ -3026,7 +3048,25 @@ class ImprovedTableExtractor:
                                 
                                 # Create high-quality clickable thumbnail (non-editable)
                                 img_id = f'img_{page_num}_{table_idx}_{row_idx}_{img_idx}'
-                                img_html = f'''<div contenteditable="false" style="text-align: center; padding: 5px; user-select: none;">
+                                
+                                # Try to extract brand name from row data
+                                brand_name = "UNKNOWN"
+                                if row_idx < len(rows):
+                                    # Look for a "Brand" column in headers
+                                    brand_col_idx = None
+                                    for idx, header in enumerate(headers):
+                                        header_lower = str(header).lower().strip()
+                                        if 'brand' in header_lower:
+                                            brand_col_idx = idx
+                                            break
+                                    
+                                    # Extract brand from row if column found
+                                    if brand_col_idx is not None and brand_col_idx < len(row):
+                                        brand_value = str(row[brand_col_idx]).strip()
+                                        if brand_value and brand_value.lower() not in ['n/a', 'unknown', '']:
+                                            brand_name = brand_value
+                                
+                                img_html = f'''<div contenteditable="false" style="position: relative; display: inline-block; text-align: center; padding: 5px; user-select: none; width: 130px;">
                                     <img id="{img_id}" 
                                          src="{img_path}" 
                                          alt="Product Image" 
@@ -3034,12 +3074,15 @@ class ImprovedTableExtractor:
                                          style="max-width: 120px; max-height: 120px; cursor: pointer; 
                                                 border: 2px solid #e5e7eb; border-radius: 8px; padding: 4px; 
                                                 object-fit: cover; transition: all 0.2s ease;
-                                                box-shadow: 0 2px 4px rgba(0,0,0,0.1); pointer-events: auto;"
+                                                box-shadow: 0 2px 4px rgba(0,0,0,0.1); pointer-events: auto; display: block; margin: 0 auto;"
                                          onclick="openImageModal('{img_path}', '{img_id}')"
                                          onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.2)'; this.style.borderColor='#10b981';"
                                          onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'; this.style.borderColor='#e5e7eb';"
                                          title="Click to view full-size image" 
                                          loading="lazy" />
+                                    <div style="position: absolute; top: 8px; right: 8px; background: rgba(59, 130, 246, 0.95); color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.7em; font-weight: 700; z-index: 10; box-shadow: 0 2px 8px rgba(0,0,0,0.3); max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {brand_name}
+                                    </div>
                                 </div>'''
                                 
                                 # Replace cell content with image

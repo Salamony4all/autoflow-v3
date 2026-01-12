@@ -3208,9 +3208,341 @@
             box-shadow: 0 6px 20px rgba(26, 54, 93, 0.4);
         }
 
+
         .costing-actions .btn-primary:active {
             transform: translateY(0);
             box-shadow: 0 2px 8px rgba(26, 54, 93, 0.3);
+        }
+
+        /* Enhanced Costing Module Styles */
+        .costing-card-enhanced {
+            background: linear-gradient(145deg, #1a2a4a 0%, #0f1e3d 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .costing-card-enhanced .factor-label span:first-child {
+            color: #e2e8f0;
+            font-weight: 500;
+        }
+
+        .costing-card-enhanced .factor-value {
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .costing-card-enhanced .slider {
+            background: linear-gradient(90deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.2) 100%);
+            height: 6px;
+        }
+
+        .costing-card-enhanced .slider::-webkit-slider-thumb {
+            background: #3b82f6;
+            width: 18px;
+            height: 18px;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+        }
+
+        .costing-card-enhanced .slider::-moz-range-thumb {
+            background: #3b82f6;
+            width: 18px;
+            height: 18px;
+        }
+
+        .costing-card-enhanced .slider-vat {
+            background: linear-gradient(90deg, rgba(156, 163, 175, 0.2) 0%, rgba(156, 163, 175, 0.3) 100%);
+        }
+
+        .costing-card-enhanced .slider-vat::-webkit-slider-thumb {
+            background: #9ca3af;
+        }
+
+        /* Currency Exchange Section */
+        .currency-exchange-section {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .currency-exchange-section .section-title {
+            color: #94a3b8;
+            font-size: 0.85em;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+        }
+
+        .currency-selectors {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .currency-selector {
+            flex: 1;
+        }
+
+        .currency-selector label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+
+        .currency-dropdown {
+            width: 100%;
+            padding: 12px 15px;
+            background: #1e3a5f;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1em;
+            font-weight: 500;
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ffffff' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            transition: all 0.2s ease;
+        }
+
+        .currency-dropdown:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            background-color: #244670;
+        }
+
+        .currency-dropdown:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .currency-dropdown option {
+            background: #1a2a4a;
+            color: #ffffff;
+            padding: 10px;
+        }
+
+        .currency-arrow {
+            color: #64748b;
+            font-size: 1.5em;
+            margin-top: 20px;
+        }
+
+        .exchange-rate-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .rate-input-group {
+            flex: 0 0 auto;
+        }
+
+        .rate-input-group label {
+            display: block;
+            color: #94a3b8;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+
+        .rate-input-wrapper {
+            display: flex;
+            gap: 8px;
+        }
+
+        .rate-input {
+            width: 100px;
+            padding: 10px 12px;
+            background: #1e3a5f;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1em;
+            font-weight: 600;
+        }
+
+        .rate-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .fetch-rate-btn {
+            width: 44px;
+            height: 44px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1.2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .fetch-rate-btn:hover {
+            background: #2563eb;
+            transform: scale(1.05);
+        }
+
+        .fetch-rate-btn:active {
+            transform: scale(0.95);
+        }
+
+        .fetch-rate-btn .fetch-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .fetch-rate-btn:hover .fetch-icon {
+            transform: rotate(180deg);
+        }
+
+        .live-rate-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        #rateDisplayText {
+            color: #94a3b8;
+            font-size: 0.9em;
+        }
+
+        .live-badge {
+            color: #10b981;
+            font-size: 0.85em;
+            font-weight: 500;
+        }
+
+        /* Calculation Preview Section */
+        .calculation-preview {
+            margin-top: 25px;
+            padding: 20px;
+            background: rgba(30, 58, 95, 0.5);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+        }
+
+        .preview-title {
+            color: #60a5fa;
+            font-size: 1em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .preview-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .preview-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-label {
+            color: #e2e8f0;
+            font-size: 0.95em;
+        }
+
+        .preview-value {
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .preview-markup {
+            color: #34d399;
+        }
+
+        .preview-row-muted .preview-label,
+        .preview-row-muted .preview-value {
+            color: #94a3b8;
+            font-weight: 400;
+        }
+
+        .preview-row-total {
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .preview-row-total .preview-label {
+            color: #f59e0b;
+            font-weight: 600;
+        }
+
+        .preview-grand-total {
+            color: #f59e0b !important;
+            font-size: 1.1em !important;
+            font-weight: 700 !important;
+        }
+
+        /* Enhanced Action Buttons */
+        .costing-apply-btn {
+            flex: 1;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+            color: #000000 !important;
+            font-weight: 700 !important;
+            padding: 16px 32px !important;
+            font-size: 1.1em !important;
+            border: none !important;
+        }
+
+        .costing-apply-btn:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.4) !important;
+        }
+
+        .costing-card-enhanced .costing-actions .btn-secondary {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #94a3b8;
+        }
+
+        .costing-card-enhanced .costing-actions .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #e2e8f0;
+        }
+
+        /* Responsive adjustments for costing module */
+        @media (max-width: 768px) {
+            .currency-selectors {
+                flex-direction: column;
+            }
+
+            .currency-arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+
+            .exchange-rate-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .live-rate-indicator {
+                align-items: flex-start;
+                margin-top: 15px;
+            }
+
+            .rate-input-wrapper {
+                width: 100%;
+            }
+
+            .rate-input {
+                flex: 1;
+            }
         }
 
         .modal {
@@ -4115,34 +4447,79 @@
 
         /* Image modal styles */
         .image-modal {
-            display: none;
             position: fixed;
-            z-index: 9999;
+            z-index: 99999;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.9);
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: flex;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.3s;
+            animation: fadeIn 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+            cursor: zoom-out;
+            overflow: auto;
+            visibility: hidden;
+            opacity: 0;
+            transition: visibility 0.3s, opacity 0.3s;
+        }
+
+        .image-modal[style*="display: flex"] {
+            visibility: visible;
+            opacity: 1;
         }
 
         .image-modal-content {
             position: relative;
             max-width: 90%;
-            max-height: 90%;
+            max-height: 90vh;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            z-index: 100000;
+        }
+
+        .image-modal-image-container {
+            position: relative;
+            display: inline-block;
+            width: fit-content;
+            height: fit-content;
         }
 
         .image-modal-img {
             max-width: 100%;
             max-height: 85vh;
+            width: auto;
+            height: auto;
             object-fit: contain;
             border-radius: 8px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            background-color: white;
+            padding: 10px;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            margin: 0 auto;
+            position: relative;
+            z-index: 100001;
+        }
+
+        .image-modal-brand-badge {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(59, 130, 246, 0.95);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
+            z-index: 100002;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            pointer-events: auto;
         }
 
         .image-modal-close {
@@ -4186,7 +4563,7 @@
         /* ===================================
            RESPONSIVE DESIGN - MEDIA QUERIES
            =================================== */
-        
+
         /* Tablet Landscape (1024px and below) */
         @media screen and (max-width: 1024px) {
             h1 {
@@ -4422,7 +4799,8 @@
                 font-size: 0.9em;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 10px 8px !important;
             }
 
@@ -4687,7 +5065,8 @@
                 -webkit-overflow-scrolling: touch;
             }
 
-            th, td {
+            th,
+            td {
                 padding: 8px 5px !important;
                 white-space: nowrap;
             }
@@ -4768,7 +5147,8 @@
             select,
             textarea {
                 min-height: 44px;
-                font-size: 16px; /* Prevents zoom on iOS */
+                font-size: 16px;
+                /* Prevents zoom on iOS */
                 padding: 10px 12px;
             }
 
@@ -4891,6 +5271,7 @@
 
         /* Print styles */
         @media print {
+
             .workflow-header,
             .action-buttons,
             .export-buttons,
@@ -4976,10 +5357,519 @@
         /**
          * Close progress popup
          */
+        /**
+         * Close progress popup
+         */
         function closeProgressPopup() {
             const popup = document.getElementById('progress-popup');
             if (popup) popup.remove();
         }
+
+        // =============================================
+        // ENHANCED COSTING MODULE - CURRENCY EXCHANGE
+        // =============================================
+
+        // Store for sample/total base price used in preview calculations
+        let costingBasePrice = 100; // Default sample price for preview
+        let isLiveRateFetched = false;
+
+        /**
+         * Fetch live exchange rate from API
+         */
+        async function fetchLiveExchangeRate() {
+            const fromCurrency = document.getElementById('currencyFrom')?.value || 'USD';
+            const toCurrency = document.getElementById('currencyTo')?.value || 'OMR';
+            const fetchBtn = document.querySelector('.fetch-rate-btn');
+            const liveRateBadge = document.getElementById('liveRateBadge');
+            const rateInput = document.getElementById('exchangeRateInput');
+
+            if (fetchBtn) {
+                fetchBtn.disabled = true;
+                fetchBtn.querySelector('.fetch-icon').style.animation = 'spin 0.5s linear infinite';
+            }
+
+            try {
+                // Using exchangerate-api.com (free tier allows 1500 requests/month)
+                const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch exchange rate');
+                }
+
+                const data = await response.json();
+                const rate = data.rates[toCurrency];
+
+                if (rate) {
+                    if (rateInput) {
+                        rateInput.value = rate.toFixed(4);
+                    }
+                    updateRateDisplay();
+                    updateCalculationPreview();
+                    isLiveRateFetched = true;
+
+                    if (liveRateBadge) {
+                        liveRateBadge.textContent = '✓ Live rate';
+                        liveRateBadge.style.color = '#10b981';
+                    }
+
+                    showAlert(`Live rate fetched: 1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency}`, 'success');
+                } else {
+                    throw new Error(`Rate for ${toCurrency} not found`);
+                }
+            } catch (error) {
+                console.error('Exchange rate fetch error:', error);
+                showAlert('Could not fetch live rate. Please enter manually.', 'warning');
+
+                if (liveRateBadge) {
+                    liveRateBadge.textContent = '⚠ Manual rate';
+                    liveRateBadge.style.color = '#f59e0b';
+                }
+                isLiveRateFetched = false;
+            } finally {
+                if (fetchBtn) {
+                    fetchBtn.disabled = false;
+                    fetchBtn.querySelector('.fetch-icon').style.animation = '';
+                }
+            }
+        }
+
+        /**
+         * Update the rate display text (e.g., "1 USD = 0.384 OMR")
+         */
+        function updateRateDisplay() {
+            const fromCurrency = document.getElementById('currencyFrom')?.value || 'USD';
+            const toCurrency = document.getElementById('currencyTo')?.value || 'OMR';
+            const rate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 1;
+            const rateDisplayText = document.getElementById('rateDisplayText');
+
+            if (rateDisplayText) {
+                rateDisplayText.textContent = `1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency}`;
+            }
+
+            // Update currency labels in calculation preview
+            const baseCurrencySpans = document.querySelectorAll('#previewBaseCurrency, #previewAfterMarkupCurrency');
+            baseCurrencySpans.forEach(span => {
+                if (span) span.textContent = fromCurrency;
+            });
+
+            const targetCurrencySpans = document.querySelectorAll('#previewSubtotalCurrency, #previewGrandTotalCurrency');
+            targetCurrencySpans.forEach(span => {
+                if (span) span.textContent = toCurrency;
+            });
+        }
+
+        /**
+         * Calculate total markup percentage from all factors
+         */
+        function calculateTotalMarkup() {
+            const netMargin = parseFloat(document.getElementById('netMarginSlider')?.value) || 0;
+            const freight = parseFloat(document.getElementById('freightSlider')?.value) || 0;
+            const customs = parseFloat(document.getElementById('customsSlider')?.value) || 0;
+            const installation = parseFloat(document.getElementById('installationSlider')?.value) || 0;
+            const additional = parseFloat(document.getElementById('additionalSlider')?.value) || 0;
+
+            return netMargin + freight + customs + installation + additional;
+        }
+
+        /**
+         * Update the calculation preview panel in real-time
+         */
+        function updateCalculationPreview() {
+            const basePrice = costingBasePrice;
+            const totalMarkup = calculateTotalMarkup();
+            const vatPercent = parseFloat(document.getElementById('vatSlider')?.value) || 5;
+            const exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 1;
+
+            // Calculate values
+            const markupAmount = basePrice * (totalMarkup / 100);
+            const afterMarkup = basePrice + markupAmount;
+            const subtotal = afterMarkup * exchangeRate;
+            const vatAmount = subtotal * (vatPercent / 100);
+            const grandTotal = subtotal + vatAmount;
+
+            // Update preview elements
+            const elements = {
+                previewBasePrice: basePrice.toFixed(2),
+                previewMarkupPercent: totalMarkup.toFixed(1),
+                previewMarkupAmount: `+${markupAmount.toFixed(2)}`,
+                previewAfterMarkup: afterMarkup.toFixed(2),
+                previewSubtotal: subtotal.toFixed(2),
+                previewVatPercent: vatPercent.toFixed(1),
+                previewVatAmount: vatAmount.toFixed(2),
+                previewGrandTotal: grandTotal.toFixed(2)
+            };
+
+            for (const [id, value] of Object.entries(elements)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === 'previewAfterMarkup') {
+                        const currencySpan = el.querySelector('span');
+                        el.textContent = value + ' ';
+                        if (currencySpan) el.appendChild(currencySpan);
+                        else {
+                            const newSpan = document.createElement('span');
+                            newSpan.id = 'previewAfterMarkupCurrency';
+                            newSpan.textContent = document.getElementById('currencyFrom')?.value || 'USD';
+                            el.appendChild(newSpan);
+                        }
+                    } else {
+                        el.textContent = value;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Initialize enhanced costing module event listeners
+         */
+        function initEnhancedCostingModule() {
+            // Slider event listeners for regular costing card
+            const sliders = [
+                { id: 'netMarginSlider', valueId: 'netMarginValue', suffix: '%' },
+                { id: 'freightSlider', valueId: 'freightValue', suffix: '%' },
+                { id: 'customsSlider', valueId: 'customsValue', suffix: '%' },
+                { id: 'installationSlider', valueId: 'installationValue', suffix: '%' },
+                { id: 'vatSlider', valueId: 'vatValue', suffix: '%' },
+                { id: 'additionalSlider', valueId: 'additionalValue', suffix: '%' }
+            ];
+
+            sliders.forEach(({ id, valueId, suffix }) => {
+                const slider = document.getElementById(id);
+                const valueDisplay = document.getElementById(valueId);
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', () => {
+                        valueDisplay.textContent = `${slider.value}${suffix}`;
+                        updateCalculationPreview();
+                    });
+                }
+            });
+
+            // Currency dropdown event listeners
+            const currencyFrom = document.getElementById('currencyFrom');
+            const currencyTo = document.getElementById('currencyTo');
+            const exchangeRateInput = document.getElementById('exchangeRateInput');
+
+            if (currencyFrom) {
+                currencyFrom.addEventListener('change', () => {
+                    updateRateDisplay();
+                    updateCalculationPreview();
+                    // Mark as manual rate when currency changes
+                    const liveRateBadge = document.getElementById('liveRateBadge');
+                    if (liveRateBadge && isLiveRateFetched) {
+                        liveRateBadge.textContent = '↻ Refresh needed';
+                        liveRateBadge.style.color = '#f59e0b';
+                    }
+                });
+            }
+
+            if (currencyTo) {
+                currencyTo.addEventListener('change', () => {
+                    updateRateDisplay();
+                    updateCalculationPreview();
+                    // Mark as manual rate when currency changes
+                    const liveRateBadge = document.getElementById('liveRateBadge');
+                    if (liveRateBadge && isLiveRateFetched) {
+                        liveRateBadge.textContent = '↻ Refresh needed';
+                        liveRateBadge.style.color = '#f59e0b';
+                    }
+                });
+            }
+
+            if (exchangeRateInput) {
+                exchangeRateInput.addEventListener('input', () => {
+                    updateRateDisplay();
+                    updateCalculationPreview();
+                    // Mark as manual rate
+                    const liveRateBadge = document.getElementById('liveRateBadge');
+                    if (liveRateBadge) {
+                        liveRateBadge.textContent = '⚠ Manual rate';
+                        liveRateBadge.style.color = '#f59e0b';
+                    }
+                    isLiveRateFetched = false;
+                });
+            }
+
+            // Initial update
+            updateRateDisplay();
+            updateCalculationPreview();
+
+            console.log('🎯 Enhanced costing module initialized');
+        }
+
+        /**
+         * Set the base price for calculation preview (called when table data is loaded)
+         */
+        function setCostingBasePrice(price) {
+            costingBasePrice = price || 100;
+            updateCalculationPreview();
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', function () {
+            // Delay initialization to ensure DOM is ready
+            setTimeout(() => {
+                initEnhancedCostingModule();
+                initMBCostingModule();
+            }, 500);
+        });
+
+        // =============================================
+        // MULTI-BUDGET COSTING MODULE FUNCTIONS
+        // =============================================
+
+        let mbCostingBasePrice = 100; // Default sample price for MB preview
+        let mbIsLiveRateFetched = false;
+
+        /**
+         * Fetch live exchange rate for Multi-Budget module
+         */
+        async function fetchLiveExchangeRateMB(silent = false) {
+            const fromCurrency = document.getElementById('mbCurrencyFrom')?.value || 'USD';
+            const toCurrency = document.getElementById('mbCurrencyTo')?.value || 'OMR';
+            const fetchBtn = document.querySelector('#multiBudgetCostingCard .fetch-rate-btn');
+            const liveRateBadge = document.getElementById('mbLiveRateBadge');
+            const rateInput = document.getElementById('mbExchangeRateInput');
+
+            if (fetchBtn) {
+                fetchBtn.disabled = true;
+                if (fetchBtn.querySelector('.fetch-icon')) {
+                    fetchBtn.querySelector('.fetch-icon').style.animation = 'spin 0.5s linear infinite';
+                }
+            }
+
+            try {
+                const response = await fetch(`https://api.exchangerate-api.com/v4/latest/${fromCurrency}`);
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch exchange rate');
+                }
+
+                const data = await response.json();
+                const rate = data.rates[toCurrency];
+
+                if (rate) {
+                    if (rateInput) {
+                        rateInput.value = rate.toFixed(4);
+                    }
+                    updateMBRateDisplay();
+                    updateMBCalculationPreview();
+
+                    if (typeof mbIsLiveRateFetched !== 'undefined') {
+                        mbIsLiveRateFetched = true;
+                    }
+
+                    if (liveRateBadge) {
+                        liveRateBadge.textContent = '✓ Live rate';
+                        liveRateBadge.style.color = '#10b981';
+                    }
+
+                    if (!silent) {
+                        showAlert(`Live rate fetched: 1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency}`, 'success');
+                    }
+                } else {
+                    throw new Error(`Rate for ${toCurrency} not found`);
+                }
+            } catch (error) {
+                console.error('MB Exchange rate fetch error:', error);
+                if (!silent) {
+                    showAlert('Could not fetch live rate. Please enter manually.', 'warning');
+                }
+
+                if (liveRateBadge) {
+                    liveRateBadge.textContent = '⚠ Manual rate';
+                    liveRateBadge.style.color = '#f59e0b';
+                }
+
+                if (typeof mbIsLiveRateFetched !== 'undefined') {
+                    mbIsLiveRateFetched = false;
+                }
+            } finally {
+                if (fetchBtn) {
+                    fetchBtn.disabled = false;
+                    if (fetchBtn.querySelector('.fetch-icon')) {
+                        fetchBtn.querySelector('.fetch-icon').style.animation = '';
+                    }
+                }
+            }
+        }
+
+        /**
+         * Update the MB rate display text
+         */
+        function updateMBRateDisplay() {
+            const fromCurrency = document.getElementById('mbCurrencyFrom')?.value || 'USD';
+            const toCurrency = document.getElementById('mbCurrencyTo')?.value || 'OMR';
+            const rate = parseFloat(document.getElementById('mbExchangeRateInput')?.value) || 1;
+            const rateDisplayText = document.getElementById('mbRateDisplayText');
+
+            if (rateDisplayText) {
+                rateDisplayText.textContent = `1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency}`;
+            }
+
+            // Update currency labels in calculation preview
+            const baseCurrencySpans = document.querySelectorAll('#mbPreviewBaseCurrency, #mbPreviewAfterMarkupCurrency');
+            baseCurrencySpans.forEach(span => {
+                if (span) span.textContent = fromCurrency;
+            });
+
+            const targetCurrencySpans = document.querySelectorAll('#mbPreviewSubtotalCurrency, #mbPreviewGrandTotalCurrency');
+            targetCurrencySpans.forEach(span => {
+                if (span) span.textContent = toCurrency;
+            });
+        }
+
+        /**
+         * Calculate total markup percentage for MB module
+         */
+        function calculateMBTotalMarkup() {
+            const netMargin = parseFloat(document.getElementById('mbNetMarginSlider')?.value) || 0;
+            const freight = parseFloat(document.getElementById('mbFreightSlider')?.value) || 0;
+            const customs = parseFloat(document.getElementById('mbCustomsSlider')?.value) || 0;
+            const installation = parseFloat(document.getElementById('mbInstallationSlider')?.value) || 0;
+            const additional = parseFloat(document.getElementById('mbAdditionalSlider')?.value) || 0;
+
+            return netMargin + freight + customs + installation + additional;
+        }
+
+        /**
+         * Update the MB calculation preview panel
+         */
+        function updateMBCalculationPreview() {
+            const basePrice = mbCostingBasePrice;
+            const totalMarkup = calculateMBTotalMarkup();
+            const vatPercent = parseFloat(document.getElementById('mbVatSlider')?.value) || 5;
+            const exchangeRate = parseFloat(document.getElementById('mbExchangeRateInput')?.value) || 1;
+
+            // Calculate values
+            const markupAmount = basePrice * (totalMarkup / 100);
+            const afterMarkup = basePrice + markupAmount;
+            const subtotal = afterMarkup * exchangeRate;
+            const vatAmount = subtotal * (vatPercent / 100);
+            const grandTotal = subtotal + vatAmount;
+
+            // Update preview elements
+            const elements = {
+                mbPreviewBasePrice: basePrice.toFixed(2),
+                mbPreviewMarkupPercent: totalMarkup.toFixed(1),
+                mbPreviewMarkupAmount: `+${markupAmount.toFixed(2)}`,
+                mbPreviewAfterMarkup: afterMarkup.toFixed(2),
+                mbPreviewSubtotal: subtotal.toFixed(2),
+                mbPreviewVatPercent: vatPercent.toFixed(1),
+                mbPreviewVatAmount: vatAmount.toFixed(2),
+                mbPreviewGrandTotal: grandTotal.toFixed(2)
+            };
+
+            for (const [id, value] of Object.entries(elements)) {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (id === 'mbPreviewAfterMarkup') {
+                        const currencySpan = el.querySelector('span');
+                        el.textContent = value + ' ';
+                        if (currencySpan) el.appendChild(currencySpan);
+                        else {
+                            const newSpan = document.createElement('span');
+                            newSpan.id = 'mbPreviewAfterMarkupCurrency';
+                            newSpan.textContent = document.getElementById('mbCurrencyFrom')?.value || 'USD';
+                            el.appendChild(newSpan);
+                        }
+                    } else {
+                        el.textContent = value;
+                    }
+                }
+            }
+        }
+
+        /**
+         * Initialize Multi-Budget costing module event listeners
+         */
+        function initMBCostingModule() {
+            // MB Slider event listeners
+            const sliders = [
+                { id: 'mbNetMarginSlider', valueId: 'mbNetMarginValue', suffix: '%' },
+                { id: 'mbFreightSlider', valueId: 'mbFreightValue', suffix: '%' },
+                { id: 'mbCustomsSlider', valueId: 'mbCustomsValue', suffix: '%' },
+                { id: 'mbInstallationSlider', valueId: 'mbInstallationValue', suffix: '%' },
+                { id: 'mbVatSlider', valueId: 'mbVatValue', suffix: '%' },
+                { id: 'mbAdditionalSlider', valueId: 'mbAdditionalValue', suffix: '%' }
+            ];
+
+            sliders.forEach(({ id, valueId, suffix }) => {
+                const slider = document.getElementById(id);
+                const valueDisplay = document.getElementById(valueId);
+                if (slider && valueDisplay) {
+                    slider.addEventListener('input', () => {
+                        valueDisplay.textContent = `${slider.value}${suffix}`;
+                        updateMBCalculationPreview();
+                    });
+                }
+            });
+
+            // Currency dropdown event listeners
+            const currencyFrom = document.getElementById('mbCurrencyFrom');
+            const currencyTo = document.getElementById('mbCurrencyTo');
+            const exchangeRateInput = document.getElementById('mbExchangeRateInput');
+
+            if (currencyFrom) {
+                currencyFrom.addEventListener('change', () => {
+                    updateMBRateDisplay();
+                    updateMBCalculationPreview();
+                    const liveRateBadge = document.getElementById('mbLiveRateBadge');
+                    if (liveRateBadge && mbIsLiveRateFetched) {
+                        liveRateBadge.textContent = '↻ Refresh needed';
+                        liveRateBadge.style.color = '#f59e0b';
+                    }
+                });
+            }
+
+            if (currencyTo) {
+                currencyTo.addEventListener('change', () => {
+                    updateMBRateDisplay();
+                    updateMBCalculationPreview();
+                    const liveRateBadge = document.getElementById('mbLiveRateBadge');
+                    if (liveRateBadge && mbIsLiveRateFetched) {
+                        liveRateBadge.textContent = '↻ Refresh needed';
+                        liveRateBadge.style.color = '#f59e0b';
+                    }
+                });
+            }
+
+            if (exchangeRateInput) {
+                exchangeRateInput.addEventListener('input', () => {
+                    updateMBRateDisplay();
+                    updateMBCalculationPreview();
+                    const liveRateBadge = document.getElementById('mbLiveRateBadge');
+                    if (liveRateBadge) {
+                        liveRateBadge.textContent = '⚠ Manual rate';
+                        liveRateBadge.style.color = '#f59e0b';
+                    }
+                    mbIsLiveRateFetched = false;
+                });
+            }
+
+            // Initial update
+            updateMBRateDisplay();
+            updateMBCalculationPreview();
+
+            console.log('🎯 Multi-Budget costing module initialized');
+        }
+
+        /**
+         * Set the base price for MB calculation preview
+         */
+        function setMBCostingBasePrice(price) {
+            mbCostingBasePrice = price || 100;
+            updateMBCalculationPreview();
+        }
+
+        // Add CSS animation for spinner
+        const spinnerStyle = document.createElement('style');
+        spinnerStyle.textContent = `
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(spinnerStyle);
     </script>
 
     <script src="/static/js/table_manager.js?v={{ now }}"></script>
@@ -5400,6 +6290,85 @@
             requestAnimationFrame(animation);
         }
     </script>
+    <style>
+        /* Image Enlargement Modal */
+        /* Custom Searchable Brand Dropdown */
+        .brand-dropdown-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .brand-search-input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.85em;
+            color: #1a365d;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .brand-dropdown-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 250px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .brand-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .brand-item:last-child {
+            border-bottom: none;
+        }
+
+        .brand-item:hover {
+            background: #f8fafc;
+        }
+
+        .brand-logo-small {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+            border-radius: 4px;
+            background: #f1f5f9;
+            padding: 2px;
+        }
+
+        .brand-name-text {
+            font-size: 0.9em;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        .brand-country-badge {
+            margin-left: auto;
+            font-size: 0.7em;
+            color: #94a3b8;
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+    </style>
 </head>
 
 <body>
@@ -6378,10 +7347,12 @@
                 </div>
             </div>
 
+
             <!-- Costing Card Section -->
             <div class="card" id="costingCard" style="display:none;">
                 <h2>Apply Costing Factors</h2>
-                <div class="costing-card">
+                <div class="costing-card costing-card-enhanced">
+                    <!-- Markup Factors Section -->
                     <div class="factor-control">
                         <div class="factor-label">
                             <span>Net Margin (%)</span>
@@ -6417,11 +7388,11 @@
 
                     <div class="factor-control">
                         <div class="factor-label">
-                            <span>Exchange Rate</span>
-                            <span class="factor-value" id="exchangeRateValue">1.00</span>
+                            <span>VAT (Tax) (%)</span>
+                            <span class="factor-value" id="vatValue">5%</span>
                         </div>
-                        <input type="range" min="0.1" max="10" value="1" step="0.01" class="slider"
-                            id="exchangeRateSlider">
+                        <input type="range" min="0" max="25" value="5" step="0.5" class="slider slider-vat"
+                            id="vatSlider">
                     </div>
 
                     <div class="factor-control">
@@ -6432,11 +7403,112 @@
                         <input type="range" min="0" max="50" value="0" step="0.5" class="slider" id="additionalSlider">
                     </div>
 
+                    <!-- Currency Exchange Section -->
+                    <div class="currency-exchange-section">
+                        <h3 class="section-title">CURRENCY EXCHANGE</h3>
+
+                        <div class="currency-selectors">
+                            <div class="currency-selector">
+                                <label>From</label>
+                                <select id="currencyFrom" class="currency-dropdown">
+                                    <option value="USD" data-symbol="$">$ USD</option>
+                                    <option value="EUR" data-symbol="€">€ EUR</option>
+                                    <option value="GBP" data-symbol="£">£ GBP</option>
+                                    <option value="AED" data-symbol="د.إ">د.إ AED</option>
+                                    <option value="SAR" data-symbol="﷼">﷼ SAR</option>
+                                    <option value="QAR" data-symbol="ر.ق">ر.ق QAR</option>
+                                    <option value="OMR" data-symbol="ر.ع">ر.ع OMR</option>
+                                    <option value="KWD" data-symbol="د.ك">د.ك KWD</option>
+                                    <option value="BHD" data-symbol="د.ب">د.ب BHD</option>
+                                    <option value="INR" data-symbol="₹">₹ INR</option>
+                                    <option value="CNY" data-symbol="¥">¥ CNY</option>
+                                </select>
+                            </div>
+
+                            <div class="currency-arrow">→</div>
+
+                            <div class="currency-selector">
+                                <label>To</label>
+                                <select id="currencyTo" class="currency-dropdown">
+                                    <option value="USD" data-symbol="$">$ USD</option>
+                                    <option value="EUR" data-symbol="€">€ EUR</option>
+                                    <option value="GBP" data-symbol="£">£ GBP</option>
+                                    <option value="AED" data-symbol="د.إ">د.إ AED</option>
+                                    <option value="SAR" data-symbol="﷼">﷼ SAR</option>
+                                    <option value="QAR" data-symbol="ر.ق">ر.ق QAR</option>
+                                    <option value="OMR" data-symbol="ر.ع" selected>ر.ع OMR</option>
+                                    <option value="KWD" data-symbol="د.ك">د.ك KWD</option>
+                                    <option value="BHD" data-symbol="د.ب">د.ب BHD</option>
+                                    <option value="INR" data-symbol="₹">₹ INR</option>
+                                    <option value="CNY" data-symbol="¥">¥ CNY</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="exchange-rate-row">
+                            <div class="rate-input-group">
+                                <label>Rate</label>
+                                <div class="rate-input-wrapper">
+                                    <input type="number" id="exchangeRateInput" value="0.384" step="0.0001" min="0.0001"
+                                        class="rate-input">
+                                    <button type="button" class="fetch-rate-btn" onclick="fetchLiveExchangeRate()"
+                                        title="Fetch live rate">
+                                        <span class="fetch-icon">↻</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="live-rate-indicator">
+                                <span id="rateDisplayText">1 USD = 0.384 OMR</span>
+                                <span class="live-badge" id="liveRateBadge">✓ Live rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculation Preview Section -->
+                    <div class="calculation-preview">
+                        <h3 class="preview-title">📊 Calculation Preview</h3>
+                        <div class="preview-grid">
+                            <div class="preview-row">
+                                <span class="preview-label">Base Price (<span
+                                        id="previewBaseCurrency">USD</span>):</span>
+                                <span class="preview-value" id="previewBasePrice">0.00</span>
+                            </div>
+                            <div class="preview-row">
+                                <span class="preview-label">Total Markup (<span
+                                        id="previewMarkupPercent">0</span>%):</span>
+                                <span class="preview-value preview-markup" id="previewMarkupAmount">+0.00</span>
+                            </div>
+                            <div class="preview-row">
+                                <span class="preview-label">After Markup:</span>
+                                <span class="preview-value" id="previewAfterMarkup">0.00 <span
+                                        id="previewAfterMarkupCurrency">USD</span></span>
+                            </div>
+                            <div class="preview-row preview-row-muted">
+                                <span class="preview-label">Subtotal (<span
+                                        id="previewSubtotalCurrency">OMR</span>):</span>
+                                <span class="preview-value" id="previewSubtotal">0.00</span>
+                            </div>
+                            <div class="preview-row preview-row-muted">
+                                <span class="preview-label">VAT (<span id="previewVatPercent">5</span>%):</span>
+                                <span class="preview-value" id="previewVatAmount">0.00</span>
+                            </div>
+                            <div class="preview-row preview-row-total">
+                                <span class="preview-label">Grand Total (<span
+                                        id="previewGrandTotalCurrency">OMR</span>):</span>
+                                <span class="preview-value preview-grand-total" id="previewGrandTotal">0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="costing-actions">
-                        <button class="btn btn-primary" onclick="applyCosting()">🎯 Apply Costing</button>
+                        <button class="btn btn-primary costing-apply-btn" onclick="applyCosting()">🎯 Apply
+                            Costing</button>
+                        <button class="btn btn-secondary"
+                            onclick="document.getElementById('costingCard').style.display='none'">Cancel</button>
                     </div>
                 </div>
             </div>
+
 
             <!-- Costed BOQ Preview Section (Separate Card) -->
             <div class="card" id="costingPreviewCard" style="display:none;">
@@ -6501,13 +7573,15 @@
             <!-- Multi-Budget Costing Card (Separate from regular costing) -->
             <div class="card" id="multiBudgetCostingCard" style="display:none;">
                 <h2>Apply Costing Factors - Multi-Budget</h2>
-                <div class="costing-card">
+                <div class="costing-card costing-card-enhanced">
+                    <!-- Markup Factors Section -->
                     <div class="factor-control">
                         <div class="factor-label">
                             <span>Net Margin (%)</span>
                             <span class="factor-value" id="mbNetMarginValue">0%</span>
                         </div>
-                        <input type="range" min="0" max="100" value="0" step="0.5" class="slider" id="mbNetMarginSlider">
+                        <input type="range" min="0" max="100" value="0" step="0.5" class="slider"
+                            id="mbNetMarginSlider">
                     </div>
 
                     <div class="factor-control">
@@ -6531,15 +7605,17 @@
                             <span>Installation (%)</span>
                             <span class="factor-value" id="mbInstallationValue">0%</span>
                         </div>
-                        <input type="range" min="0" max="50" value="0" step="0.5" class="slider" id="mbInstallationSlider">
+                        <input type="range" min="0" max="50" value="0" step="0.5" class="slider"
+                            id="mbInstallationSlider">
                     </div>
 
                     <div class="factor-control">
                         <div class="factor-label">
-                            <span>Exchange Rate</span>
-                            <span class="factor-value" id="mbExchangeRateValue">1.00</span>
+                            <span>VAT (Tax) (%)</span>
+                            <span class="factor-value" id="mbVatValue">5%</span>
                         </div>
-                        <input type="range" min="0.1" max="10" value="1" step="0.01" class="slider" id="mbExchangeRateSlider">
+                        <input type="range" min="0" max="25" value="5" step="0.5" class="slider slider-vat"
+                            id="mbVatSlider">
                     </div>
 
                     <div class="factor-control">
@@ -6547,12 +7623,113 @@
                             <span>Additional (%)</span>
                             <span class="factor-value" id="mbAdditionalValue">0%</span>
                         </div>
-                        <input type="range" min="0" max="50" value="0" step="0.5" class="slider" id="mbAdditionalSlider">
+                        <input type="range" min="0" max="50" value="0" step="0.5" class="slider"
+                            id="mbAdditionalSlider">
+                    </div>
+
+                    <!-- Currency Exchange Section -->
+                    <div class="currency-exchange-section">
+                        <h3 class="section-title">CURRENCY EXCHANGE</h3>
+
+                        <div class="currency-selectors">
+                            <div class="currency-selector">
+                                <label>From</label>
+                                <select id="mbCurrencyFrom" class="currency-dropdown"
+                                    onchange="fetchLiveExchangeRateMB(true)">
+                                    <option value="USD" data-symbol="$">$ USD</option>
+                                    <option value="EUR" data-symbol="€">€ EUR</option>
+                                    <option value="GBP" data-symbol="£">£ GBP</option>
+                                    <option value="AED" data-symbol="د.إ">د.إ AED</option>
+                                    <option value="SAR" data-symbol="﷼">﷼ SAR</option>
+                                    <option value="QAR" data-symbol="ر.ق">ر.ق QAR</option>
+                                    <option value="OMR" data-symbol="ر.ع">ر.ع OMR</option>
+                                    <option value="KWD" data-symbol="د.ك">د.ك KWD</option>
+                                    <option value="BHD" data-symbol="د.ب">د.ب BHD</option>
+                                    <option value="INR" data-symbol="₹">₹ INR</option>
+                                    <option value="CNY" data-symbol="¥">¥ CNY</option>
+                                </select>
+                            </div>
+
+                            <div class="currency-arrow">→</div>
+
+                            <div class="currency-selector">
+                                <label>To</label>
+                                <select id="mbCurrencyTo" class="currency-dropdown"
+                                    onchange="fetchLiveExchangeRateMB(true)">
+                                    <option value="USD" data-symbol="$">$ USD</option>
+                                    <option value="EUR" data-symbol="€">€ EUR</option>
+                                    <option value="GBP" data-symbol="£">£ GBP</option>
+                                    <option value="AED" data-symbol="د.إ">د.إ AED</option>
+                                    <option value="SAR" data-symbol="﷼">﷼ SAR</option>
+                                    <option value="QAR" data-symbol="ر.ق">ر.ق QAR</option>
+                                    <option value="OMR" data-symbol="ر.ع" selected>ر.ع OMR</option>
+                                    <option value="KWD" data-symbol="د.ك">د.ك KWD</option>
+                                    <option value="BHD" data-symbol="د.ب">د.ب BHD</option>
+                                    <option value="INR" data-symbol="₹">₹ INR</option>
+                                    <option value="CNY" data-symbol="¥">¥ CNY</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="exchange-rate-row">
+                            <div class="rate-input-group">
+                                <label>Rate</label>
+                                <div class="rate-input-wrapper">
+                                    <input type="number" id="mbExchangeRateInput" value="0.384" step="0.0001"
+                                        min="0.0001" class="rate-input">
+                                    <button type="button" class="fetch-rate-btn" onclick="fetchLiveExchangeRateMB()"
+                                        title="Fetch live rate">
+                                        <span class="fetch-icon">↻</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="live-rate-indicator">
+                                <span id="mbRateDisplayText">1 USD = 0.384 OMR</span>
+                                <span class="live-badge" id="mbLiveRateBadge">✓ Live rate</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Calculation Preview Section -->
+                    <div class="calculation-preview">
+                        <h3 class="preview-title">📊 Calculation Preview</h3>
+                        <div class="preview-grid">
+                            <div class="preview-row">
+                                <span class="preview-label">Base Price (<span
+                                        id="mbPreviewBaseCurrency">USD</span>):</span>
+                                <span class="preview-value" id="mbPreviewBasePrice">0.00</span>
+                            </div>
+                            <div class="preview-row">
+                                <span class="preview-label">Total Markup (<span
+                                        id="mbPreviewMarkupPercent">0</span>%):</span>
+                                <span class="preview-value preview-markup" id="mbPreviewMarkupAmount">+0.00</span>
+                            </div>
+                            <div class="preview-row">
+                                <span class="preview-label">After Markup:</span>
+                                <span class="preview-value" id="mbPreviewAfterMarkup">0.00 <span
+                                        id="mbPreviewAfterMarkupCurrency">USD</span></span>
+                            </div>
+                            <div class="preview-row preview-row-muted">
+                                <span class="preview-label">Subtotal (<span
+                                        id="mbPreviewSubtotalCurrency">OMR</span>):</span>
+                                <span class="preview-value" id="mbPreviewSubtotal">0.00</span>
+                            </div>
+                            <div class="preview-row preview-row-muted">
+                                <span class="preview-label">VAT (<span id="mbPreviewVatPercent">5</span>%):</span>
+                                <span class="preview-value" id="mbPreviewVatAmount">0.00</span>
+                            </div>
+                            <div class="preview-row preview-row-total">
+                                <span class="preview-label">Grand Total (<span
+                                        id="mbPreviewGrandTotalCurrency">OMR</span>):</span>
+                                <span class="preview-value preview-grand-total" id="mbPreviewGrandTotal">0.00</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="costing-actions">
-                        <button class="btn btn-primary" onclick="applyMultiBudgetCosting()">🎯 Apply Costing</button>
-                        <button class="btn btn-secondary" onclick="toggleMultiBudgetCostingCard()" style="margin-left: 10px;">Cancel</button>
+                        <button class="btn btn-primary costing-apply-btn" onclick="applyMultiBudgetCosting()">🎯 Apply
+                            Costing</button>
+                        <button class="btn btn-secondary" onclick="toggleMultiBudgetCostingCard()">Cancel</button>
                     </div>
                 </div>
             </div>
@@ -6898,14 +8075,6 @@
     </div>
 
     <!-- Image Modal -->
-    <div class="modal" id="imageModal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeModal()" title="Close (ESC)"
-                aria-label="Close image">&times;</button>
-            <img id="modalImage" style="max-width: 100%; height: auto; border-radius: 8px;">
-        </div>
-    </div>
-
     <!-- Workflow Templates (Keep for backwards compatibility, hidden) -->
     <div id="workflowTemplates" style="display: none;">
         <!-- Quote with Price List Workflow -->
@@ -7216,24 +8385,11 @@
     <script>
         // Image modal function for click-to-enlarge
         function openImageModal(imagePath, imageId) {
-            // Create modal if it doesn't exist
-            let modal = document.getElementById('imageModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'imageModal';
-                modal.style.cssText = 'display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); cursor: pointer;';
-                modal.innerHTML = `
-                    <span style="position: absolute; top: 20px; right: 40px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer;" onclick="closeImageModal()">&times;</span>
-                    <img id="modalImage" style="margin: auto; display: block; max-width: 90%; max-height: 90%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
-                    <div style="position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); color: #f1f1f1; font-size: 16px; text-align: center; background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 8px;">Click anywhere to close</div>
-                `;
-                document.body.appendChild(modal);
-                modal.onclick = function () { closeImageModal(); };
-            }
-
-            // Show modal with image
-            document.getElementById('modalImage').src = imagePath;
-            modal.style.display = 'block';
+            // Use the unified showImage function instead
+            // Extract description from image element if available
+            const imgElement = document.getElementById(imageId || '');
+            const caption = imgElement?.alt || imgElement?.title || '';
+            showImage(imagePath, caption);
         }
 
         function closeImageModal() {
@@ -8960,7 +10116,9 @@
                                 img.onclick = function (e) {
                                     e.stopPropagation();
                                     if (typeof showImage === 'function') {
-                                        showImage(this.src);
+                                        const rawSrc = this.getAttribute('src') || this.src;
+                                        const normalizedSrc = rawSrc.replace(/\\/g, '/');
+                                        showImage(normalizedSrc, this.alt || '');
                                     }
                                 };
 
@@ -9617,35 +10775,7 @@
             }
         }
 
-        function showImage(imagePath) {
-            const modal = document.getElementById('imageModal');
-            const modalImage = document.getElementById('modalImage');
-            modalImage.src = imagePath;
-            modal.style.display = 'flex';
 
-            // Close on ESC key
-            const handleEscape = (e) => {
-                if (e.key === 'Escape') {
-                    closeModal();
-                    document.removeEventListener('keydown', handleEscape);
-                }
-            };
-            document.addEventListener('keydown', handleEscape);
-
-            // Close on click outside image (on modal background)
-            const handleModalClick = (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                    modal.removeEventListener('click', handleModalClick);
-                }
-            };
-            modal.addEventListener('click', handleModalClick);
-        }
-
-        function closeModal() {
-            const modal = document.getElementById('imageModal');
-            modal.style.display = 'none';
-        }
 
         // Alert function
         function showAlert(message, type) {
@@ -11476,7 +12606,7 @@
                 freight: document.getElementById('freightSlider'),
                 customs: document.getElementById('customsSlider'),
                 installation: document.getElementById('installationSlider'),
-                exchangeRate: document.getElementById('exchangeRateSlider'),
+                exchangeRate: document.getElementById('exchangeRateInput'),
                 additional: document.getElementById('additionalSlider')
             };
 
@@ -11486,12 +12616,15 @@
             }
 
             // Set initial values
-            document.getElementById('netMarginValue').textContent = sliders.netMargin.value + '%';
-            document.getElementById('freightValue').textContent = sliders.freight.value + '%';
-            document.getElementById('customsValue').textContent = sliders.customs.value + '%';
-            document.getElementById('installationValue').textContent = sliders.installation.value + '%';
-            document.getElementById('exchangeRateValue').textContent = parseFloat(sliders.exchangeRate.value).toFixed(2);
-            document.getElementById('additionalValue').textContent = sliders.additional.value + '%';
+            if (document.getElementById('netMarginValue')) document.getElementById('netMarginValue').textContent = sliders.netMargin?.value + '%';
+            if (document.getElementById('freightValue')) document.getElementById('freightValue').textContent = sliders.freight?.value + '%';
+            if (document.getElementById('customsValue')) document.getElementById('customsValue').textContent = sliders.customs?.value + '%';
+            if (document.getElementById('installationValue')) document.getElementById('installationValue').textContent = sliders.installation?.value + '%';
+            if (document.getElementById('exchangeRateValue')) {
+                const rateVal = sliders.exchangeRate?.value || 1;
+                document.getElementById('exchangeRateValue').textContent = parseFloat(rateVal).toFixed(2);
+            }
+            if (document.getElementById('additionalValue')) document.getElementById('additionalValue').textContent = sliders.additional?.value + '%';
 
             // Add event listeners
             sliders.netMargin.addEventListener('input', (e) => {
@@ -13017,10 +14150,13 @@
                     } else if (hLower.includes('description') || hLower.includes('desc')) {
                         // Description column - editable for user to enter description
                         html += '<td style="padding: 8px; border: 1px solid #ddd;" contenteditable="true"></td>';
-                    } else if (hLower.includes('price') || hLower.includes('total')) {
+                    } else if (hLower.includes('unit')) {
+                        // Unit column - populate with "No"
+                        html += '<td style="padding: 8px; border: 1px solid #ddd; text-align: center;" contenteditable="true">No</td>';
+                    } else if (hLower.includes('price') || hLower.includes('rate') || hLower.includes('total') || hLower.includes('amount') || hLower.includes('qty')) {
                         html += '<td style="padding: 8px; border: 1px solid #ddd; text-align: right;" contenteditable="true"></td>';
                     } else {
-                        // Other columns (Unit, Qty, etc.) - also editable
+                        // Other columns
                         html += '<td style="padding: 8px; border: 1px solid #ddd;" contenteditable="true"></td>';
                     }
                 });
@@ -13527,6 +14663,26 @@
                         // Ensure row height is compact
                         row.style.height = 'auto';
                         row.style.minHeight = '60px';
+
+                        // New: Standardize Units and Add Live Calculation Listeners
+                        const currentCells = Array.from(row.children);
+                        const currentHeaderCells = headerRow ? Array.from(headerRow.children) : [];
+                        currentCells.forEach((cell, idx) => {
+                            if (cell.classList.contains('product-selection-cell') || cell.classList.contains('actions-cell')) return;
+                            const headText = currentHeaderCells[idx] ? currentHeaderCells[idx].textContent.toLowerCase().trim() : '';
+
+                            // Set "No" as default unit if empty
+                            if (headText.includes('unit') && !cell.textContent.trim()) {
+                                cell.textContent = 'No';
+                            }
+
+                            // Live update row totals on input
+                            if (cell.contentEditable === 'true') {
+                                cell.oninput = function () {
+                                    calculateRowTotal(row, currentHeaderCells, Array.from(row.children));
+                                };
+                            }
+                        });
                     });
 
                     // Final pass: Apply text wrapping to ALL description cells (including Brand Description) in the table
@@ -13692,9 +14848,14 @@
                                     cell.style.width = width;
                                     cell.style.minWidth = width;
                                     cell.style.maxWidth = width;
-                                    cell.style.overflow = 'hidden';
-                                    cell.style.textOverflow = 'ellipsis';
-                                    cell.style.whiteSpace = 'nowrap';
+                                    // No overflow:hidden for cells with dropdowns to prevent clipping
+                                    if (!cell.classList.contains('product-selection-cell')) {
+                                        cell.style.overflow = 'hidden';
+                                        cell.style.textOverflow = 'ellipsis';
+                                        cell.style.whiteSpace = 'nowrap';
+                                    } else {
+                                        cell.style.overflow = 'visible'; // Ensure absolute dropdown is visible
+                                    }
                                 }
                             });
                         }
@@ -13745,10 +14906,20 @@
         // Create Product Selection dropdowns (Brand → Category → Sub-Category → Model)
         function createProductSelectionDropdowns(rowId, tier) {
             return `
-                <div class="product-selection-dropdowns" data-row-id="${rowId}" style="display: flex; flex-direction: column; gap: 4px; width: 100%;">
-                    <select class="brand-dropdown" data-row-id="${rowId}" data-tier="${tier}" onchange="updateCategoryDropdown('${rowId}', this.value, '${tier}')" style="width: 100%; padding: 6px 8px; border: 1.5px solid #cbd5e1; border-radius: 4px; background: white; font-size: 0.85em; color: #1a365d; font-weight: 500; cursor: pointer; transition: all 0.2s;" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 2px rgba(59,130,246,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
-                        <option value="">🔍 Brand</option>
-                    </select>
+                <div class="product-selection-dropdowns" data-row-id="${rowId}" style="display: flex; flex-direction: column; gap: 4px; width: 100%; position: relative;">
+                    <div class="brand-dropdown-container" data-row-id="${rowId}" data-tier="${tier}" style="position: relative; width: 100%;">
+                        <div class="brand-search-input" onclick="event.stopPropagation(); showBrandList('${rowId}')" 
+                            style="width: 100%; cursor: pointer; padding: 8px 12px; border: 1.5px solid #cbd5e1; border-radius: 4px; background: white; display: flex; align-items: center; gap: 8px; min-height: 40px;">
+                            <span class="brand-input-display" style="flex: 1; display: flex; align-items: center; gap: 8px; font-size: 0.9em; color: #334155;">
+                                <span style="color: #94a3b8;">🔍 Select Brand</span>
+                            </span>
+                            <span style="color: #cbd5e1; font-size: 1.2em;">▼</span>
+                        </div>
+                        <div class="brand-dropdown-list" id="brandList-${rowId}" style="position: absolute; width: 100%; z-index: 9999; background: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto; display: none; top: 100%; margin-top: 4px;">
+                            <div class="brand-item">Loading brands...</div>
+                        </div>
+                        <input type="hidden" class="brand-dropdown" data-row-id="${rowId}" data-tier="${tier}">
+                    </div>
                     <select class="category-dropdown" data-row-id="${rowId}" style="width: 100%; padding: 6px 8px; border: 1.5px solid #cbd5e1; border-radius: 4px; background: white; font-size: 0.85em; color: #1a365d; font-weight: 500; cursor: pointer; transition: all 0.2s; display: none;" onchange="updateSubCategoryDropdown('${rowId}', this.value, '${tier}')" onfocus="this.style.borderColor='#3b82f6'; this.style.boxShadow='0 0 0 2px rgba(59,130,246,0.1)'" onblur="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none'">
                         <option value="">📁 Category</option>
                     </select>
@@ -13769,19 +14940,20 @@
                 const result = await response.json();
 
                 if (result.success) {
-                    const brandOptions = result.brands.map(b =>
-                        `<option value="${b.name}">${b.name}</option>`
-                    ).join('');
+                    // Update cache for this tier
+                    brandDataCache[tier] = result.brands;
 
-                    // Update all brand dropdowns for this tier
-                    const brandDropdowns = document.querySelectorAll(`.brand-dropdown[data-tier="${tier}"]`);
-                    console.log(`Found ${brandDropdowns.length} brand dropdowns for tier ${tier}`);
-                    brandDropdowns.forEach(dropdown => {
-                        dropdown.innerHTML = '<option value="">🔍 Brand</option>' + brandOptions;
+                    // Update all brand dropdowns for this tier (initial population)
+                    const containers = document.querySelectorAll(`.brand-dropdown-container[data-tier="${tier}"]`);
+                    console.log(`Found ${containers.length} brand dropdown containers for tier ${tier}`);
+
+                    containers.forEach(container => {
+                        const rowId = container.dataset.rowId;
+                        filterBrandList(rowId, ''); // Initially populate the full list
                     });
 
-                    if (brandDropdowns.length === 0) {
-                        console.warn(`No brand dropdowns found for tier ${tier}. Table may not be initialized yet.`);
+                    if (containers.length === 0) {
+                        console.warn(`No brand dropdown containers found for tier ${tier}. Table may not be initialized yet.`);
                     }
                 }
             } catch (error) {
@@ -13854,6 +15026,24 @@
                     modelDropdown.style.display = 'none';
                 }
                 return;
+            }
+
+            // Update Brand Image in the table if it's a "Generate from BOQ" row
+            if (row) {
+                const brandImageCell = row.querySelector('.brand-image-cell');
+                if (brandImageCell) {
+                    const brands = brandDataCache[tier] || [];
+                    const selectedBrand = brands.find(b => b.name === brandName);
+                    if (selectedBrand) {
+                        const logoUrl = selectedBrand.logo || '/static/images/LOGO.png';
+                        brandImageCell.innerHTML = `
+                            <div class="brand-logo-container" style="text-align: center; cursor: zoom-in;" onclick="showImage('${logoUrl}', '${brandName} Logo', '${brandName}')">
+                                <img src="${logoUrl}" style="max-width: 80px; max-height: 50px; border-radius: 4px; border: 1px solid #e2e8f0; padding: 2px; background: white;" onerror="this.onerror=null; this.src='/static/images/LOGO.png'">
+                                <div style="font-size: 0.7em; color: #94a3b8; margin-top: 2px;">Brand Logo</div>
+                            </div>
+                        `;
+                    }
+                }
             }
 
             try {
@@ -14141,9 +15331,14 @@
                                 // Update Image cell (Brand Image for GENERATE FROM BOQ, regular Image for CREATE NEW BOQ)
                                 if (imageCell) {
                                     if (imageUrl) {
-                                        // Escape imageUrl for use in onclick
-                                        const escapedImageUrl = imageUrl.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-                                        imageCell.innerHTML = `<img src="${escapedImageUrl}" alt="${selectedOption.value.replace(/"/g, '&quot;')}" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;" onclick="if(typeof showImage==='function')showImage('${escapedImageUrl.replace(/'/g, "\\'")}')" />`;
+                                        // Normalize path to use forward slashes (fix for Windows paths)
+                                        const normalizedUrl = imageUrl.replace(/\\/g, '/');
+                                        // Escape for HTML/JS
+                                        const escapedUrl = normalizedUrl.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                                        const escapedBrand = (brandName || '').replace(/'/g, "\\'");
+                                        const escapedDesc = (description || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+
+                                        imageCell.innerHTML = `<img src="${escapedUrl}" alt="${selectedOption.value.replace(/"/g, '&quot;')}" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;" onclick="if(typeof showImage==='function')showImage(this.src, '${escapedDesc}', '${escapedBrand}')" />`;
                                     } else {
                                         if (hasBrandImageHeader) {
                                             imageCell.innerHTML = '<span style="color: #999; font-size: 0.85em;">No image</span>';
@@ -14206,6 +15401,13 @@
                                     } else {
                                         priceCell.textContent = '';
                                     }
+
+                                    // Also set Unit to "No" if found
+                                    const unitIndex = headers.findIndex(th => th.textContent.toLowerCase().trim() === 'unit');
+                                    if (unitIndex >= 0 && unitIndex < cells.length) {
+                                        cells[unitIndex].textContent = 'No';
+                                    }
+
                                     // Trigger calculation
                                     calculateRowTotal(row, headers, cells);
                                 }
@@ -14313,7 +15515,7 @@
 
         // Make calculateRowTotal globally accessible
         window.calculateRowTotal = calculateRowTotal;
-        
+
         // Make multi-budget costing functions globally accessible
         window.toggleMultiBudgetCostingCard = toggleMultiBudgetCostingCard;
         window.applyMultiBudgetCosting = applyMultiBudgetCosting;
@@ -14469,7 +15671,7 @@
             try {
                 const formatName = format === 'pdf' ? 'PDF' : format === 'excel' ? 'Excel' : format.toUpperCase();
                 const typeName = type === 'offer' ? 'Offer' : type === 'presentation' ? 'Presentation' : 'MAS';
-                
+
                 // Show progress popup with percentage
                 popup = showProgressPopup(`Preparing ${typeName} ${formatName}...`);
                 updateProgressPopup(10, `Preparing ${typeName} ${formatName}...`);
@@ -14498,10 +15700,10 @@
                             const categorySelect = dropdowns.querySelector('.category-dropdown');
                             const subcategorySelect = dropdowns.querySelector('.subcategory-dropdown');
                             const modelSelect = dropdowns.querySelector('.model-dropdown');
-                            
-                            if (brandSelect && categorySelect && modelSelect && 
+
+                            if (brandSelect && categorySelect && modelSelect &&
                                 brandSelect.value && categorySelect.value && modelSelect.value) {
-                                
+
                                 const selection = {
                                     row_index: rowIdx,
                                     brand: brandSelect.value,
@@ -14509,7 +15711,7 @@
                                     subcategory: subcategorySelect?.value || 'general',
                                     model: modelSelect.value
                                 };
-                                
+
                                 // Extract Brand Image HTML
                                 const brandImageCell = row.querySelector('.brand-image-cell');
                                 if (!brandImageCell) {
@@ -14517,7 +15719,7 @@
                                     const headerRow = table.querySelector('thead tr') || table.querySelector('tbody tr');
                                     if (headerRow) {
                                         const headers = Array.from(headerRow.children);
-                                        const brandImageIndex = headers.findIndex(th => 
+                                        const brandImageIndex = headers.findIndex(th =>
                                             th.textContent.toLowerCase().includes('brand image'));
                                         if (brandImageIndex >= 0) {
                                             const cells = Array.from(row.children);
@@ -14532,7 +15734,7 @@
                                 } else {
                                     selection.brand_image_html = brandImageCell.innerHTML;
                                 }
-                                
+
                                 // Extract Brand Description
                                 const brandDescCell = row.querySelector('.brand-description-cell');
                                 if (!brandDescCell) {
@@ -14540,7 +15742,7 @@
                                     const headerRow = table.querySelector('thead tr') || table.querySelector('tbody tr');
                                     if (headerRow) {
                                         const headers = Array.from(headerRow.children);
-                                        const brandDescIndex = headers.findIndex(th => 
+                                        const brandDescIndex = headers.findIndex(th =>
                                             th.textContent.toLowerCase().includes('brand description'));
                                         if (brandDescIndex >= 0) {
                                             const cells = Array.from(row.children);
@@ -14561,7 +15763,7 @@
                                         selection.brand_description = desc;
                                     }
                                 }
-                                
+
                                 productSelections.push(selection);
                             }
                         }
@@ -14645,12 +15847,27 @@
         // Toggle Multi-Budget Costing Card (Separate from regular costing)
         function toggleMultiBudgetCostingCard() {
             const costingCard = document.getElementById('multiBudgetCostingCard');
+            const multiBudgetCard = document.getElementById('multiBudgetCard');
+
             if (costingCard) {
                 if (costingCard.style.display === 'none' || !costingCard.style.display) {
+                    // Move costing card to appear AFTER the multiBudgetCard for proper visual flow
+                    if (multiBudgetCard && multiBudgetCard.parentNode) {
+                        multiBudgetCard.parentNode.insertBefore(costingCard, multiBudgetCard.nextSibling);
+                    }
+
                     costingCard.style.display = 'block';
-                    costingCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                    // Initialize sliders if not already done
-                    initializeMultiBudgetSliders();
+
+                    // Smooth scroll to costing card
+                    setTimeout(() => {
+                        costingCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+
+                    // Initialize sliders and update preview with current MB module functions
+                    if (typeof initMBCostingModule === 'function') {
+                        // Re-initialize to ensure event listeners are set
+                        initMBCostingModule();
+                    }
                 } else {
                     costingCard.style.display = 'none';
                 }
@@ -14674,14 +15891,17 @@
                 const table = tableData.table;
                 const tableDataExtracted = extractMultiBudgetTableData(table);
 
-                // Get factors from sliders
+                // Get factors from sliders and inputs
                 const factors = {
-                    net_margin: parseFloat(document.getElementById('mbNetMarginSlider').value) || 0,
-                    freight: parseFloat(document.getElementById('mbFreightSlider').value) || 0,
-                    customs: parseFloat(document.getElementById('mbCustomsSlider').value) || 0,
-                    installation: parseFloat(document.getElementById('mbInstallationSlider').value) || 0,
-                    exchange_rate: parseFloat(document.getElementById('mbExchangeRateSlider').value) || 1.0,
-                    additional: parseFloat(document.getElementById('mbAdditionalSlider').value) || 0
+                    net_margin: parseFloat(document.getElementById('mbNetMarginSlider')?.value) || 0,
+                    freight: parseFloat(document.getElementById('mbFreightSlider')?.value) || 0,
+                    customs: parseFloat(document.getElementById('mbCustomsSlider')?.value) || 0,
+                    installation: parseFloat(document.getElementById('mbInstallationSlider')?.value) || 0,
+                    exchange_rate: parseFloat(document.getElementById('mbExchangeRateInput')?.value) || 1.0,
+                    vat: parseFloat(document.getElementById('mbVatSlider')?.value) || 5,
+                    additional: parseFloat(document.getElementById('mbAdditionalSlider')?.value) || 0,
+                    currency_from: document.getElementById('mbCurrencyFrom')?.value || 'USD',
+                    currency_to: document.getElementById('mbCurrencyTo')?.value || 'OMR'
                 };
 
                 updateProgressPopup(40, 'Applying costing factors...');
@@ -14708,14 +15928,9 @@
                     throw new Error(result.error || 'Failed to apply costing');
                 }
 
-                updateProgressPopup(70, 'Updating table...');
-
-                // Update original table with costed values
-                applyCostedDataToTable(currentBudgetTier, result.result);
-
                 updateProgressPopup(80, 'Creating preview...');
 
-                // Show costed table preview
+                // Show costed table preview - THIS IS THE ONLY PLACE COSTED DATA IS SHOWN
                 displayMultiBudgetCostedPreview(currentBudgetTier, result.result, result.summary);
 
                 updateProgressPopup(90, 'Calculating summary...');
@@ -14740,122 +15955,174 @@
 
         // Initialize Multi-Budget Sliders (Separate from regular costing sliders)
         function initializeMultiBudgetSliders() {
-            const sliders = {
-                netMargin: document.getElementById('mbNetMarginSlider'),
-                freight: document.getElementById('mbFreightSlider'),
-                customs: document.getElementById('mbCustomsSlider'),
-                installation: document.getElementById('mbInstallationSlider'),
-                exchangeRate: document.getElementById('mbExchangeRateSlider'),
-                additional: document.getElementById('mbAdditionalSlider')
-            };
-
-            if (!sliders.netMargin) {
-                console.log('Multi-budget sliders not found yet');
+            // This function is now replaced by initMBCostingModule() which handles all sliders and currency inputs
+            if (typeof initMBCostingModule === 'function') {
+                initMBCostingModule();
+                console.log('Multi-budget costing initialized via MBCostingModule');
                 return;
             }
-
-            // Set initial values
-            document.getElementById('mbNetMarginValue').textContent = sliders.netMargin.value + '%';
-            document.getElementById('mbFreightValue').textContent = sliders.freight.value + '%';
-            document.getElementById('mbCustomsValue').textContent = sliders.customs.value + '%';
-            document.getElementById('mbInstallationValue').textContent = sliders.installation.value + '%';
-            document.getElementById('mbExchangeRateValue').textContent = parseFloat(sliders.exchangeRate.value).toFixed(2);
-            document.getElementById('mbAdditionalValue').textContent = sliders.additional.value + '%';
-
-            // Add event listeners
-            sliders.netMargin.addEventListener('input', (e) => {
-                document.getElementById('mbNetMarginValue').textContent = e.target.value + '%';
-            });
-
-            sliders.freight.addEventListener('input', (e) => {
-                document.getElementById('mbFreightValue').textContent = e.target.value + '%';
-            });
-
-            sliders.customs.addEventListener('input', (e) => {
-                document.getElementById('mbCustomsValue').textContent = e.target.value + '%';
-            });
-
-            sliders.installation.addEventListener('input', (e) => {
-                document.getElementById('mbInstallationValue').textContent = e.target.value + '%';
-            });
-
-            sliders.exchangeRate.addEventListener('input', (e) => {
-                document.getElementById('mbExchangeRateValue').textContent = parseFloat(e.target.value).toFixed(2);
-            });
-
-            sliders.additional.addEventListener('input', (e) => {
-                document.getElementById('mbAdditionalValue').textContent = e.target.value + '%';
-            });
-
-            console.log('Multi-budget costing sliders initialized successfully');
         }
 
         // Display Multi-Budget Costed Preview (Separate from regular costing preview)
         function displayMultiBudgetCostedPreview(tier, costedTable, summary) {
             const previewCard = document.getElementById('multiBudgetCostedPreviewCard');
+            const costingCard = document.getElementById('multiBudgetCostingCard');
             if (!previewCard) return;
 
-            // Set tier name
-            const tierName = tier.charAt(0).toUpperCase() + tier.slice(1).replace('-', ' ');
-            document.getElementById('mbCostedTierName').textContent = tierName;
+            // Move preview card to appear after the costing card for proper flow
+            if (costingCard && costingCard.parentNode) {
+                costingCard.parentNode.insertBefore(previewCard, costingCard.nextSibling);
+            }
 
-            // Create table HTML from costed data
-            let tableHTML = '<div style="overflow-x: auto;"><table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden;">';
-            
-            // Headers
-            tableHTML += '<thead><tr style="background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%); color: #d4af37;">';
+            // Set tier name with icon
+            const tierName = tier.charAt(0).toUpperCase() + tier.slice(1).replace('-', ' ');
+            const tierIcon = tier.includes('budget') ? '💰' : tier.includes('mid') ? '⭐' : '👑';
+            document.getElementById('mbCostedTierName').innerHTML = `${tierIcon} ${tierName} - Final Offer`;
+
+            // Create table HTML from costed data with premium styling
+            let tableHTML = `
+                <div class="costed-table-container" style="margin-top: 20px; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border: 1px solid #1e40af;">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; background: #0f172a; color: #e2e8f0;">
+                            <thead>
+                                <tr style="background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);">
+            `;
+
+            // Get target currency for headers
+            const toCurrency = document.getElementById('mbCurrencyTo')?.value || 'OMR';
+
+            // Headers - ignore "Product Selection" and "Actions" if present in costedTable
             costedTable.headers.forEach(header => {
-                tableHTML += `<th style="padding: 12px; border: 1px solid #3a6fa5; text-align: center; font-weight: 600; font-size: 0.9em;">${header}</th>`;
+                if (!['product selection', 'actions'].includes(header.toLowerCase())) {
+                    let displayHeader = header;
+                    // If it's a numeric/price column, update currency in header
+                    if (/(rate|price|total|amount|subtotal)/i.test(header)) {
+                        // Replace existing currency markers like (USD) or $ with new currency
+                        displayHeader = header.replace(/\([A-Z]{3,4}\)/g, `(${toCurrency})`).replace('$', toCurrency + ' ');
+                        // If no currency marker was found, append it
+                        if (!displayHeader.includes('(') && !displayHeader.includes(toCurrency)) {
+                            displayHeader += ` (${toCurrency})`;
+                        }
+                    }
+                    tableHTML += `<th style="padding: 14px 10px; color: #fbbf24; text-align: center; font-weight: 600; font-size: 0.85em; text-transform: uppercase; border-bottom: 2px solid #1e40af;">${displayHeader}</th>`;
+                }
             });
             tableHTML += '</tr></thead><tbody>';
 
             // Rows
             costedTable.rows.forEach((row, idx) => {
-                const bgColor = idx % 2 === 0 ? '#ffffff' : '#f8f9fa';
-                tableHTML += `<tr style="background: ${bgColor};">`;
+                const bgColor = idx % 2 === 0 ? 'rgba(30, 41, 59, 0.5)' : 'rgba(15, 23, 42, 0.5)';
+                tableHTML += `<tr style="background: ${bgColor}; transition: background 0.2s;" onmouseover="this.style.background='rgba(30, 58, 138, 0.4)'" onmouseout="this.style.background='${bgColor}'">`;
+
                 costedTable.headers.forEach(header => {
-                    const value = row[header] || '';
+                    if (['product selection', 'actions'].includes(header.toLowerCase())) return;
+
+                    let value = row[header] || '';
+                    let style = 'padding: 12px 10px; border-bottom: 1px solid rgba(30, 58, 138, 0.3); text-align: center; font-size: 0.9em;';
+
                     // Check if it's an image
                     if (typeof value === 'string' && value.includes('<img')) {
-                        tableHTML += `<td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">${value}</td>`;
+                        // Extract src and fix backslashes for costed table preview
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = value;
+                        const img = tempDiv.querySelector('img');
+                        if (img) {
+                            const rawSrc = img.getAttribute('src') || '';
+                            const normalizedSrc = rawSrc.replace(/\\/g, '/');
+                            const escapedUrl = normalizedSrc.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                            // Reconstruct img tag with normalized src and fixed onclick
+                            tableHTML += `<td style="${style}"><img src="${normalizedSrc}" style="max-width: 100px; max-height: 100px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer;" onclick="if(typeof showImage==='function')showImage(this.src)" /></td>`;
+                        } else {
+                            tableHTML += `<td style="${style}">${value}</td>`;
+                        }
                     } else {
-                        // Format numbers
+                        // Format numbers for specific columns
                         let displayValue = value;
-                        if (header.toLowerCase().includes('rate') || header.toLowerCase().includes('price') || 
-                            header.toLowerCase().includes('total') || header.toLowerCase().includes('amount')) {
+                        const isNumericCol = /rate|price|total|amount|subtotal/i.test(header);
+
+                        if (isNumericCol) {
                             const num = parseFloat(String(value).replace(/[^0-9.-]/g, ''));
                             if (!isNaN(num)) {
-                                displayValue = num.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                                displayValue = num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                                if (header.toLowerCase().includes('total') || header.toLowerCase().includes('amount')) {
+                                    style += ' font-weight: bold; color: #fbbf24;';
+                                }
                             }
                         }
-                        tableHTML += `<td style="padding: 8px; border: 1px solid #e2e8f0; text-align: center;">${displayValue}</td>`;
+                        tableHTML += `<td style="${style}">${displayValue}</td>`;
                     }
                 });
                 tableHTML += '</tr>';
             });
 
-            tableHTML += '</tbody></table></div>';
+            tableHTML += '</tbody></table></div></div>';
 
             // Set table content
             document.getElementById('multiBudgetCostedTableContent').innerHTML = tableHTML;
 
-            // Display summary
+            // Create Premium Summary HTML (using toCurrency declared above)
             const summaryHTML = `
-                <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%); border-radius: 8px; color: white;">
-                    <h3 style="color: #d4af37; margin-top: 0; margin-bottom: 15px;">💰 Costing Summary</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                        <div>
-                            <div style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 5px;">Subtotal</div>
-                            <div style="font-size: 1.3em; font-weight: bold; color: #d4af37;">${summary.subtotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                <div class="premium-summary-card" style="margin-top: 30px; padding: 30px; background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%); border-radius: 16px; border: 1px solid #3b82f6; box-shadow: 0 15px 35px rgba(0,0,0,0.4);">
+                    <div style="display: flex; align-items: center; margin-bottom: 25px;">
+                        <div style="width: 40px; height: 40px; background: rgba(251, 191, 36, 0.2); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                            <span style="font-size: 20px;">💰</span>
                         </div>
-                        <div>
-                            <div style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 5px;">VAT (5%)</div>
-                            <div style="font-size: 1.3em; font-weight: bold; color: #d4af37;">${summary.vat.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <h3 style="color: #fbbf24; margin: 0; font-size: 1.4em; letter-spacing: 0.5px;">Offer Financial Summary</h3>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 25px;">
+                        <div style="background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                            <div style="font-size: 0.85em; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Net Subtotal</div>
+                            <div style="font-size: 1.8em; font-weight: 700; color: #fff;">
+                                <span style="font-size: 0.6em; color: #fbbf24; margin-right: 5px;">${toCurrency}</span>${summary.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
                         </div>
-                        <div>
-                            <div style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 5px;">Grand Total</div>
-                            <div style="font-size: 1.5em; font-weight: bold; color: #d4af37;">${summary.grand_total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        
+                        <div style="background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 12px; border: 1px solid rgba(59, 130, 246, 0.2);">
+                            <div style="font-size: 0.85em; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Tax (VAT ${document.getElementById('mbVatSlider')?.value || 5}%)</div>
+                            <div style="font-size: 1.8em; font-weight: 700; color: #fff;">
+                                <span style="font-size: 0.6em; color: #fbbf24; margin-right: 5px;">${toCurrency}</span>${summary.vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
                         </div>
+                        
+                        <div style="background: rgba(251, 191, 36, 0.1); padding: 20px; border-radius: 12px; border: 1px solid rgba(251, 191, 36, 0.3); grid-column: span 1;">
+                            <div style="font-size: 0.85em; color: #fbbf24; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">Grand Total</div>
+                            <div style="font-size: 2.2em; font-weight: 800; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.3);">
+                                <span style="font-size: 0.5em; margin-right: 8px;">${toCurrency}</span>${summary.grand_total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Export Buttons in Preview Card -->
+                    <div style="margin-top: 35px; padding-top: 25px; border-top: 1px solid rgba(59, 130, 246, 0.3);">
+                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                            <h4 style="color: #fff; margin: 0; font-size: 1.1em; display: flex; align-items: center;">
+                                <span style="margin-right: 10px;">📤</span> Export Final Documents
+                            </h4>
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;">
+                            <button class="btn btn-info" onclick="exportMultiBudget('offer', 'pdf')" style="padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
+                                📄 Offer PDF
+                            </button>
+                            <button class="btn btn-info" onclick="exportMultiBudget('offer', 'excel')" style="padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
+                                📊 Offer Excel
+                            </button>
+                            <button class="btn btn-primary" onclick="exportMultiBudget('presentation', 'pptx')" style="padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
+                                📑 PowerPoint
+                            </button>
+                            <button class="btn btn-primary" onclick="exportMultiBudget('presentation', 'pdf')" style="padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
+                                📄 Presentation PDF
+                            </button>
+                            <button class="btn btn-warning" onclick="exportMultiBudget('mas', 'pdf')" style="padding: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600; color: #1a365d;">
+                                📋 MAS PDF
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; text-align: right;">
+                        <button class="btn btn-secondary" onclick="document.getElementById('multiBudgetCostedPreviewCard').style.display='none'; document.getElementById('multiBudgetCostingCard').style.display='block'; window.scrollTo({top: document.getElementById('multiBudgetCostingCard').offsetTop - 50, behavior: 'smooth'});" style="font-size: 0.85em; opacity: 0.8;">
+                            ↺ Adjust Costing Factors
+                        </button>
                     </div>
                 </div>
             `;
@@ -14863,7 +16130,11 @@
 
             // Show preview card
             previewCard.style.display = 'block';
-            previewCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Hide the input costing card and the original table card to show progress
+            // costingCard.style.display = 'none'; // Optional: keep it or hide it
+
+            previewCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         // Extract table data for multi-budget costing (separate from regular costing)
@@ -14878,7 +16149,7 @@
             Array.from(headerRow.children).forEach((th, idx) => {
                 const text = th.textContent.trim();
                 // Skip Product Selection and Actions columns
-                if (!text.toLowerCase().includes('product selection') && 
+                if (!text.toLowerCase().includes('product selection') &&
                     !text.toLowerCase().includes('actions') &&
                     !th.querySelector('.product-selection-dropdowns') &&
                     !th.querySelector('button')) {
@@ -14911,7 +16182,12 @@
                             if (img && img.src) {
                                 rowData[header] = cell.innerHTML; // Keep HTML for images
                             } else {
-                                rowData[header] = cell.textContent.trim();
+                                // Clean numeric text - remove currency symbols and commas for backend
+                                let text = cell.textContent.trim();
+                                if (/rate|price|total|amount|qty|quantity/i.test(header)) {
+                                    text = text.replace(/[^\d.-]/g, '');
+                                }
+                                rowData[header] = text;
                             }
                             colIndex++;
                         }
@@ -14939,17 +16215,17 @@
             if (!headerRow) return;
 
             const headers = Array.from(headerRow.children);
-            
+
             // Find column indices
             const headerTexts = Array.from(headerRow.children).map(th => th.textContent.trim());
-            
+
             // Find Unit Rate and Total column indices
             const rateIndex = headerTexts.findIndex(text => {
                 const lower = text.toLowerCase();
                 return (lower.includes('rate') || lower.includes('price') || lower.includes('unit')) &&
-                       !lower.includes('total');
+                    !lower.includes('total');
             });
-            
+
             const totalIndex = headerTexts.findIndex(text => {
                 const lower = text.toLowerCase();
                 return lower.includes('total') || lower.includes('amount');
@@ -14968,9 +16244,9 @@
                     if (idx < rows.length) {
                         const row = rows[idx];
                         const cells = Array.from(row.children);
-                        
+
                         // Filter out Product Selection and Actions cells for indexing
-                        const dataCells = cells.filter(cell => 
+                        const dataCells = cells.filter(cell =>
                             !cell.classList.contains('product-selection-cell') &&
                             !cell.classList.contains('actions-cell') &&
                             !cell.querySelector('.product-selection-dropdowns') &&
@@ -14999,21 +16275,21 @@
                             const rateHeader = costedTable.headers.find(h => {
                                 const lower = h.toLowerCase();
                                 return (lower.includes('rate') || lower.includes('price') || lower.includes('unit')) &&
-                                       !lower.includes('total');
+                                    !lower.includes('total');
                             });
                             const totalHeader = costedTable.headers.find(h => {
                                 const lower = h.toLowerCase();
                                 return lower.includes('total') || lower.includes('amount');
                             });
-                            
+
                             if (qtyHeader && rateHeader && totalHeader) {
                                 const qtyValue = parseFloat(String(costedRow[qtyHeader] || 0).replace(/[^0-9.-]/g, '') || 0);
                                 const rateValue = parseFloat(String(costedRow[rateHeader] || 0).replace(/[^0-9.-]/g, '') || 0);
                                 const total = qtyValue * rateValue;
-                                
+
                                 // Update in costed row
                                 costedRow[totalHeader] = total.toFixed(2);
-                                
+
                                 // Update in table cell
                                 const totalHeaderIndex = costedTable.headers.indexOf(totalHeader);
                                 if (totalHeaderIndex >= 0 && dataCells[totalHeaderIndex]) {
@@ -15043,15 +16319,15 @@
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
                     <div>
                         <div style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 5px;">Subtotal</div>
-                        <div style="font-size: 1.3em; font-weight: bold; color: #d4af37;">${summary.subtotal.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div style="font-size: 1.3em; font-weight: bold; color: #d4af37;">${summary.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
                     <div>
                         <div style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 5px;">VAT (5%)</div>
-                        <div style="font-size: 1.3em; font-weight: bold; color: #d4af37;">${summary.vat.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div style="font-size: 1.3em; font-weight: bold; color: #d4af37;">${summary.vat.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
                     <div>
                         <div style="font-size: 0.9em; color: #cbd5e1; margin-bottom: 5px;">Grand Total</div>
-                        <div style="font-size: 1.5em; font-weight: bold; color: #d4af37;">${summary.grand_total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                        <div style="font-size: 1.5em; font-weight: bold; color: #d4af37;">${summary.grand_total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                     </div>
                 </div>
             `;
@@ -15059,8 +16335,8 @@
             // Insert summary after the table
             const multiBudgetCard = document.getElementById('multiBudgetCard');
             if (multiBudgetCard) {
-                const tableContainer = multiBudgetCard.querySelector('.table-container') || 
-                                     multiBudgetCard.querySelector('table')?.parentElement;
+                const tableContainer = multiBudgetCard.querySelector('.table-container') ||
+                    multiBudgetCard.querySelector('table')?.parentElement;
                 if (tableContainer) {
                     tableContainer.parentElement.insertBefore(summaryDiv, tableContainer.nextSibling);
                 } else {
@@ -15123,50 +16399,9 @@
             }, 3000);
         }
 
-        // Image modal functionality for click-to-enlarge
-        function openImageModal(imageSrc) {
-            // Create modal if it doesn't exist
-            let modal = document.getElementById('imageModal');
-            if (!modal) {
-                modal = document.createElement('div');
-                modal.id = 'imageModal';
-                modal.className = 'image-modal';
-                modal.innerHTML = `
-                    <div class="image-modal-content">
-                        <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
-                        <img id="modalImage" class="image-modal-img" src="" alt="Full size image">
-                        <div class="image-modal-caption">
-                            <button class="btn btn-sm btn-primary" onclick="downloadModalImage()">
-                                <i class="fas fa-download"></i> Download
-                            </button>
-                        </div>
-                    </div>
-                `;
-                document.body.appendChild(modal);
-            }
-
-            // Set image source and show modal
-            const modalImg = document.getElementById('modalImage');
-            modalImg.src = imageSrc;
-            modal.style.display = 'flex';
-
-            // Close on click outside
-            modal.onclick = function (event) {
-                if (event.target === modal) {
-                    closeImageModal();
-                }
-            };
-        }
-
-        function closeImageModal() {
-            const modal = document.getElementById('imageModal');
-            if (modal) {
-                modal.style.display = 'none';
-            }
-        }
-
+        // Download image helper function
         function downloadModalImage() {
-            const modalImg = document.getElementById('modalImage');
+            const modalImg = document.getElementById('enlargedImage');
             if (modalImg && modalImg.src) {
                 const link = document.createElement('a');
                 link.href = modalImg.src;
@@ -15422,7 +16657,208 @@
                 }
             });
         }
+
+        /**
+         * Show enlarged image in modal
+         */
+        function showImage(src, caption = '', brandName = '') {
+            const modal = document.getElementById('imageModal');
+            
+            console.log(`[showImage] Function called with src: ${src}`);
+            console.log(`[showImage] Modal found: ${!!modal}`);
+
+            if (modal) {
+                // Get or create image element
+                let enlargedImage = document.getElementById('enlargedImage');
+                if (!enlargedImage) {
+                    enlargedImage = document.createElement('img');
+                    enlargedImage.id = 'enlargedImage';
+                    enlargedImage.className = 'image-modal-img';
+                    modal.appendChild(enlargedImage);
+                }
+
+                // Set image source
+                if (src && src.trim() !== '') {
+                    let finalSrc = src;
+                    if (!finalSrc.startsWith('http') && !finalSrc.startsWith('/')) {
+                        finalSrc = '/' + finalSrc;
+                    }
+                    finalSrc = finalSrc.replace(/\\/g, '/');
+                    console.log(`[showImage] Setting src to: ${finalSrc}`);
+                    
+                    enlargedImage.onload = function() {
+                        console.log(`[showImage] ✓ Image loaded successfully: ${this.src}`);
+                    };
+                    
+                    enlargedImage.onerror = function () {
+                        console.warn(`[showImage] ✗ Failed to load: ${this.src}, using fallback`);
+                        this.onerror = null;
+                        this.src = '/static/images/LOGO.png';
+                    };
+                    
+                    enlargedImage.src = finalSrc;
+                } else {
+                    console.log(`[showImage] Empty src, using LOGO fallback`);
+                    enlargedImage.src = '/static/images/LOGO.png';
+                }
+
+                // Update caption
+                let captionText = document.getElementById('modalCaption');
+                if (captionText) {
+                    captionText.innerHTML = caption;
+                    captionText.style.display = caption ? 'block' : 'none';
+                }
+                
+                // Update brand badge
+                let brandBadge = document.getElementById('modalBrandBadge');
+                if (brandBadge) {
+                    if (brandName) {
+                        brandBadge.innerHTML = brandName;
+                        brandBadge.style.display = 'block';
+                    } else {
+                        brandBadge.style.display = 'none';
+                    }
+                }
+
+                // Fetch and display brand logo
+                if (brandName) {
+                    try {
+                        fetch('/get-brand-logo?brand=' + encodeURIComponent(brandName))
+                            .then(resp => resp.json())
+                            .then(data => {
+                                if (data.logo) {
+                                    let logoImg = document.getElementById('modalBrandLogo');
+                                    let logoContainer = document.getElementById('modalLogoContainer');
+                                    if (logoImg && logoContainer) {
+                                        logoImg.src = data.logo;
+                                        logoContainer.style.display = 'block';
+                                    }
+                                }
+                            })
+                            .catch(e => console.error('Error fetching logo:', e));
+                    } catch (e) {
+                        console.error('Error in logo fetch:', e);
+                    }
+                } else {
+                    let logoContainer = document.getElementById('modalLogoContainer');
+                    if (logoContainer) logoContainer.style.display = 'none';
+                }
+
+                // Display modal - set display: flex to trigger visibility via CSS
+                modal.style.display = 'flex';
+                
+                console.log(`[showImage] Modal displayed`);
+            } else {
+                console.error(`[showImage] Modal element not found!`);
+            }
+        }
+
+        // Searchable Brand Dropdown Logic
+        const brandDataCache = {};
+
+        function showBrandList(rowId) {
+            // Hide all other dropdowns first
+            document.querySelectorAll('.brand-dropdown-list').forEach(list => {
+                if (list.id !== `brandList-${rowId}`) list.style.display = 'none';
+            });
+
+            const list = document.getElementById(`brandList-${rowId}`);
+            if (list) {
+                list.style.display = 'block';
+                filterBrandList(rowId, '');
+            }
+        }
+
+        function filterBrandList(rowId, query) {
+            const list = document.getElementById(`brandList-${rowId}`);
+            if (!list) return;
+
+            const container = list.closest('.brand-dropdown-container');
+            const tier = container.dataset.tier;
+            const brands = brandDataCache[tier] || [];
+
+            const filtered = brands.filter(b => b.name.toLowerCase().includes(query.toLowerCase()));
+
+            list.innerHTML = filtered.map(b => `
+                <div class="brand-item" onclick="selectBrand('${rowId}', '${b.name.replace(/'/g, "\\'")}', '${tier}')">
+                    <img src="${b.logo || 'https://via.placeholder.com/24?text=Logo'}" class="brand-logo-small" onerror="this.style.display='none'" title="${b.logo ? 'Brand Logo' : 'No Logo Available'}">
+                    <span class="brand-name-text">${b.name}</span>
+                    ${b.country ? `<span class="brand-country-badge">${b.country}</span>` : ''}
+                </div>
+            `).join('') || '<div class="brand-item">No brands found</div>';
+        }
+
+        function selectBrand(rowId, brandName, tier) {
+            const container = document.querySelector(`.brand-dropdown-container[data-row-id="${rowId}"]`);
+            if (!container) return;
+
+            // Find the selected brand data from the cache
+            const brands = brandDataCache[tier] || [];
+            const selectedBrand = brands.find(b => b.name === brandName);
+            
+            // Update the display with logo, name, and country
+            const displayElement = container.querySelector('.brand-input-display');
+            if (displayElement && selectedBrand) {
+                displayElement.innerHTML = `
+                    <img src="${selectedBrand.logo || 'https://via.placeholder.com/24?text=Logo'}" 
+                         style="width: 24px; height: 24px; object-fit: contain; border-radius: 4px; background: #f1f5f9; padding: 2px;" 
+                         onerror="this.style.display='none'" title="${selectedBrand.logo ? 'Brand Logo' : 'No Logo Available'}">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-weight: 600; color: #1a365d;">${selectedBrand.name}</span>
+                        ${selectedBrand.country ? `<span style="font-size: 0.75em; color: #94a3b8;">${selectedBrand.country}</span>` : ''}
+                    </div>
+                `;
+            } else if (displayElement) {
+                displayElement.innerHTML = `<span style="color: #334155;">${brandName}</span>`;
+            }
+            
+            const hiddenInput = container.querySelector('.brand-dropdown');
+            const list = container.querySelector('.brand-dropdown-list');
+
+            if (hiddenInput) {
+                hiddenInput.value = brandName;
+                // Trigger the onchange manually since hidden inputs don't fire it automatically
+                updateCategoryDropdown(rowId, brandName, tier);
+            }
+            if (list) list.style.display = 'none';
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.brand-dropdown-container')) {
+                document.querySelectorAll('.brand-dropdown-list').forEach(list => {
+                    list.style.display = 'none';
+                });
+            }
+        });
     </script>
+    <!-- Image Enlargement Modal -->
+    <div id="imageModal" class="image-modal" onclick="this.style.display='none'">
+        <div class="image-modal-content">
+            <span class="image-modal-close"
+                onclick="document.getElementById('imageModal').style.display='none'">&times;</span>
+            
+            <!-- Brand Logo Display -->
+            <div id="modalLogoContainer" style="margin-bottom: 20px; display: none; text-align: center;">
+                <img id="modalBrandLogo" class="image-modal-logo" 
+                     style="max-height: 80px; max-width: 200px; object-fit: contain;"
+                     onerror="this.parentElement.style.display='none'">
+            </div>
+            
+            <!-- Product Image Container -->
+            <div class="image-modal-image-container">
+                <img class="image-modal-img" id="enlargedImage"
+                    onerror="this.onerror=null; this.src='/static/images/LOGO.png'">
+                <div id="modalBrandBadge" class="image-modal-brand-badge"
+                    style="display: none;">
+                </div>
+            </div>
+            
+            <!-- Modal Caption (minimal) -->
+            <div id="modalCaption" class="image-modal-caption"
+                style="color: white; font-weight: 500; font-size: 0.9em; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin-top: 12px; max-width: 90%; line-height: 1.4;"></div>
+        </div>
+    </div>
 </body>
 
 </html>

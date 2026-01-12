@@ -59,6 +59,11 @@ class MASGenerator:
                 return p
         return None
 
+    def _get_brand_logo(self, brand_name):
+        """Get brand logo from JSON files or return None"""
+        from utils.image_helper import get_brand_logo_url
+        return get_brand_logo_url(brand_name)
+
     def _draw_header_footer(self, canv: canvas.Canvas, doc):
         """Draw properly placed header logo and footer website for MAS PDF."""
         page_width, page_height = doc.pagesize
@@ -213,6 +218,9 @@ class MASGenerator:
                                         selected_product_image = paths[0]  # Use first Brand Image
                                         logger.info(f"MAS: Found BRAND IMAGE column '{header}' for multi-budget")
                 
+                # Check if 'Brand Image' column exists in this table's headers
+                has_brand_image_col = any('brand image' in str(h).lower() for h in headers)
+                
                 # Second pass: Extract other fields (images, description fallback)
                 for header, cell_value in row.items():
                     header_str = str(header) if header else ''
@@ -227,7 +235,14 @@ class MASGenerator:
                             if '<img' in cell_value:
                                 paths = self.extract_all_image_paths(cell_value, session_id, file_id)
                                 if paths:
-                                    reference_image_paths.extend(paths)
+                                    if has_brand_image_col:
+                                        # If we have Brand Image, this is a reference image
+                                        reference_image_paths.extend(paths)
+                                    else:
+                                        # CREATE NEW BOQ: No Brand Image, treat this as Main
+                                        if not selected_product_image:
+                                            selected_product_image = paths[0]
+                                            logger.info(f"MAS Create New BOQ: Treating '{header}' as main product image")
                     # Check for other images (non-reference) - only if not multi-budget
                     elif not is_multibudget and '<img' in cell_value:
                         paths = self.extract_all_image_paths(cell_value, session_id, file_id)
@@ -278,6 +293,7 @@ class MASGenerator:
                         'qty': qty,
                         'unit': unit,
                         'brand': brand,
+                        'brand_logo': self._get_brand_logo(brand),  # Add brand logo
                         'specifications': specifications,
                         'image_path': final_image_paths[0] if final_image_paths else None,  # Selected product image (big)
                         'image_paths': final_image_paths,  # Selected product images
@@ -373,13 +389,22 @@ class MASGenerator:
                                 selected_product_image = img_path
                                 logger.info(f"MAS Stitched: Found BRAND IMAGE column '{header}' for multi-budget")
                 
+                # Check if 'Brand Image' column exists in this table's headers
+                has_brand_image_col = any('brand image' in str(h).lower() for h in headers)
+                
                 # Check for reference images in indicative image column (for multi-budget)
                 if is_multibudget and (('indicative' in header_str and 'image' in header_str) or 
                                       ('image' in header_str and 'brand' not in header_str and 'product' not in header_str)):
                     if '<img' in str(cell_value):
                         img_path = self.extract_image_path(str(cell_value), session_id, file_id)
                         if img_path:
-                            reference_image_paths.append(img_path)
+                            if has_brand_image_col:
+                                # Regular reference image
+                                reference_image_paths.append(img_path)
+                            else:
+                                # CREATE NEW BOQ: Treat as Main
+                                if not selected_product_image:
+                                    selected_product_image = img_path
                 # Check for other images (non-reference)
                 elif '<img' in str(cell_value) and not is_multibudget:
                     img_path = self.extract_image_path(str(cell_value), session_id, file_id)
@@ -417,6 +442,7 @@ class MASGenerator:
                     'qty': qty,
                     'unit': unit,
                     'brand': brand,
+                    'brand_logo': self._get_brand_logo(brand),  # Add brand logo
                     'specifications': specifications,
                     'image_path': final_image_paths[0] if final_image_paths else None,  # Selected product image (big)
                     'image_paths': final_image_paths,  # Selected product images
@@ -588,6 +614,46 @@ class MASGenerator:
                     story.append(Spacer(1, 0.05*inch))
             except Exception as e:
                 logger.warning(f"Could not add reference image to MAS: {e}")
+        
+        # Brand logo section - display logo above product images
+        brand_logo = item.get('brand_logo')
+        if brand_logo:
+            try:
+                # Download if URL
+                if brand_logo.startswith('http'):
+                    from utils.image_helper import download_image
+                    cached_logo = download_image(brand_logo)
+                    if cached_logo and os.path.exists(cached_logo):
+                        brand_logo = cached_logo
+                
+                if brand_logo and os.path.exists(brand_logo):
+                    try:
+                        from PIL import Image as PILImage
+                        # Load image to get dimensions
+                        pil_img = PILImage.open(brand_logo)
+                        img_width, img_height = pil_img.size
+                        aspect_ratio = img_height / img_width
+                        
+                        # Logo dimensions: max width 1.8 inches
+                        logo_width = 1.8 * inch
+                        logo_height = logo_width * aspect_ratio
+                        
+                        # Cap max height
+                        if logo_height > 0.75 * inch:
+                            logo_height = 0.75 * inch
+                            logo_width = logo_height / aspect_ratio
+                        
+                        # Create logo image
+                        logo_img = RLImage(brand_logo, width=logo_width, height=logo_height)
+                        logo_img.hAlign = 'CENTER'
+                        
+                        # Add logo with small spacer
+                        story.append(logo_img)
+                        story.append(Spacer(1, 0.08*inch))
+                    except Exception as e:
+                        logger.warning(f"Could not process brand logo image: {e}")
+            except Exception as e:
+                logger.warning(f"Could not add brand logo to MAS: {e}")
         
         # Product image section - support multiple images in grid
         image_title = Paragraph('<b>PRODUCT IMAGE(S)</b>', self.header_style)

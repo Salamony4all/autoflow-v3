@@ -94,6 +94,7 @@ class ArchitonicScraper:
             import requests
             
             logger.info(f"Loading collections page: {url}")
+            brand_logo = None
             
             # Use Selenium only if available and enabled
             if self.use_selenium and SeleniumScraper:
@@ -103,6 +104,10 @@ class ArchitonicScraper:
                     if not soup:
                         return {'error': 'Failed to load page'}
                     time.sleep(5)
+                    # Extract brand logo
+                    brand_logo = self._extract_brand_logo(soup, brand_name)
+                    logger.info(f"Extracted brand logo: {brand_logo}")
+
                     # Find all collection links on the page
                     collections = self._find_collection_links(scraper, url, brand_name)
                 except Exception as e:
@@ -117,12 +122,14 @@ class ArchitonicScraper:
                     response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30)
                     response.raise_for_status()
                     soup = BeautifulSoup(response.content, 'html.parser')
+                    brand_logo = self._extract_brand_logo(soup, brand_name)
                     collections = self._find_collection_links_requests(soup, url, brand_name)
             else:
                 # Use requests-based scraping
                 response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30)
                 response.raise_for_status()
                 soup = BeautifulSoup(response.content, 'html.parser')
+                brand_logo = self._extract_brand_logo(soup, brand_name)
                 collections = self._find_collection_links_requests(soup, url, brand_name)
             
             if not collections:
@@ -190,6 +197,8 @@ class ArchitonicScraper:
             # Build the final structure matching the example
             result = {
                 'brand': brand_name,
+                'website': url,
+                'logo': brand_logo,
                 'source': 'Architonic Collections',
                 'scraped_at': datetime.now().isoformat(),
                 'total_products': len(all_products_list),
@@ -1527,4 +1536,165 @@ class ArchitonicScraper:
             }
         
         return category_tree
+
+    def _extract_brand_logo(self, soup: BeautifulSoup, brand_name: str = '') -> Optional[str]:
+        """Extract brand logo from Architonic brand page"""
+        try:
+            # Architonic-specific logo extraction
+            # The brand logo appears in various locations on Architonic pages
+            
+            # Priority 1: Logo in the header area (most common for brand pages)
+            # Look for images in header/nav section
+            header = soup.find('header') or soup.find('nav') or soup.find(class_=['navbar', 'header', 'top-bar'])
+            if header:
+                logo_img = header.find('img', {'alt': lambda x: x and 'logo' in x.lower()})
+                if not logo_img:
+                    logo_img = header.find('img', {'src': lambda x: x and 'logo' in x.lower()})
+                if not logo_img:
+                    logo_img = header.find('img', {'class': lambda x: x and 'logo' in str(x).lower()})
+                
+                if logo_img and logo_img.get('src'):
+                    src = logo_img.get('src')
+                    if src and not src.startswith('http'):
+                        src = urljoin(self.base_url, src)
+                    if src and '?' in src:
+                        src = src.split('?')[0]
+                    if src:
+                        logger.info(f"Found brand logo in header: {src}")
+                        return src
+            
+            # Priority 2: Check for brand info section (manufacturer info box)
+            brand_info = soup.find(class_=lambda x: x and any(t in str(x).lower() for t in ['brand-info', 'manufacturer', 'brand-details', 'brand-section']))
+            if brand_info:
+                logo_img = brand_info.find('img')
+                if logo_img and logo_img.get('src'):
+                    src = logo_img.get('src')
+                    if src and not src.startswith('http'):
+                        src = urljoin(self.base_url, src)
+                    if src and '?' in src:
+                        src = src.split('?')[0]
+                    if src:
+                        logger.info(f"Found brand logo in brand info: {src}")
+                        return src
+            
+            # Priority 3: Look for og:image (Open Graph image - brand logo on social share)
+            og_image = soup.find('meta', property='og:image')
+            if og_image and og_image.get('content'):
+                src = og_image.get('content')
+                if '?' in src:
+                    src = src.split('?')[0]
+                logger.info(f"Found brand logo via og:image: {src}")
+                return src
+            
+            # Priority 4: Look for images in sidebar or aside (brand details panel)
+            aside = soup.find('aside') or soup.find(class_=lambda x: x and 'sidebar' in str(x).lower())
+            if aside:
+                for img in aside.find_all('img'):
+                    src = img.get('src') or img.get('data-src')
+                    if src and 'logo' not in src.lower() and 'icon' not in src.lower():
+                        # This might be the brand logo
+                        if not src.startswith('http'):
+                            src = urljoin(self.base_url, src)
+                        if '?' in src:
+                            src = src.split('?')[0]
+                        logger.info(f"Found potential brand logo in sidebar: {src}")
+                        return src
+            
+            # Priority 5: Fallback - search for any reasonable image that could be a logo
+            # Look for images in the top section of the page
+            main_content = soup.find('main') or soup.find('article') or soup.find(class_='container')
+            if main_content:
+                for img in main_content.find_all('img', limit=20):  # Only check first 20 images
+                    alt = img.get('alt', '').lower()
+                    src = img.get('src', '').lower()
+                    
+                    # Skip product images and obvious non-logos
+                    skip_keywords = ['product', 'render', 'jpg', 'media.architonic', 'placeholder', 'spinner']
+                    if any(k in src for k in skip_keywords):
+                        continue
+                    
+                    # Look for logo indicators
+                    if 'logo' in alt or (img.get('src') and 'logo' in img.get('src').lower()):
+                        src_full = img.get('src')
+                        if not src_full.startswith('http'):
+                            src_full = urljoin(self.base_url, src_full)
+                        if '?' in src_full:
+                            src_full = src_full.split('?')[0]
+                        logger.info(f"Found brand logo via search: {src_full}")
+                        return src_full
+            
+            # Priority 6: Generic selectors (last resort)
+            logo_selectors = [
+                'img[alt*="Logo" i]',
+                'img[alt*="manufacturer" i]',
+                '.logo img', 
+                '.brand-logo img',
+                'img[class*="logo" i]',
+                'a.logo img',
+                'header img[src*="logo" i]',
+            ]
+            
+            for selector in logo_selectors:
+                img = soup.select_one(selector)
+                if img and img.get('src'):
+                    src = img.get('src')
+                    if not src.startswith('http'):
+                        src = urljoin(self.base_url, src)
+                    if '?' in src:
+                        src = src.split('?')[0]
+                    if src:
+                        logger.info(f"Found brand logo via selector '{selector}': {src}")
+                        return src
+
+            logger.warning("No brand logo found on Architonic page")
+            # Fallback: Try to get logo from clearbit using brand name
+            return self._get_clearbit_logo_for_brand(brand_name=brand_name)
+        except Exception as e:
+            logger.debug(f"Error extracting brand logo: {e}")
+            return None
+
+    def _get_clearbit_logo_for_brand(self, brand_name: str) -> Optional[str]:
+        """
+        Get brand logo from Clearbit as fallback for Architonic brands
+        Clearbit provides company logos based on domain lookup
+        """
+        try:
+            import requests
+            
+            # Map brand names to their domains
+            brand_domains = {
+                'NARBUTAS': 'narbutas.com',
+                'NARBUTAS_mid_range': 'narbutas.com',
+                'OTTIMO': 'ottimouae.com',
+                'SEDUS': 'sedus.com',
+                'NURUS': 'nurus.com.tr',
+                'OFIFRAN': 'ofifran.es',
+                'B&T': 'b-t.net',
+                'LAS': 'las.es',
+                'MARELLI': 'marelli.com',
+                'MARTEX': 'martex.es',
+            }
+            
+            # Clean up brand name
+            clean_brand = brand_name.split('_')[0].upper()
+            domain = brand_domains.get(clean_brand)
+            
+            if not domain:
+                logger.warning(f"No domain mapping for brand: {brand_name}")
+                return None
+            
+            # Use Clearbit API (no key needed for basic lookup)
+            clearbit_url = f"https://logo.clearbit.com/{domain}"
+            logger.info(f"Attempting to fetch logo from Clearbit for domain: {domain}")
+            
+            # Check if the logo URL is accessible
+            response = requests.head(clearbit_url, timeout=5, allow_redirects=True)
+            if response.status_code == 200:
+                logger.info(f"Found Clearbit logo for {brand_name}: {clearbit_url}")
+                return clearbit_url
+            
+            return None
+        except Exception as e:
+            logger.debug(f"Error getting Clearbit logo: {e}")
+            return None
 

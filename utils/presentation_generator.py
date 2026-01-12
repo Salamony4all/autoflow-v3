@@ -118,6 +118,11 @@ class PresentationGenerator:
             return white_logo
         return self._get_logo_path()  # Fallback to default
 
+    def _get_brand_logo(self, brand_name: str, tier: str = None):
+        """Get brand logo from brand JSON data"""
+        from utils.image_helper import get_brand_logo_url
+        return get_brand_logo_url(brand_name)
+
     def _draw_header_footer(self, canv: canvas.Canvas, doc):
         """Draw properly placed header logo and footer website for presentation PDF."""
         page_width, page_height = doc.pagesize
@@ -312,6 +317,9 @@ class PresentationGenerator:
                 image_paths = []  # For non-multi-budget, regular images
                 selected_product_image = None  # For multi-budget: Brand Image from costed table
                 
+                # Check if 'Brand Image' column exists in this table's headers
+                has_brand_image_col = any('brand image' in str(h).lower() for h in headers)
+                
                 for h in headers:
                     h_str = str(h).lower() if h else ''
                     cell_value = get_row_value(h)
@@ -325,12 +333,19 @@ class PresentationGenerator:
                                     selected_product_image = paths[0]  # Use first Brand Image
                                     logger.info(f"Found BRAND IMAGE column '{h}' for multi-budget")
                         
-                        # For multi-budget: look for indicative/reference image (not Brand Image)
+                        # For multi-budget: look for indicative/reference image
                         elif ('indicative' in h_str and 'image' in h_str) or ('image' in h_str and 'brand' not in h_str and 'product' not in h_str) or ('img' in h_str and 'brand' not in h_str):
                             if self.contains_image(cell_value):
                                 paths = self.extract_all_image_paths(cell_value, session_id, file_id)
                                 if paths:
-                                    reference_image_paths.extend(paths)
+                                    if has_brand_image_col:
+                                        # If we have both, this one is the reference (small)
+                                        reference_image_paths.extend(paths)
+                                    else:
+                                        # CREATE NEW BOQ: Only one image column exists, treat it as Main (big)
+                                        if not selected_product_image:
+                                            selected_product_image = paths[0]
+                                            logger.info(f"Create New BOQ: Treating '{h}' as main product image")
                     else:
                         # For non-multi-budget: look for any image column (image, img, picture, photo)
                         if 'image' in h_str or 'img' in h_str or 'picture' in h_str or 'photo' in h_str:
@@ -351,6 +366,7 @@ class PresentationGenerator:
                 final_image_paths = [selected_product_image] if (is_multibudget and selected_product_image) else (image_paths if image_paths else [])
                 
                 if final_description:  # Only add if we have a description
+                    brand_name = self.extract_brand(final_description)
                     item = {
                         'description': final_description,
                         'qty': qty,
@@ -362,7 +378,8 @@ class PresentationGenerator:
                         'reference_image_path': reference_image_paths[0] if reference_image_paths else None,  # Reference image (small) for multi-budget
                         'reference_image_paths': reference_image_paths,  # All reference images
                         'is_multibudget': is_multibudget,  # Flag to indicate multi-budget
-                        'brand': self.extract_brand(final_description),
+                        'brand': brand_name,
+                        'brand_logo': self._get_brand_logo(brand_name, tier),  # Get brand logo URL
                         'specifications': self.extract_specifications(final_description)
                     }
                     items.append(item)
@@ -479,6 +496,9 @@ class PresentationGenerator:
             image_paths = []  # For non-multi-budget, regular images
             selected_product_image = None  # For multi-budget: Brand Image from costed table
             
+            # Check if 'Brand Image' column exists in this table's headers
+            has_brand_image_col = any('brand image' in str(h).lower() for h in headers)
+            
             for h in headers:
                 h_str = str(h).lower() if h else ''
                 cell_value = row_data.get(h, '')
@@ -492,12 +512,19 @@ class PresentationGenerator:
                                 selected_product_image = paths[0]  # Use first Brand Image
                                 logger.info(f"Stitched: Found BRAND IMAGE column '{h}' for multi-budget")
                     
-                    # For multi-budget: look for indicative/reference image (not Brand Image)
+                    # For multi-budget: look for indicative/reference image
                     elif ('indicative' in h_str and 'image' in h_str) or ('image' in h_str and 'brand' not in h_str and 'product' not in h_str):
                         if self.contains_image(str(cell_value)):
                             paths = self.extract_all_image_paths(str(cell_value), session_id, file_id)
                             if paths:
-                                reference_image_paths.extend(paths)
+                                if has_brand_image_col:
+                                    # If we have both, this one is the reference (small)
+                                    reference_image_paths.extend(paths)
+                                else:
+                                    # CREATE NEW BOQ: Only one image column exists, treat it as Main (big)
+                                    if not selected_product_image:
+                                        selected_product_image = paths[0]
+                                        logger.info(f"Stitched Create New BOQ: Treating '{h}' as main product image")
                 else:
                     # For non-multi-budget: look for any image column
                     if 'image' in h_str:
@@ -515,7 +542,7 @@ class PresentationGenerator:
             
             # Use Brand Description and Brand Image from costed table for multi-budget
             final_description = description  # Already extracted Brand Description above for multi-budget
-            final_image_paths = [selected_product_image] if (is_multibudget and selected_product_image) else (reference_image_paths if reference_image_paths else [])
+            final_image_paths = [selected_product_image] if (is_multibudget and selected_product_image) else (image_paths if image_paths else [])
             
             item = {
                 'description': final_description,
@@ -917,6 +944,28 @@ class PresentationGenerator:
             except Exception as e:
                 logger.warning(f"Could not add reference image: {e}")
         
+        # Brand logo placement - ABOVE product images for prominence
+        brand_logo = item.get('brand_logo')
+        logo_y_position = Inches(1.3)  # Position below header and gold line
+        if brand_logo:
+            try:
+                # Download brand logo if it's a URL
+                if brand_logo.startswith('http'):
+                    from utils.image_helper import download_image
+                    cached_logo = download_image(brand_logo)
+                    if cached_logo and os.path.exists(cached_logo):
+                        brand_logo = cached_logo
+                
+                # Add brand logo image - centered above product images
+                if brand_logo and os.path.exists(brand_logo):
+                    # Place logo above images, centered in the image area
+                    # Image area is Inches(0.5) to Inches(4.5), so center is at Inches(2.5)
+                    # Logo dimensions: 1.8" wide, 0.75" tall
+                    logo_x = Inches(0.5) + (Inches(4.0) / 2) - (Inches(1.8) / 2)  # Center horizontally
+                    slide.shapes.add_picture(brand_logo, logo_x, logo_y_position, width=Inches(1.8), height=Inches(0.75))
+            except Exception as e:
+                logger.warning(f"Could not add brand logo: {e}")
+        
         # Title in header - show item number and short title
         title_box = slide.shapes.add_textbox(Inches(0.5), Inches(0.3), Inches(7.2), Inches(0.6))
         title_frame = title_box.text_frame
@@ -937,7 +986,9 @@ class PresentationGenerator:
         image_paths = [p for p in image_paths if p]
         
         # Adjust position if multi-budget (to account for reference image in upper left)
-        image_area_y = Inches(1.8) if not is_multibudget else Inches(2.5)  # Lower if reference image present
+        # Now also account for brand logo which is positioned at Inches(1.3) with height Inches(0.75)
+        # Logo ends at Inches(2.05), so images should start around Inches(2.2)
+        image_area_y = Inches(2.2)  # Position below brand logo
         
         logger.info(f"Item {page_num}: Found {len(image_paths)} image(s) to display (multibudget: {is_multibudget})")
         
@@ -945,11 +996,11 @@ class PresentationGenerator:
             try:
                 from PIL import Image as PILImage
                 
-                # Define image area - adjust for multi-budget
+                # Define image area - adjust for logo above it
                 area_x = Inches(0.5)
                 area_y = image_area_y  # Use adjusted Y position
                 area_w = Inches(4.5)
-                area_h = Inches(4.0) if is_multibudget else Inches(4.5)  # Slightly smaller if reference image present
+                area_h = Inches(3.8)  # Slightly smaller to account for logo above
                 
                 num_images = min(len(image_paths), 6) # Max 6 images
                 image_paths = image_paths[:num_images]

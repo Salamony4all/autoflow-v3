@@ -120,5 +120,59 @@ def get_product_image_url(brand_name, category, subcategory, model_name, tier='m
         logger.warning(f"Error getting product image URL: {e}")
         return None
 
-
+def get_brand_logo_url(brand_name):
+    """
+    Get brand logo URL from brand JSON data in brands_data directory.
+    Supports exact match and prefix match (e.g., 'NARBUTAS' matching 'NARBUTAS_mid_range.json').
+    
+    Args:
+        brand_name: Name of the brand
+    
+    Returns:
+        Logo URL string if found, None otherwise
+    """
+    if not brand_name:
+        return None
+    
+    import json
+    
+    brand_name = brand_name.strip()
+    brands_data_dir = 'brands_data'
+    
+    # Try to load from brand-specific JSON file
+    # Check for direct match or prefix match (e.g., NARBUTAS_mid_range.json)
+    try:
+        if os.path.exists(brands_data_dir):
+            for filename in os.listdir(brands_data_dir):
+                if filename.lower().startswith(brand_name.lower()) and filename.endswith('.json'):
+                    brand_file_path = os.path.join(brands_data_dir, filename)
+                    try:
+                        with open(brand_file_path, 'r', encoding='utf-8') as f:
+                            brand_data = json.load(f)
+                            # Check multiple possible keys for logo
+                            logo = brand_data.get('logo') or \
+                                   brand_data.get('brand_info', {}).get('logo') or \
+                                   brand_data.get('brand_logo')
+                            if logo:
+                                return logo
+                    except Exception as e:
+                        logger.error(f"Error reading brand file {filename}: {e}")
+    except Exception as e:
+        logger.error(f"Error listing brands_data: {e}")
+    
+    # Try to load from brands_dynamic.json
+    brands_dynamic_path = os.path.join(brands_data_dir, 'brands_dynamic.json')
+    if os.path.exists(brands_dynamic_path):
+        try:
+            with open(brands_dynamic_path, 'r', encoding='utf-8') as f:
+                brands_dynamic = json.load(f)
+                for brand_entry in brands_dynamic.get('brands', []):
+                    if brand_entry.get('name', '').lower() == brand_name.lower():
+                        logo = brand_entry.get('logo')
+                        if logo:
+                            return logo
+        except Exception as e:
+            logger.error(f"Error reading brands_dynamic.json: {e}")
+    
+    return None
 

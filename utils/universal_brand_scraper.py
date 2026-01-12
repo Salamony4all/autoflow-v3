@@ -213,6 +213,8 @@ class UniversalBrandScraper:
             response = requests.get(website, headers=self.headers, timeout=15)
             soup = BeautifulSoup(response.content, 'html.parser')
             
+            brand_logo = self._extract_brand_logo(soup, website)
+            
             collections = self._detect_hierarchy_universal(soup, website)
             
             result = {
@@ -221,6 +223,7 @@ class UniversalBrandScraper:
                 'scraped_at': datetime.now().isoformat(),
                 'total_products': 0,
                 'total_collections': len(collections),
+                'logo': brand_logo,
                 'collections': {},
                 'all_products': []
             }
@@ -283,6 +286,7 @@ class UniversalBrandScraper:
             
             # Get updated page source after revealing submenus
             soup = BeautifulSoup(scraper.driver.page_source, 'html.parser')
+            brand_logo = self._extract_brand_logo(soup, website)
             
             # Detect hierarchy using multiple strategies
             collections = self._detect_hierarchy_universal(soup, website)
@@ -298,6 +302,7 @@ class UniversalBrandScraper:
                 'scraped_at': datetime.now().isoformat(),
                 'total_products': 0,
                 'total_collections': len(collections),
+                'logo': brand_logo,
                 'collections': {},
                 'all_products': []
             }
@@ -1533,4 +1538,56 @@ class UniversalBrandScraper:
         except Exception as e:
             logger.warning(f"Error detecting dynamic submenus: {e}")
             return {}
+
+    def _extract_brand_logo(self, soup: BeautifulSoup, base_url: str) -> Optional[str]:
+        """Extract brand logo from website"""
+        try:
+            # Try meta tag first (og:image)
+            logo_meta = soup.find('meta', property='og:image')
+            if logo_meta and logo_meta.get('content'):
+                content = logo_meta.get('content')
+                # Only use if it looks like a logo or brand image
+                if any(x in content.lower() for x in ['logo', 'brand', 'identity']):
+                    return content
+            
+            # Specific logo selectors from updated scraper logic
+            logo_selectors = [
+                '.custom-logo', '.site-logo img', '.logo img', 'a.logo img',
+                'header img[src*="logo"]', '.navbar-brand img', '[class*="logo"] img',
+                'img[alt*="logo" i]', 'img[class*="logo" i]',
+                '#logo img', '.header-logo img'
+            ]
+            
+            for selector in logo_selectors:
+                elements = soup.select(selector)
+                if elements:
+                    el = elements[0]
+                    src = el.get('src') or el.get('data-src') or el.get('srcset')
+                    if src:
+                        logo_url = urljoin(base_url, src.split()[0])
+                        # Clean up WebP parameters or other query strings if needed
+                        if '?' in logo_url:
+                            logo_url = logo_url.split('?')[0]
+                        return logo_url
+
+            # Try any image with 'logo' in the filename or alt text (excluding common false positives)
+            for img in soup.find_all('img'):
+                alt = img.get('alt', '').lower()
+                src = img.get('src', '').lower()
+                if ('logo' in alt or 'logo' in src) and len(src) < 255:
+                    if not any(x in src for x in ['placeholder', 'spinner', 'loading']):
+                        return urljoin(base_url, img.get('src'))
+            
+            # Fallback: check if the first image in the header is the logo
+            header = soup.find('header')
+            if header:
+                first_img = header.find('img')
+                if first_img:
+                    src = first_img.get('src')
+                    if src: return urljoin(base_url, src)
+                    
+            return None
+        except Exception as e:
+            logger.debug(f"Error extracting logo: {e}")
+            return None
 

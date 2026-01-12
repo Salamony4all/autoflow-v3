@@ -345,9 +345,13 @@ async function stitchTables(fileId) {
                     img.setAttribute('ondragend', 'handleDragEnd(event)');
 
                     // Click to enlarge
+                    // Click to enlarge
                     img.onclick = function (e) {
                         e.stopPropagation();
-                        showImage(this.src);
+                        // Get raw src and normalize
+                        const rawSrc = this.getAttribute('src') || this.src;
+                        const normalizedSrc = rawSrc.replace(/\\/g, '/');
+                        showImage(normalizedSrc, this.alt || '');
                     };
 
                     // Hover effect
@@ -483,12 +487,15 @@ async function applyCosting() {
     const tableData = extractTableData(table);
 
     const factors = {
-        net_margin: parseFloat(document.getElementById('netMarginSlider').value),
-        freight: parseFloat(document.getElementById('freightSlider').value),
-        customs: parseFloat(document.getElementById('customsSlider').value),
-        installation: parseFloat(document.getElementById('installationSlider').value),
-        exchange_rate: parseFloat(document.getElementById('exchangeRateSlider').value),
-        additional: parseFloat(document.getElementById('additionalSlider').value)
+        net_margin: parseFloat(document.getElementById('netMarginSlider')?.value) || 0,
+        freight: parseFloat(document.getElementById('freightSlider')?.value) || 0,
+        customs: parseFloat(document.getElementById('customsSlider')?.value) || 0,
+        installation: parseFloat(document.getElementById('installationSlider')?.value) || 0,
+        exchange_rate: parseFloat(document.getElementById('exchangeRateInput')?.value) || 1,
+        vat: parseFloat(document.getElementById('vatSlider')?.value) || 5,
+        additional: parseFloat(document.getElementById('additionalSlider')?.value) || 0,
+        currency_from: document.getElementById('currencyFrom')?.value || 'USD',
+        currency_to: document.getElementById('currencyTo')?.value || 'OMR'
     };
 
     try {
@@ -1437,7 +1444,7 @@ function extractTableData(table) {
 async function generateOfferPDF(fileId) {
     try {
         showAlert('⏳ Generating Offer PDF with original prices...', 'info');
-        
+
         const response = await fetch(`/generate-offer-zero/${fileId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
@@ -1473,7 +1480,7 @@ async function generateOfferPDF(fileId) {
 async function generateOfferPDFWithCosting(fileId) {
     try {
         showAlert('⏳ Generating Offer PDF with applied costing...', 'info');
-        
+
         const response = await fetch(`/generate-offer-costed/${fileId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }

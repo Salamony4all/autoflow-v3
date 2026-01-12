@@ -6,9 +6,14 @@ from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment, PatternFill, Border, Side
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.drawing.image import Image as XLImage
+from openpyxl.drawing.spreadsheet_drawing import OneCellAnchor, AnchorMarker, XDRPositiveSize2D
+from openpyxl.utils.units import pixels_to_EMU
 import shutil
 import zipfile
 import re
+import logging
+
+logger = logging.getLogger(__name__)
 
 class DownloadManager:
     """Manage downloads of all generated artifacts"""
@@ -169,7 +174,8 @@ class DownloadManager:
         os.makedirs(output_dir, exist_ok=True)
         
         if format_type in ['xlsx', 'xls']:
-            return self.create_offer_excel(costed_data, output_dir, file_info['id'])
+            product_selections = file_info.get('product_selections', [])
+            return self.create_offer_excel(costed_data, output_dir, file_info['id'], product_selections=product_selections)
         elif format_type == 'pdf':
             # Check if offer PDF was generated
             offer_dir = os.path.join('outputs', session_id, 'offers')
@@ -307,7 +313,7 @@ class DownloadManager:
         wb.save(filename)
         return filename
     
-    def create_offer_excel(self, costed_data, output_dir, file_id):
+    def create_offer_excel(self, costed_data, output_dir, file_id, product_selections=None):
         """Create Excel file for offer with costing applied"""
         filename = os.path.join(output_dir, f'offer_{file_id}_{datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx')
         
@@ -315,7 +321,7 @@ class DownloadManager:
         ws = wb.active
         ws.title = 'Offer'
         
-        # Logo removed from Excel exports per user request
+        temp_files = []
         
         # Title
         ws.append(['COMMERCIAL OFFER'])
@@ -356,7 +362,7 @@ class DownloadManager:
                     image_col_indices.append(idx)
             
             # Data rows - exclude Action column and embed images
-            for row in table['rows']:
+            for row_idx, row in enumerate(table['rows']):
                 current_row_num = ws.max_row + 1
                 row_data = []
                 
@@ -373,66 +379,176 @@ class DownloadManager:
                 
                 ws.append(row_data)
                 
-                # Set row height for images
-                if any(self.contains_image(row.get(h, '')) for h in headers):
-                    ws.row_dimensions[current_row_num].height = 75  # Height for images
+                # Set row height for images - taller if both logo and product image present
+                has_image_content = any(any(v in h.lower() for v in ['image', 'img', 'picture', 'pic']) or self.contains_image(row.get(h, '')) for h in headers)
+                if has_image_content:
+                    if row.get('brand_logo'):
+                        ws.row_dimensions[current_row_num].height = 135
+                    else:
+                        ws.row_dimensions[current_row_num].height = 100
                 
-                # Now embed images
+                # Identify key columns for this row
+                total_col_idx = -1
+                for i, h in enumerate(headers):
+                    h_lower = h.lower()
+                    if any(v in h_lower for v in ['total', 'amount']) and '_original' not in h_lower:
+                        total_col_idx = i + 1
+                        break
+                if total_col_idx == -1:
+                    total_col_idx = 7 # Fallback
+
+                # Embed images and brand logos
                 for col_idx, h in enumerate(headers):
-                    cell_value = row.get(h, '')
+                    cell_value = str(row.get(h, ''))
+                    is_image_col = any(v in h.lower() for v in ['image', 'img', 'picture', 'pic'])
                     
-                    if self.contains_image(cell_value):
-                        image_path = self.extract_image_path(cell_value, session_id, file_id)
+                    if is_image_col or self.contains_image(cell_value):
+                        # Priority: get image_url from row data, then extracted path, then product_selections
+                        image_url = row.get('image_url') or self.extract_image_path(cell_value, session_id, file_id)
+                        brand_logo_url = row.get('brand_logo')
                         
-                        # If image_path is a URL, download it first
-                        if image_path and image_path.startswith('http'):
+                        # Fallback to product_selections if available (requested by user)
+                        if product_selections and (not image_url or not brand_logo_url):
+                            # Try to match by row index
+                            selection = next((p for p in product_selections if p.get('row_index') == row_idx), None)
+                            if selection:
+                                if not image_url: image_url = selection.get('image_url')
+                                if not brand_logo_url: brand_logo_url = selection.get('brand_logo')
+
+                        # Final fallback for brand logo from brand name
+                        if not brand_logo_url:
+                            brand = row.get('brand') or row.get('Brand')
+                            if brand:
+                                try:
+                                    from utils.image_helper import get_brand_logo_url
+                                    brand_logo_url = get_brand_logo_url(brand)
+                                except: pass
+
+                        logo_added = False
+                        img_added = False
+
+                        try:
                             from utils.image_helper import download_image
-                            cached_path = download_image(image_path)
-                            if cached_path:
-                                image_path = cached_path
-                        
-                        if image_path and os.path.exists(image_path):
-                            try:
-                                # Add image to cell
-                                img = XLImage(image_path)
-                                # Resize image to fit cell (100x100 pixels)
-                                img.width = 100
-                                img.height = 100
-                                
-                                # Get cell coordinate (e.g., 'A5')
-                                cell_coord = ws.cell(row=current_row_num, column=col_idx + 1).coordinate
-                                
-                                # Add image to worksheet
-                                ws.add_image(img, cell_coord)
-                            except Exception as e:
-                                # If image fails, write placeholder text
-                                ws.cell(row=current_row_num, column=col_idx + 1).value = "[Image]"
-                        else:
-                            ws.cell(row=current_row_num, column=col_idx + 1).value = "[Image]"
+                            from PIL import Image as PIL_Image
+                            import tempfile
+                            import traceback
+                            
+                            # Process Brand Logo
+                            if brand_logo_url:
+                                cached_logo = download_image(brand_logo_url)
+                                if cached_logo and os.path.exists(cached_logo):
+                                    try:
+                                        # Use tempfile path to avoid 'fp' attribute error in openpyxl
+                                        with PIL_Image.open(cached_logo) as pil_img:
+                                            tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                                            pil_img.convert('RGBA').save(tmp.name, format='PNG')
+                                            tmp.close()
+                                            temp_files.append(tmp.name)
+                                            
+                                            logo_xl = XLImage(tmp.name)
+                                            logo_xl.width = 60
+                                            logo_xl.height = 40
+                                            
+                                            marker = AnchorMarker(col=col_idx, colOff=pixels_to_EMU(10), row=current_row_num-1, rowOff=pixels_to_EMU(5))
+                                            # XLImage from path should have _extent, but manual set is safer
+                                            ext = XDRPositiveSize2D(pixels_to_EMU(logo_xl.width), pixels_to_EMU(logo_xl.height))
+                                            logo_xl.anchor = OneCellAnchor(_from=marker, ext=ext)
+                                            ws.add_image(logo_xl)
+                                            logo_added = True
+                                            logger.info(f"Added brand logo for row {current_row_num}")
+                                    except Exception as e:
+                                        logger.warning(f"Error adding logo to Excel row {current_row_num}: {e}\n{traceback.format_exc()}")
+
+                            # Process Product Image
+                            if image_url:
+                                cached_img = download_image(image_url) if str(image_url).startswith('http') else image_url
+                                if cached_img and os.path.exists(str(cached_img)):
+                                    try:
+                                        with PIL_Image.open(str(cached_img)) as pil_img:
+                                            tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                                            pil_img.convert('RGB').save(tmp.name, format='PNG')
+                                            tmp.close()
+                                            temp_files.append(tmp.name)
+                                            
+                                            img_xl = XLImage(tmp.name)
+                                            img_xl.width = 100
+                                            img_xl.height = 100
+                                            
+                                            row_off = 50 if logo_added else 5
+                                            marker = AnchorMarker(col=col_idx, colOff=pixels_to_EMU(10), row=current_row_num-1, rowOff=pixels_to_EMU(row_off))
+                                            ext = XDRPositiveSize2D(pixels_to_EMU(img_xl.width), pixels_to_EMU(img_xl.height))
+                                            img_xl.anchor = OneCellAnchor(_from=marker, ext=ext)
+                                            ws.add_image(img_xl)
+                                            img_added = True
+                                            logger.info(f"Added product image for row {current_row_num}")
+                                    except Exception as e:
+                                        logger.warning(f"Error adding product image to Excel row {current_row_num}: {e}\n{traceback.format_exc()}")
+                                        if not logo_added:
+                                            ws.cell(row=current_row_num, column=col_idx + 1).value = "[Img Error]"
+                                else:
+                                    logger.warning(f"Product image path does not exist for row {current_row_num}: {cached_img}")
+                                    if is_image_col and not logo_added:
+                                        ws.cell(row=current_row_num, column=col_idx + 1).value = "[Missing]"
+
+                            # Cleanup cell text IF it's the dedicated image column
+                            if is_image_col and (logo_added or img_added):
+                                ws.cell(row=current_row_num, column=col_idx + 1).value = ""
+
+                        except Exception as e:
+                            logger.error(f"Excel image processing totally failed for row {current_row_num}: {e}\n{traceback.format_exc()}")
+
+            # Update summary row logic to use identified total column
+            final_summary_col = total_col_idx
+            summary_label_col = final_summary_col - 1
+            if summary_label_col < 1: summary_label_col = 1
             
-            # Set column widths
-            for col_idx, h in enumerate(headers):
-                col_letter = chr(65 + col_idx)  # A, B, C, etc.
-                if col_idx in image_col_indices:
-                    ws.column_dimensions[col_letter].width = 15  # Wider for images
+            # Summary - recalculate to ensure accuracy
+            subtotal = self.calculate_subtotal(costed_data['tables'])
+            vat = subtotal * 0.15  # 15% VAT
+            grand_total = subtotal + vat
             
-            ws.append([])  # Empty row
+            # Add summary rows with proper formatting
+            summary_row = ws.max_row + 2
+            ws.cell(row=summary_row, column=summary_label_col).value = 'Subtotal:'
+            ws.cell(row=summary_row, column=final_summary_col).value = subtotal
+            
+            ws.cell(row=summary_row + 1, column=summary_label_col).value = 'VAT (15%):'
+            ws.cell(row=summary_row + 1, column=final_summary_col).value = vat
+            
+            ws.cell(row=summary_row + 2, column=summary_label_col).value = 'Grand Total:'
+            ws.cell(row=summary_row + 2, column=final_summary_col).value = grand_total
         
-        # Summary - recalculate to ensure accuracy
-        subtotal = self.calculate_subtotal(costed_data['tables'])
-        vat = subtotal * 0.05  # 5% VAT (not 15%)
-        grand_total = subtotal + vat
+        # Style summary rows
+        self.style_summary_rows(ws, summary_row, summary_row + 2)
         
-        ws.append(['', '', '', '', 'Subtotal:', subtotal])
-        ws.append(['', '', '', '', 'VAT (15%):', vat])
-        ws.append(['', '', '', '', 'Grand Total:', grand_total])
-        
-        self.style_summary_rows(ws, ws.max_row - 2, ws.max_row)
-        
-        # Auto-adjust columns (except image columns)
+        # Final column adjustments
+        # First auto-adjust everything
         self.auto_adjust_columns(ws)
         
+        # Then apply specific overrides for image and description columns
+        for table in costed_data['tables']:
+            headers = [h for h in table['headers'] if h.lower() not in ['action', 'actions', 'product selection', 'productselection']]
+            for col_idx, h in enumerate(headers):
+                col_letter = chr(65 + col_idx)
+                if any(v in h.lower() for v in ['image', 'img', 'picture', 'pic']):
+                    ws.column_dimensions[col_letter].width = 20
+                elif h.lower() in ['description', 'desc']:
+                    ws.column_dimensions[col_letter].width = 65
+                    # Re-apply wrapping as auto_adjust might have affected it
+                    for r in range(1, ws.max_row + 1):
+                        cell = ws.cell(row=r, column=col_idx + 1)
+                        if cell.value and r > 1: # Skip title/header
+                            cell.alignment = Alignment(wrap_text=True, vertical='center', horizontal='left')
+        
         wb.save(filename)
+        
+        # Cleanup temporary files
+        for tmp_file in temp_files:
+            try:
+                if os.path.exists(tmp_file):
+                    os.remove(tmp_file)
+            except: pass
+            
         return filename
     
     def create_ve_excel(self, ve_data, output_dir, file_id):
@@ -498,17 +614,27 @@ class DownloadManager:
             match = re.search(r'src=["\']([^"\']+)["\']', str(cell_value))
             if match:
                 img_path_or_url = match.group(1)
-                # If it's a URL, return it as-is (will be downloaded later)
-                if img_path_or_url.startswith('http://') or img_path_or_url.startswith('https://'):
+                
+                # Handle URLs
+                if img_path_or_url.startswith('http'):
                     return img_path_or_url
                 
-                # Remove leading slash if present
-                img_path_or_url = img_path_or_url.lstrip('/')
-                # Build absolute path from workspace root
-                if img_path_or_url.startswith('outputs'):
-                    img_path = img_path_or_url
+                # Try to find it relative to current directory (for static/ paths)
+                # Remove leading slash if any
+                clean_path = img_path_or_url.lstrip('/')
+                if os.path.exists(clean_path):
+                    return clean_path
+                
+                # Check for other common paths
+                if clean_path.startswith('static/'):
+                    return os.path.abspath(clean_path)
+                
+                # Default to outputs/ (legacy behavior)
+                if not clean_path.startswith('outputs'):
+                    img_path = os.path.join('outputs', session_id, file_id, clean_path)
                 else:
-                    img_path = os.path.join('outputs', session_id, file_id, img_path_or_url)
+                    img_path = clean_path
+                
                 return img_path
             
             # Try to find image reference in text
@@ -519,7 +645,7 @@ class DownloadManager:
                     img_path = os.path.join('outputs', session_id, file_id, img_relative_path)
                     return img_path
         except Exception as e:
-            pass
+            logger.warning(f"Error extracting image path: {e}")
         
         return None
     
