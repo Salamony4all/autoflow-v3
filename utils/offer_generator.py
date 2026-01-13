@@ -33,6 +33,7 @@ class OfferGenerator:
     def __init__(self):
         self.styles = getSampleStyleSheet()
         self.setup_custom_styles()
+        self.temp_files = []
     
     def setup_custom_styles(self):
         """Setup custom paragraph styles"""
@@ -476,16 +477,32 @@ class OfferGenerator:
                         # Extract ALL image paths from the cell
                         all_image_paths = self.extract_all_image_paths(cell_value, session_id, file_id)
                         
-                        # Download any URLs first
+                        # Prepare images for ReportLab
                         valid_image_paths = []
+                        from PIL import Image as PILImage
+                        import tempfile
+                        
                         for img_path in all_image_paths:
-                            if img_path and img_path.startswith('http'):
+                            if not img_path: continue
+                            
+                            # Download any URLs first
+                            if str(img_path).startswith('http'):
                                 from utils.image_helper import download_image
                                 cached_path = download_image(img_path)
-                                if cached_path and os.path.exists(cached_path):
-                                    valid_image_paths.append(cached_path)
-                            elif img_path and os.path.exists(img_path):
-                                valid_image_paths.append(img_path)
+                                if cached_path: img_path = cached_path
+                            
+                            if img_path and os.path.exists(img_path):
+                                try:
+                                    # Convert to PNG for ReportLab (handles WEBP, etc.)
+                                    with PILImage.open(img_path) as pil_img:
+                                        tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                                        pil_img.convert('RGB').save(tmp.name, 'PNG')
+                                        valid_image_paths.append(tmp.name)
+                                        self.temp_files.append(tmp.name)
+                                except Exception as e:
+                                    logger.warning(f"Failed to convert image {img_path}: {e}")
+                                    # Fallback
+                                    valid_image_paths.append(img_path)
                         
                         if valid_image_paths:
                             try:
@@ -521,16 +538,17 @@ class OfferGenerator:
                                         # Use asymmetric size for first vs others in multibudget
                                         current_size = main_size if idx == 0 else ref_size
                                         
-                                        pil_img = PILImage.open(img_path)
-                                        img_width, img_height = pil_img.size
-                                        
-                                        # Scale to fit
-                                        scale_ratio = min(current_size / img_width, current_size / img_height)
-                                        final_width = img_width * scale_ratio
-                                        final_height = img_height * scale_ratio
-                                        
-                                        img = RLImage(img_path, width=final_width, height=final_height)
-                                        image_objects.append(img)
+                                        with PILImage.open(img_path) as pil_img:
+                                            # Use converted PNGs (already done in previous loop)
+                                            img_width, img_height = pil_img.size
+                                            
+                                            # Scale to fit
+                                            scale_ratio = min(current_size / img_width, current_size / img_height)
+                                            final_width = img_width * scale_ratio
+                                            final_height = img_height * scale_ratio
+                                            
+                                            img = RLImage(img_path, width=final_width, height=final_height)
+                                            image_objects.append(img)
                                     except:
                                         pass
                                 
@@ -549,22 +567,27 @@ class OfferGenerator:
                                                 brand_logo = cached_logo
                                         
                                         if brand_logo and os.path.exists(brand_logo):
-                                            pil_logo = PILImage.open(brand_logo)
-                                            logo_width, logo_height = pil_logo.size
-                                            aspect_ratio = logo_height / logo_width
-                                            
-                                            # Logo dimensions: max width 0.9 inches (smaller in offer table)
-                                            logo_final_width = 0.9 * inch
-                                            logo_final_height = logo_final_width * aspect_ratio
-                                            
-                                            # Cap max height
-                                            if logo_final_height > 0.5 * inch:
-                                                logo_final_height = 0.5 * inch
-                                                logo_final_width = logo_final_height / aspect_ratio
-                                            
-                                            logo_img = RLImage(brand_logo, width=logo_final_width, height=logo_final_height)
-                                            logo_img.hAlign = 'CENTER'
-                                            content_elements.append(logo_img)
+                                            with PILImage.open(brand_logo) as pil_logo:
+                                                logo_width, logo_height = pil_logo.size
+                                                aspect_ratio = logo_height / logo_width
+                                                
+                                                # Logo dimensions: max width 0.9 inches (smaller in offer table)
+                                                logo_final_width = 0.9 * inch
+                                                logo_final_height = logo_final_width * aspect_ratio
+                                                
+                                                # Cap max height
+                                                if logo_final_height > 0.5 * inch:
+                                                    logo_final_height = 0.5 * inch
+                                                    logo_final_width = logo_final_height / aspect_ratio
+                                                
+                                                # Convert to PNG for consistency
+                                                tmp_logo = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
+                                                pil_logo.convert('RGB').save(tmp_logo.name, 'PNG')
+                                                self.temp_files.append(tmp_logo.name)
+                                                
+                                                logo_img = RLImage(tmp_logo.name, width=logo_final_width, height=logo_final_height)
+                                                logo_img.hAlign = 'CENTER'
+                                                content_elements.append(logo_img)
                                     except Exception as e:
                                         logger.warning(f"Could not add brand logo to offer table: {e}")
                                 
@@ -785,7 +808,17 @@ class OfferGenerator:
         story.append(terms)
         
         # Build PDF
-        doc.build(story, onFirstPage=self._draw_header_footer, onLaterPages=self._draw_header_footer)
+        try:
+            doc.build(story, onFirstPage=self._draw_header_footer, onLaterPages=self._draw_header_footer)
+        finally:
+            # Clean up temporary image files
+            for f in self.temp_files:
+                try:
+                    if os.path.exists(f):
+                        os.remove(f)
+                except:
+                    pass
+            self.temp_files = []
         
         return output_file
     
