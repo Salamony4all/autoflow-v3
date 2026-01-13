@@ -642,9 +642,11 @@ class ExcelProcessor:
         """
         # Common header keywords for BOQ/offer tables
         header_keywords = [
-            'sn', 's.n', 'serial', 'item', 'description', 'desc', 
+            'sn', 's.n', 'sl.no', 'serial', 'item', 'description', 'desc', 
             'quantity', 'qty', 'unit', 'rate', 'price', 'amount', 
-            'total', 'location', 'image', 'indicative', 'material'
+            'total', 'location', 'image', 'indicative', 'material',
+            'part', 'model', 'article', 'category', 'uom', 'particulars',
+            'dimensions', 'finish', 'color', 'brand', 'manufacturer'
         ]
         
         for idx, row in df.iterrows():
@@ -652,13 +654,16 @@ class ExcelProcessor:
             non_null = row.notna().sum()
             
             # Check if this row looks like a header
-            if non_null >= 3:  # At least 3 columns should have values
+            # Relaxed: 2+ columns and 1+ strong keywords or 3+ columns and 1+ keyword
+            if non_null >= 2:
                 row_str = ' '.join(str(val).lower() for val in row if pd.notna(val))
                 
-                # Check if any header keywords are present
+                # Check for header keywords
                 keyword_count = sum(1 for keyword in header_keywords if keyword in row_str)
                 
-                if keyword_count >= 2:  # At least 2 header keywords found
+                # If we have 3+ columns and at least 1 keyword, it's likely a header
+                # Or 2 columns and at least 2 keywords
+                if (non_null >= 3 and keyword_count >= 1) or (non_null >= 2 and keyword_count >= 2):
                     logger.info(f"Detected table header at row {idx}: {row.tolist()}")
                     return idx
         
@@ -679,25 +684,32 @@ class ExcelProcessor:
         
         # Essential columns that MUST be present in a product table
         essential_keywords = {
-            'item_id': ['sn', 's.n', 'sl.no', 'serial', 'item', 's no', 's.no', 'no.', 'no'],
-            'description': ['description', 'desc', 'discription', 'item description', 'product', 'material', 'particulars', 'specification'],
-            'pricing': ['rate', 'price', 'unit rate', 'unit price', 'amount', 'total', 'value', 'cost']
+            'item_id': ['sn', 's.n', 'sl.no', 'serial', 'item', 's no', 's.no', 'no.', 'no', 'code', 'ref'],
+            'description': ['description', 'desc', 'discription', 'item description', 'product', 'material', 'particulars', 'specification', 'title', 'name', 'details', 'detail', 'category', 'items', 'service'],
+            'pricing': ['rate', 'price', 'unit rate', 'unit price', 'amount', 'total', 'value', 'cost', 'sum'],
+            'quantity': ['qty', 'quantity', 'qnt', 'unit', 'pcs', 'nos', 'q.ty']
         }
         
         # Check for essential columns
         has_item_id = any(keyword in columns_str for keyword in essential_keywords['item_id'])
         has_description = any(keyword in columns_str for keyword in essential_keywords['description'])
         has_pricing = any(keyword in columns_str for keyword in essential_keywords['pricing'])
+        has_qty = any(keyword in columns_str for keyword in essential_keywords['quantity'])
         
-        # A valid product table MUST have at least: item identifier + description + pricing
-        if not (has_item_id and has_description and has_pricing):
-            logger.info(f"Sheet rejected: Missing essential product columns. Has ID:{has_item_id}, Desc:{has_description}, Price:{has_pricing}")
+        # A valid product table MUST have at least a description column
+        # AND (item identifier OR pricing OR quantity)
+        if not has_description:
+            logger.info(f"Sheet rejected: Missing description column. Columns found: {columns_str}")
+            return False
+            
+        if not (has_item_id or has_pricing or has_qty):
+            logger.info(f"Sheet rejected: Missing ID, Price, or Qty column. Has ID:{has_item_id}, Price:{has_pricing}, Qty:{has_qty}")
             return False
         
         # Additional validation: check if the data rows look like product data
         # Skip if it's mostly non-product data (project info, summaries, etc.)
         non_product_keywords = [
-            'project', 'client', 'supplier', 'date', 'particulars', 
+            'project', 'client', 'supplier', 'date', 
             'conversion', 'country', 'freight', 'insurance', 'customs',
             'clearance', 'add:', 'less:', 'total containers', 'material cost'
         ]
