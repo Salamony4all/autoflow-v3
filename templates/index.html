@@ -1196,102 +1196,71 @@
 
         @media screen and (max-width: 768px) {
             .budget-table-container .budget-table-wrapper {
-                max-height: none !important;
-                border: none !important;
+                max-height: calc(100vh - 350px) !important;
+                border: 1px solid #ddd !important;
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                margin: 0 -15px;
+                width: calc(100% + 30px);
+                border-radius: 0;
             }
 
-            .budget-table-container table,
-            .budget-table-container thead,
-            .budget-table-container tbody,
+            .budget-table-container table {
+                min-width: 1200px !important;
+                /* Force horizontal scroll */
+                table-layout: auto !important;
+            }
+
             .budget-table-container th,
-            .budget-table-container td,
-            .budget-table-container tr {
-                display: block !important;
-            }
-
-            .budget-table-container tr {
-                margin-bottom: 15px;
-                border-radius: 8px;
-                background: #fff;
-                overflow: hidden;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            }
-
             .budget-table-container td {
-                border: none !important;
-                border-bottom: 1px solid #f1f5f9 !important;
-                position: relative;
-                padding-left: 45% !important;
-                text-align: right !important;
-                min-height: 50px;
-                display: flex;
-                align-items: center;
-                justify-content: flex-end;
-                font-size: 0.95em !important;
+                display: table-cell !important;
+                white-space: nowrap !important;
+                padding: 12px 15px !important;
+                font-size: 0.85em !important;
             }
 
-            .budget-table-container td:last-child {
-                border-bottom: none !important;
-                background: #f8fafc;
-                justify-content: center;
-                padding-left: 10px !important;
+            /* Allow description to wrap but keep a minimum width */
+            .budget-table-container td[data-label*="Description"],
+            .budget-table-container td.brand-description-cell {
+                white-space: normal !important;
+                min-width: 300px !important;
             }
 
-            .budget-table-container td::before {
-                content: attr(data-label);
-                position: absolute;
-                left: 15px;
-                width: 40%;
-                text-align: left;
-                font-weight: 700;
-                color: #1a365d;
-                white-space: nowrap;
-                text-transform: uppercase;
-                font-size: 0.75em;
-                letter-spacing: 0.5px;
-            }
-
+            /* Fix Brand Image size on mobile scroller */
             .budget-table-container td img {
-                max-width: 100px !important;
-                max-height: 100px !important;
+                max-width: 60px !important;
+                max-height: 60px !important;
             }
 
-            /* Fix for buttons in actions cell */
-            .budget-table-container td.actions-cell {
-                padding-left: 10px !important;
-                justify-content: center;
+            /* Adjust Action Buttons size */
+            .budget-table-container .actions-cell button {
+                width: 32px !important;
+                height: 32px !important;
+                padding: 0 !important;
+                font-size: 14px !important;
             }
 
-            .budget-table-container td.actions-cell>div {
-                width: 100%;
-                justify-content: space-around !important;
-            }
-
-            .budget-table-container td.product-selection-cell {
-                padding-left: 10px !important;
-                flex-direction: column;
-                align-items: flex-start;
-                min-height: 120px;
-            }
-
-            .budget-table-container td.product-selection-cell::before {
-                position: static;
-                margin-bottom: 10px;
-            }
-
-            .budget-table-container td.product-selection-cell>* {
-                width: 100% !important;
-                max-width: 100% !important;
+            /* Hide mobile labels */
+            .budget-table-container td::before {
+                display: none !important;
             }
 
             /* Export buttons stack */
             #multiBudgetCard .btn {
                 min-width: 100% !important;
-                margin-bottom: 5px;
+                margin-bottom: 8px;
             }
 
             .budget-tabs {
-                flex-direction: column;
+                flex-direction: row !important;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                padding-bottom: 5px;
+            }
+
+            .budget-tab {
+                min-width: 120px;
+                flex: 0 0 auto !important;
             }
         }
 
