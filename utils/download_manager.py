@@ -129,6 +129,8 @@ class DownloadManager:
                         headers.append(header_text)
             
             rows = []
+            seen_rows = set()  # Track unique rows for deduplication
+            
             for row in table.find_all('tr')[1:]:
                 cells = row.find_all('td')
                 if len(cells) == 0:
@@ -154,7 +156,31 @@ class DownloadManager:
                         col_idx += 1
                 
                 if row_data:
-                    rows.append(row_data)
+                    # Create a unique ID for this row based on key columns
+                    # Use description, brand, model, unit rate for uniqueness
+                    key_values = []
+                    for h in headers:
+                        h_lower = h.lower()
+                        # Only use key identifying columns for deduplication
+                        if any(k in h_lower for k in ['description', 'brand', 'model', 'item', 'product', 'rate', 'price']):
+                            val = row_data.get(h, '')
+                            # Strip HTML from images for comparison
+                            val = re.sub(r'<[^>]+>', '', str(val)).strip()
+                            key_values.append(val)
+                    
+                    row_key = '|'.join(key_values)
+                    
+                    if row_key and row_key not in seen_rows:
+                        rows.append(row_data)
+                        seen_rows.add(row_key)
+                        logger.debug(f"Added unique row with key: {row_key[:100]}...")
+                    elif row_key in seen_rows:
+                        logger.info(f"Skipped duplicate row: {row_key[:100]}...")
+                    else:
+                        # No key could be generated, add anyway
+                        rows.append(row_data)
+            
+            logger.info(f"Excel export: {len(rows)} unique rows (removed duplicates)")
             
             # Create costed_data structure
             costed_data = {
@@ -361,8 +387,32 @@ class DownloadManager:
                 if 'image' in h.lower() or 'img' in h.lower() or 'ref' in h.lower():
                     image_col_indices.append(idx)
             
+            # Deduplicate rows before exporting to Excel
+            unique_rows = []
+            seen_rows = set()
+            for row in table['rows']:
+                # Create a unique key based on key columns
+                key_values = []
+                for h in headers:
+                    h_lower = h.lower()
+                    if any(k in h_lower for k in ['description', 'brand', 'model', 'item', 'product', 'rate', 'price']):
+                        val = row.get(h, '')
+                        val = re.sub(r'<[^>]+>', '', str(val)).strip()
+                        key_values.append(val)
+                
+                row_key = '|'.join(key_values)
+                
+                if row_key and row_key not in seen_rows:
+                    unique_rows.append(row)
+                    seen_rows.add(row_key)
+                elif not row_key:
+                    unique_rows.append(row)  # No key, add anyway
+            
+            if len(unique_rows) < len(table['rows']):
+                logger.info(f"Excel generation: Removed {len(table['rows']) - len(unique_rows)} duplicate rows")
+            
             # Data rows - exclude Action column and embed images
-            for row_idx, row in enumerate(table['rows']):
+            for row_idx, row in enumerate(unique_rows):
                 current_row_num = ws.max_row + 1
                 row_data = []
                 

@@ -557,6 +557,16 @@ class OfferGenerator:
                                 
                                 # Add brand logo above images if available
                                 brand_logo = row.get('brand_logo')
+                                
+                                # Fallback: try to get brand_logo from brand name
+                                if not brand_logo:
+                                    brand_name = row.get('brand') or row.get('Brand')
+                                    if brand_name:
+                                        try:
+                                            brand_logo = self._get_brand_logo(brand_name)
+                                        except:
+                                            pass
+                                
                                 if brand_logo:
                                     try:
                                         # Download if URL

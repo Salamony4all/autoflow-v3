@@ -283,13 +283,33 @@ class MASGenerator:
                 final_image_paths = [selected_product_image] if (is_multibudget and selected_product_image) else (image_paths if image_paths else [])
                 
                 if final_description:
-                    brand = self.extract_brand(final_description)
+                    # Priority for brand: 1) row data, 2) product_selections, 3) extract from description
+                    brand = row.get('brand') or row.get('Brand')
+                    brand_logo = row.get('brand_logo')
+                    
+                    # Check product_selections for brand info
+                    if is_multibudget and product_selections:
+                        selection = next((p for p in product_selections if p.get('row_index') == row_idx), None)
+                        if selection:
+                            if not brand:
+                                brand = selection.get('brand')
+                            if not brand_logo:
+                                brand_logo = selection.get('brand_logo')
+                    
+                    # Fallback: extract from description
+                    if not brand:
+                        brand = self.extract_brand(final_description)
+                    
+                    # Still no brand_logo? Try to fetch it
+                    if not brand_logo and brand:
+                        brand_logo = self._get_brand_logo(brand)
+                    
                     item = {
                         'description': final_description,
                         'qty': qty,
                         'unit': unit,
                         'brand': brand,
-                        'brand_logo': self._get_brand_logo(brand),
+                        'brand_logo': brand_logo,
                         'specifications': self.extract_specifications(final_description),
                         'image_path': final_image_paths[0] if final_image_paths else None,
                         'image_paths': final_image_paths,

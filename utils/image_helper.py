@@ -122,11 +122,16 @@ def get_product_image_url(brand_name, category, subcategory, model_name, tier='m
 
 def get_brand_logo_url(brand_name):
     """
-    Get brand logo URL from brand JSON data in brands_data directory.
-    Supports exact match and prefix match (e.g., 'NARBUTAS' matching 'NARBUTAS_mid_range.json').
+    Get brand logo URL from brand-specific JSON files in brands_data directory.
+    Each brand should have its own self-contained JSON file (e.g., NARBUTAS_mid_range.json, PEDRALI_seating.json).
+    
+    Matching logic:
+    1. Exact prefix match (brand_name matches start of filename)
+    2. Normalized fuzzy match (handles case, spaces, special chars)
+    3. Search within file content for brand field match
     
     Args:
-        brand_name: Name of the brand
+        brand_name: Name of the brand to look up
     
     Returns:
         Logo URL string if found, None otherwise
@@ -135,44 +140,96 @@ def get_brand_logo_url(brand_name):
         return None
     
     import json
+    import re
     
     brand_name = brand_name.strip()
     brands_data_dir = 'brands_data'
     
-    # Try to load from brand-specific JSON file
-    # Check for direct match or prefix match (e.g., NARBUTAS_mid_range.json)
-    try:
-        if os.path.exists(brands_data_dir):
-            for filename in os.listdir(brands_data_dir):
-                if filename.lower().startswith(brand_name.lower()) and filename.endswith('.json'):
-                    brand_file_path = os.path.join(brands_data_dir, filename)
-                    try:
-                        with open(brand_file_path, 'r', encoding='utf-8') as f:
-                            brand_data = json.load(f)
-                            # Check multiple possible keys for logo
-                            logo = brand_data.get('logo') or \
-                                   brand_data.get('brand_info', {}).get('logo') or \
-                                   brand_data.get('brand_logo')
-                            if logo:
-                                return logo
-                    except Exception as e:
-                        logger.error(f"Error reading brand file {filename}: {e}")
-    except Exception as e:
-        logger.error(f"Error listing brands_data: {e}")
+    # Normalize brand name for matching (lowercase, remove special chars)
+    def normalize_name(name):
+        if not name:
+            return ''
+        return re.sub(r'[^a-z0-9]', '', name.lower())
     
-    # Try to load from brands_dynamic.json
-    brands_dynamic_path = os.path.join(brands_data_dir, 'brands_dynamic.json')
-    if os.path.exists(brands_dynamic_path):
-        try:
-            with open(brands_dynamic_path, 'r', encoding='utf-8') as f:
-                brands_dynamic = json.load(f)
-                for brand_entry in brands_dynamic.get('brands', []):
-                    if brand_entry.get('name', '').lower() == brand_name.lower():
-                        logo = brand_entry.get('logo')
+    normalized_brand = normalize_name(brand_name)
+    
+    if not os.path.exists(brands_data_dir):
+        logger.warning(f"Brands data directory not found: {brands_data_dir}")
+        return None
+    
+    # Try to load from brand-specific JSON files ONLY (no brands_dynamic.json)
+    # This ensures each brand is fully self-contained
+    try:
+        json_files = [f for f in os.listdir(brands_data_dir) 
+                      if f.endswith('.json') and f != 'brands_dynamic.json']
+        
+        # Priority 1: Exact prefix match (case-insensitive)
+        for filename in json_files:
+            file_base = filename.rsplit('.', 1)[0]  # Remove .json extension
+            if file_base.lower().startswith(brand_name.lower()):
+                brand_file_path = os.path.join(brands_data_dir, filename)
+                logo = _extract_logo_from_file(brand_file_path)
+                if logo:
+                    logger.info(f"Found brand logo for '{brand_name}' via prefix match in {filename}")
+                    return logo
+        
+        # Priority 2: Normalized fuzzy match
+        for filename in json_files:
+            file_base = filename.rsplit('.', 1)[0]
+            normalized_file = normalize_name(file_base)
+            if normalized_file.startswith(normalized_brand) or normalized_brand in normalized_file:
+                brand_file_path = os.path.join(brands_data_dir, filename)
+                logo = _extract_logo_from_file(brand_file_path)
+                if logo:
+                    logger.info(f"Found brand logo for '{brand_name}' via fuzzy match in {filename}")
+                    return logo
+        
+        # Priority 3: Search within file content for brand field
+        for filename in json_files:
+            brand_file_path = os.path.join(brands_data_dir, filename)
+            try:
+                with open(brand_file_path, 'r', encoding='utf-8') as f:
+                    brand_data = json.load(f)
+                    file_brand = brand_data.get('brand', '')
+                    if normalize_name(file_brand) == normalized_brand:
+                        logo = brand_data.get('logo') or \
+                               brand_data.get('brand_info', {}).get('logo') or \
+                               brand_data.get('brand_logo')
                         if logo:
+                            logger.info(f"Found brand logo for '{brand_name}' via content match in {filename}")
                             return logo
-        except Exception as e:
-            logger.error(f"Error reading brands_dynamic.json: {e}")
+            except Exception:
+                continue
+        
+        logger.warning(f"No brand logo found for '{brand_name}' in {len(json_files)} brand files")
+        
+    except Exception as e:
+        logger.error(f"Error searching brand files: {e}")
     
     return None
+
+
+def _extract_logo_from_file(file_path):
+    """
+    Extract logo URL from a brand JSON file.
+    
+    Args:
+        file_path: Path to the brand JSON file
+    
+    Returns:
+        Logo URL string if found, None otherwise
+    """
+    import json
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            brand_data = json.load(f)
+            # Check multiple possible keys for logo
+            logo = brand_data.get('logo') or \
+                   brand_data.get('brand_info', {}).get('logo') or \
+                   brand_data.get('brand_logo')
+            return logo
+    except Exception as e:
+        logger.error(f"Error reading brand file {file_path}: {e}")
+        return None
 

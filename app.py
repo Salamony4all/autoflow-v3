@@ -3127,64 +3127,15 @@ def get_brands_list():
         
         logger.info(f"Loading brands from: {brands_data_dir} for tier: {tier}")
         
-        # Method 1: Load from brands_dynamic.json (primary source)
+        # Load from individual brand JSON files ONLY (each brand is self-contained)
+        # brands_dynamic.json is deprecated - no longer used for brand loading
         import json
-        brands_dynamic_path = os.path.join(brands_data_dir, 'brands_dynamic.json')
-        if os.path.exists(brands_dynamic_path):
-            try:
-                with open(brands_dynamic_path, 'r', encoding='utf-8') as f:
-                    brands_dynamic = json.load(f)
-                
-                for brand_entry in brands_dynamic.get('brands', []):
-                    brand_tier = brand_entry.get('tier', '').lower().replace('-', '_')
-                    if brand_tier == tier:
-                        brand_categories = brand_entry.get('categories', {})
-                        category_tree = brand_entry.get('category_tree', {})
-                        
-                        # Use category_tree if available, fallback to categories
-                        categories_list = list(category_tree.keys()) if category_tree else list(brand_categories.keys())
-                        
-                        # Filter by category if specified
-                        if category:
-                            category_lower = category.lower()
-                            has_category = any(cat.lower() == category_lower for cat in categories_list)
-                            if not has_category:
-                                continue
-                        
-                        # Ensure website is a valid URL for logo extraction
-                        website = brand_entry.get('website', '')
-                        # First priority: use logo from JSON if it exists
-                        logo_url = brand_entry.get('logo', '')
-                        
-                        # Fallback only if no logo in JSON
-                        if not logo_url and website:
-                            try:
-                                domain = website.replace('http://', '').replace('https://', '').split('/')[0]
-                                if domain:
-                                    logo_url = f"https://logo.clearbit.com/{domain}"
-                            except:
-                                pass
-
-                        brands.append({
-                            'name': brand_entry.get('name', 'Unknown'),
-                            'website': website,
-                            'logo': logo_url,
-                            'country': brand_entry.get('country', 'Unknown'),
-                            'tier': tier,
-                            'categories': categories_list
-                        })
-                
-                logger.info(f"Loaded {len(brands)} brands from brands_dynamic.json for tier {tier}")
-            except Exception as e:
-                logger.error(f"Error loading brands_dynamic.json: {e}")
-        
-        # Method 2: Also load from individual brand files (backup/legacy)
         import re
         pattern = re.compile(rf'^.+_{re.escape(tier)}\.json$', re.I)
         
         for filename in os.listdir(brands_data_dir):
             if filename == 'brands_dynamic.json':
-                continue  # Already processed
+                continue  # Skip deprecated file
             
             if pattern.match(filename):
                 try:
@@ -3194,7 +3145,7 @@ def get_brands_list():
                     
                     brand_name = brand_data.get('brand', 'Unknown')
                     
-                    # Skip if already loaded from brands_dynamic.json
+                    # Skip duplicate brands (same name already loaded)
                     if any(b['name'].lower() == brand_name.lower() for b in brands):
                         continue
                     
@@ -4026,14 +3977,6 @@ def scrape_and_add_brand():
         if 'error' in scraped_data:
             return jsonify({'error': scraped_data['error']}), 400
         
-        # Load existing brands from brands_dynamic.json
-        brands_file = os.path.join(BRANDS_DATA_DIR, 'brands_dynamic.json')
-        if os.path.exists(brands_file):
-            with open(brands_file, 'r', encoding='utf-8') as f:
-                brands_data = json.load(f)
-        else:
-            brands_data = {'brands': []}
-        
         # Handle both collections (old format) and category_tree (new format)
         # Convert UniversalBrandScraper collections format to category_tree if needed
         if scraped_data.get('collections') and not scraped_data.get('category_tree'):
@@ -4063,44 +4006,9 @@ def scrape_and_add_brand():
         
         categories_data = scraped_data.get('collections', {}) or scraped_data.get('category_tree', {})
         
-        # Check if brand already exists
-        brand_exists = False
-        for brand in brands_data['brands']:
-            if brand['name'].lower() == brand_name.lower():
-                brand_exists = True
-                # Update existing brand
-                brand['website'] = website
-                brand['country'] = country
-                brand['tier'] = tier
-                brand['logo'] = scraped_data.get('logo') or brand.get('logo') # Update logo if found
-                brand['categories'] = scraped_data.get('collections', {})
-                brand['category_tree'] = scraped_data.get('category_tree', {})
-                brand['last_scraped_at'] = datetime.now().isoformat()
-                logger.info(f"Updated existing brand: {brand_name}")
-                break
-        
-        if not brand_exists:
-            # Create new brand entry
-            new_brand = {
-                'name': brand_name,
-                'website': website,
-                'country': country,
-                'tier': tier,
-                'logo': scraped_data.get('logo'), # Save logo URL
-                'categories': scraped_data.get('collections', {}),
-                'category_tree': scraped_data.get('category_tree', {}),
-                'added_date': datetime.now().isoformat(),
-                'last_scraped_at': datetime.now().isoformat()
-            }
-            brands_data['brands'].append(new_brand)
-            logger.info(f"Added new brand: {brand_name}")
-        
-        # Save to brands_dynamic.json
+        # Save directly to individual brand file (e.g., OTTIMO_budgetary.json)
+        # brands_dynamic.json is deprecated - all data goes to self-contained brand files
         os.makedirs(BRANDS_DATA_DIR, exist_ok=True)
-        with open(brands_file, 'w', encoding='utf-8') as f:
-            json.dump(brands_data, f, indent=2, ensure_ascii=False)
-        
-        # Also save to individual brand file (e.g., OTTIMO_budgetary.json)
         save_individual_brand_file(brand_name, website, country, tier, scraped_data)
         
         # Extract categories for response
@@ -4278,6 +4186,7 @@ def _scrape_single_brand(brand_info):
         organized_data = {
             'brand': brand_name,
             'website': website,
+            'logo': scraped_data.get('logo'),  # IMPORTANT: Include brand logo
             'country': country,
             'tier': tier,
             'categories': {}
@@ -4464,17 +4373,7 @@ def _scrape_single_brand(brand_info):
         
         logger.info(f"[Parallel] Brand {brand_name} saved with {total_products} products. File: {filepath}")
         
-        # Update brands_dynamic.json
-        scraped_at_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        update_brands_dynamic_json(
-            brand_name=brand_name,
-            website=website,
-            country=country,
-            tier=tier,
-            categories=organized_data.get('categories', {}),
-            source='brand_website',
-            scraped_at=scraped_at_str
-        )
+        # brands_dynamic.json is deprecated - brand data is already saved to individual file above
         
         result = {
             'success': True,
@@ -5559,18 +5458,7 @@ def upload_brand_excel():
         
         logger.info(f"Brand {brand} uploaded with {total_products} products from Excel. File: {filepath}")
         
-        # Update brands_dynamic.json
-        website = organized_data.get('website', '')
-        country = organized_data.get('country', 'Unknown')
-        update_brands_dynamic_json(
-            brand_name=brand,
-            website=website,
-            country=country,
-            tier=tier,
-            categories=organized_data.get('categories', {}),
-            source='excel_upload',
-            scraped_at=datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        )
+        # brands_dynamic.json is deprecated - brand data is already saved to individual file above
         
         return jsonify({
             'success': True,
@@ -5655,6 +5543,7 @@ def save_individual_brand_file(brand_name: str, website: str, country: str, tier
         brand_file_data = {
             "brand": brand_name,
             "website": website,
+            "logo": scraped_data.get('logo'),  # IMPORTANT: Include brand logo
             "country": country,
             "tier": tier,
             "categories": scraped_data.get('collections', {}),
@@ -5687,7 +5576,10 @@ def update_brands_dynamic_json(brand_name: str, website: str, country: str, tier
                                 categories: dict = None, source: str = 'brand_website', 
                                 scraped_at: str = None):
     """
-    Update brands_dynamic.json with brand information
+    DEPRECATED: This function is no longer used.
+    All brand data is now saved to individual brand JSON files (e.g., PEDRALI_mid_range.json).
+    
+    This function is kept for backward compatibility but does nothing.
     
     Args:
         brand_name: Name of the brand
@@ -5698,91 +5590,8 @@ def update_brands_dynamic_json(brand_name: str, website: str, country: str, tier
         source: Source of data (default: 'brand_website')
         scraped_at: Timestamp when scraping was completed (optional)
     """
-    try:
-        brands_dynamic_path = os.path.join(BRANDS_DATA_DIR, 'brands_dynamic.json')
-        
-        # Load existing brands_dynamic.json or create new structure
-        if os.path.exists(brands_dynamic_path):
-            with open(brands_dynamic_path, 'r', encoding='utf-8') as f:
-                brands_dynamic = json.load(f)
-        else:
-            brands_dynamic = {
-                "brands": [],
-                "last_updated": None,
-                "version": "2.0"
-            }
-        
-        # Ensure brands list exists
-        if 'brands' not in brands_dynamic:
-            brands_dynamic['brands'] = []
-        
-        # Normalize tier name
-        tier_map = {
-            'budgetary': 'budgetary',
-            'mid-range': 'mid_range',
-            'mid_range': 'mid_range',
-            'high-end': 'high_end',
-            'high_end': 'high_end'
-        }
-        tier = tier_map.get(tier.lower(), tier.lower())
-        
-        # Check if brand already exists (by name and tier)
-        brand_found = False
-        current_time = datetime.now().isoformat()
-        
-        for i, brand in enumerate(brands_dynamic['brands']):
-            if brand.get('name', '').lower() == brand_name.lower() and brand.get('tier') == tier:
-                # Update existing brand
-                brand['website'] = website
-                brand['country'] = country
-                brand['tier'] = tier
-                brand['updated_date'] = current_time
-                brand['source'] = source
-                
-                if categories is not None:
-                    brand['categories'] = categories
-                
-                if scraped_at:
-                    brand['scraped_at'] = scraped_at
-                else:
-                    brand['scraped_at'] = current_time.split('T')[0] + ' ' + current_time.split('T')[1].split('.')[0]
-                
-                brands_dynamic['brands'][i] = brand
-                brand_found = True
-                logger.info(f"Updated existing brand {brand_name} ({tier}) in brands_dynamic.json")
-                break
-        
-        # Add new brand if not found
-        if not brand_found:
-            new_brand = {
-                "name": brand_name,
-                "website": website,
-                "country": country,
-                "tier": tier,
-                "categories": categories if categories is not None else {},
-                "added_date": current_time,
-                "updated_date": current_time,
-                "source": source,
-                "scraped_at": scraped_at if scraped_at else (current_time.split('T')[0] + ' ' + current_time.split('T')[1].split('.')[0])
-            }
-            brands_dynamic['brands'].append(new_brand)
-            logger.info(f"Added new brand {brand_name} ({tier}) to brands_dynamic.json")
-        
-        # Update metadata
-        brands_dynamic['last_updated'] = current_time
-        if 'version' not in brands_dynamic:
-            brands_dynamic['version'] = "2.0"
-        
-        # Save updated file
-        os.makedirs('brands_data', exist_ok=True)
-        with open(brands_dynamic_path, 'w', encoding='utf-8') as f:
-            json.dump(brands_dynamic, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Successfully updated brands_dynamic.json with {brand_name}")
-        
-    except Exception as e:
-        logger.error(f"Error updating brands_dynamic.json: {e}")
-        logger.exception("Full traceback:")
+    logger.warning(f"DEPRECATED: update_brands_dynamic_json called for {brand_name}. "
+                   f"This function is no longer used. Brand data is saved to individual files.")
 
 @app.route('/download/<file_type>/<file_id>', methods=['GET'])
 def download(file_type, file_id):

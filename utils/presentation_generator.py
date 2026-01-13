@@ -366,7 +366,27 @@ class PresentationGenerator:
                 final_image_paths = [selected_product_image] if (is_multibudget and selected_product_image) else (image_paths if image_paths else [])
                 
                 if final_description:  # Only add if we have a description
-                    brand_name = self.extract_brand(final_description)
+                    # Priority for brand: 1) row data, 2) product_selections, 3) extract from description
+                    brand_name = row.get('brand') or row.get('Brand')
+                    brand_logo = row.get('brand_logo')
+                    
+                    # Check product_selections for brand info
+                    if is_multibudget and product_selections:
+                        selection = next((p for p in product_selections if p.get('row_index') == row_idx), None)
+                        if selection:
+                            if not brand_name:
+                                brand_name = selection.get('brand')
+                            if not brand_logo:
+                                brand_logo = selection.get('brand_logo')
+                    
+                    # Fallback: extract from description
+                    if not brand_name:
+                        brand_name = self.extract_brand(final_description)
+                    
+                    # Still no brand_logo? Try to fetch it
+                    if not brand_logo and brand_name:
+                        brand_logo = self._get_brand_logo(brand_name, tier)
+                    
                     item = {
                         'description': final_description,
                         'qty': qty,
@@ -379,7 +399,7 @@ class PresentationGenerator:
                         'reference_image_paths': reference_image_paths,  # All reference images
                         'is_multibudget': is_multibudget,  # Flag to indicate multi-budget
                         'brand': brand_name,
-                        'brand_logo': self._get_brand_logo(brand_name, tier),  # Get brand logo URL
+                        'brand_logo': brand_logo,  # Get brand logo URL
                         'specifications': self.extract_specifications(final_description)
                     }
                     items.append(item)
