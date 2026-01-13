@@ -1148,18 +1148,150 @@
 
             .feature-card {
                 padding: 25px 15px;
+
+                .card-title {
+                    font-size: 1.3em;
+                }
+
+                .card-description {
+                    font-size: 0.9em;
+                }
+
+                h1 {
+                    font-size: 2.2em;
+                }
+            }
+        }
+
+        /* Extra Wide Card for comfort working */
+        .card-extra-wide {
+            max-width: 98% !important;
+            width: 98% !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        /* Improved Table Styling for Multi-Budget */
+        .budget-table-container table {
+            border-spacing: 0;
+            border-collapse: separate;
+            width: 100%;
+        }
+
+        .budget-table-container th,
+        .budget-table-container td {
+            transition: all 0.2s ease;
+        }
+
+        .budget-table-container tr:hover td {
+            background-color: #f1f5f9 !important;
+        }
+
+        /* Responsive Table Styles */
+        @media screen and (max-width: 1024px) {
+            .budget-table-container table {
+                table-layout: auto !important;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            .budget-table-container .budget-table-wrapper {
+                max-height: none !important;
+                border: none !important;
             }
 
-            .card-title {
-                font-size: 1.3em;
+            .budget-table-container table,
+            .budget-table-container thead,
+            .budget-table-container tbody,
+            .budget-table-container th,
+            .budget-table-container td,
+            .budget-table-container tr {
+                display: block !important;
             }
 
-            .card-description {
-                font-size: 0.9em;
+            .budget-table-container tr {
+                margin-bottom: 15px;
+                border-radius: 8px;
+                background: #fff;
+                overflow: hidden;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
             }
 
-            h1 {
-                font-size: 2.2em;
+            .budget-table-container td {
+                border: none !important;
+                border-bottom: 1px solid #f1f5f9 !important;
+                position: relative;
+                padding-left: 45% !important;
+                text-align: right !important;
+                min-height: 50px;
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                font-size: 0.95em !important;
+            }
+
+            .budget-table-container td:last-child {
+                border-bottom: none !important;
+                background: #f8fafc;
+                justify-content: center;
+                padding-left: 10px !important;
+            }
+
+            .budget-table-container td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: 40%;
+                text-align: left;
+                font-weight: 700;
+                color: #1a365d;
+                white-space: nowrap;
+                text-transform: uppercase;
+                font-size: 0.75em;
+                letter-spacing: 0.5px;
+            }
+
+            .budget-table-container td img {
+                max-width: 100px !important;
+                max-height: 100px !important;
+            }
+
+            /* Fix for buttons in actions cell */
+            .budget-table-container td.actions-cell {
+                padding-left: 10px !important;
+                justify-content: center;
+            }
+
+            .budget-table-container td.actions-cell>div {
+                width: 100%;
+                justify-content: space-around !important;
+            }
+
+            .budget-table-container td.product-selection-cell {
+                padding-left: 10px !important;
+                flex-direction: column;
+                align-items: flex-start;
+                min-height: 120px;
+            }
+
+            .budget-table-container td.product-selection-cell::before {
+                position: static;
+                margin-bottom: 10px;
+            }
+
+            .budget-table-container td.product-selection-cell>* {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            /* Export buttons stack */
+            #multiBudgetCard .btn {
+                min-width: 100% !important;
+                margin-bottom: 5px;
+            }
+
+            .budget-tabs {
+                flex-direction: column;
             }
         }
 
@@ -7742,7 +7874,7 @@
             </div>
 
             <!-- Multi-Budget Card -->
-            <div class="card" id="multiBudgetCard" style="display:none;">
+            <div class="card card-extra-wide" id="multiBudgetCard" style="display:none;">
                 <h2>💰 Multi-Budget Offers</h2>
                 <p style="color: #64748b; margin-bottom: 20px;">Create budget offers with product selection from scraped
                     brands. Works with extracted or costed tables.</p>
@@ -7788,8 +7920,8 @@
 
                 <!-- Budgetary Table Container -->
                 <div id="budgetaryTableContainer" class="budget-table-container" style="display: block;">
-                    <div id="budgetaryTableWrapper"
-                        style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 400px); border: 1px solid #ddd; border-radius: 8px; background: white; width: 100%;">
+                    <div id="budgetaryTableWrapper" class="budget-table-wrapper"
+                        style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 300px); border: 1px solid #ddd; border-radius: 8px; background: white; width: 100%;">
                         <div style="padding: 20px; text-align: center; color: #64748b;">
                             <p>No table data yet. Click "Generate from BOQ" or "Create New BOQ" to get started.</p>
                         </div>
@@ -7798,8 +7930,8 @@
 
                 <!-- Mid-Range Table Container -->
                 <div id="mid_rangeTableContainer" class="budget-table-container" style="display: none;">
-                    <div id="mid_rangeTableWrapper"
-                        style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 400px); border: 1px solid #ddd; border-radius: 8px; background: white; width: 100%;">
+                    <div id="mid_rangeTableWrapper" class="budget-table-wrapper"
+                        style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 300px); border: 1px solid #ddd; border-radius: 8px; background: white; width: 100%;">
                         <div style="padding: 20px; text-align: center; color: #64748b;">
                             <p>No table data yet. Click "Generate from BOQ" or "Create New BOQ" to get started.</p>
                         </div>
@@ -7808,8 +7940,8 @@
 
                 <!-- High-End Table Container -->
                 <div id="high_endTableContainer" class="budget-table-container" style="display: none;">
-                    <div id="high_endTableWrapper"
-                        style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 400px); border: 1px solid #ddd; border-radius: 8px; background: white; width: 100%;">
+                    <div id="high_endTableWrapper" class="budget-table-wrapper"
+                        style="overflow-x: auto; overflow-y: auto; max-height: calc(100vh - 300px); border: 1px solid #ddd; border-radius: 8px; background: white; width: 100%;">
                         <div style="padding: 20px; text-align: center; color: #64748b;">
                             <p>No table data yet. Click "Generate from BOQ" or "Create New BOQ" to get started.</p>
                         </div>
@@ -14127,12 +14259,12 @@
 
             // Add original headers only (no Brand Image/Brand Description for CREATE NEW BOQ)
             headers.forEach(h => {
-                html += `<th style="background: #1a365d; color: #d4af37; padding: 12px; border: 1px solid #d4af37; text-align: center;">${h}</th>`;
+                html += `<th style="background: #1a365d; color: #d4af37; padding: 15px 12px; border: 1px solid #d4af37; text-align: center; font-size: 0.9em; text-transform: uppercase;">${h}</th>`;
             });
 
             // Add Product Selection and Actions headers
-            html += '<th style="background: #1a365d; color: #d4af37; padding: 12px; border: 1px solid #d4af37; text-align: center;">Product Selection</th>';
-            html += '<th style="background: #1a365d; color: #d4af37; padding: 12px; border: 1px solid #d4af37; text-align: center;">Actions</th>';
+            html += '<th style="background: #1a365d; color: #d4af37; padding: 15px 12px; border: 1px solid #d4af37; text-align: center; font-size: 0.9em; text-transform: uppercase;">Product Selection</th>';
+            html += '<th style="background: #1a365d; color: #d4af37; padding: 15px 12px; border: 1px solid #d4af37; text-align: center; font-size: 0.9em; text-transform: uppercase;">Actions</th>';
             html += '</tr></thead><tbody>';
 
             for (let i = 1; i <= numRows; i++) {
@@ -14142,35 +14274,36 @@
                 // Add original columns (including Image and Description which are fillable)
                 headers.forEach(h => {
                     const hLower = h.toLowerCase();
+                    const labelAttr = `data-label="${h}"`;
                     if (hLower.includes('si.no') || hLower.includes('s.')) {
-                        html += `<td style="padding: 8px; border: 1px solid #ddd; text-align: center;" contenteditable="true">${i}</td>`;
+                        html += `<td ${labelAttr} style="padding: 12px 10px; border: 1px solid #ddd; text-align: center;" contenteditable="true">${i}</td>`;
                     } else if (hLower.includes('image') || hLower.includes('img')) {
                         // Image column - editable for user to paste/upload image
-                        html += '<td style="padding: 8px; border: 1px solid #ddd; text-align: center;" contenteditable="true"></td>';
+                        html += `<td ${labelAttr} style="padding: 12px 10px; border: 1px solid #ddd; text-align: center;" contenteditable="true"></td>`;
                     } else if (hLower.includes('description') || hLower.includes('desc')) {
                         // Description column - editable for user to enter description
-                        html += '<td style="padding: 8px; border: 1px solid #ddd;" contenteditable="true"></td>';
+                        html += `<td ${labelAttr} style="padding: 12px 10px; border: 1px solid #ddd;" contenteditable="true"></td>`;
                     } else if (hLower.includes('unit')) {
                         // Unit column - populate with "No"
-                        html += '<td style="padding: 8px; border: 1px solid #ddd; text-align: center;" contenteditable="true">No</td>';
+                        html += `<td ${labelAttr} style="padding: 12px 10px; border: 1px solid #ddd; text-align: center;" contenteditable="true">No</td>`;
                     } else if (hLower.includes('price') || hLower.includes('rate') || hLower.includes('total') || hLower.includes('amount') || hLower.includes('qty')) {
-                        html += '<td style="padding: 8px; border: 1px solid #ddd; text-align: right;" contenteditable="true"></td>';
+                        html += `<td ${labelAttr} style="padding: 12px 10px; border: 1px solid #ddd; text-align: right;" contenteditable="true"></td>`;
                     } else {
                         // Other columns
-                        html += '<td style="padding: 8px; border: 1px solid #ddd;" contenteditable="true"></td>';
+                        html += `<td ${labelAttr} style="padding: 12px 10px; border: 1px solid #ddd;" contenteditable="true"></td>`;
                     }
                 });
 
                 // Add Product Selection cell (no Brand Image/Brand Description cells for CREATE NEW BOQ)
-                html += `<td class="product-selection-cell" data-row-id="${rowId}" style="padding: 8px 6px; border: 1px solid #e2e8f0; vertical-align: middle; background: #fff; width: 14%; min-width: 160px; max-width: 180px;">`;
+                html += `<td class="product-selection-cell" data-label="Product Selection" data-row-id="${rowId}" style="padding: 12px 10px; border: 1px solid #e2e8f0; vertical-align: middle; background: #fff; width: 14%; min-width: 180px;">`;
                 html += createProductSelectionDropdowns(rowId, currentBudgetTier);
                 html += '</td>';
 
                 // Add Actions cell
-                html += `<td class="actions-cell" style="padding: 8px 4px; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle; background: #fff; width: 6%; min-width: 85px; max-width: 100px;">`;
-                html += `<div style="display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: nowrap;">`;
-                html += `<button onclick="addRow('${rowId}', '${currentBudgetTier}')" title="Add row below" style="background: linear-gradient(135deg, #4ade80, #22c55e); color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 700; box-shadow: 0 2px 4px rgba(34,197,94,0.3); transition: all 0.2s; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 8px rgba(34,197,94,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(34,197,94,0.3)'">+</button>`;
-                html += `<button onclick="deleteRow('${rowId}', '${currentBudgetTier}')" title="Delete this row" style="background: linear-gradient(135deg, #f87171, #ef4444); color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 700; box-shadow: 0 2px 4px rgba(239,68,68,0.3); transition: all 0.2s; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 8px rgba(239,68,68,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(239,68,68,0.3)'">×</button>`;
+                html += `<td class="actions-cell" data-label="Actions" style="padding: 12px 10px; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle; background: #fff; width: 6%; min-width: 100px;">`;
+                html += `<div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: nowrap;">`;
+                html += `<button onclick="addRow('${rowId}', '${currentBudgetTier}')" title="Add row below" style="background: linear-gradient(135deg, #4ade80, #22c55e); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: 700; box-shadow: 0 2px 4px rgba(34,197,94,0.3); transition: all 0.2s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 10px rgba(34,197,94,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(34,197,94,0.3)'">+</button>`;
+                html += `<button onclick="deleteRow('${rowId}', '${currentBudgetTier}')" title="Delete this row" style="background: linear-gradient(135deg, #f87171, #ef4444); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: 700; box-shadow: 0 2px 4px rgba(239,68,68,0.3); transition: all 0.2s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 10px rgba(239,68,68,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(239,68,68,0.3)'">×</button>`;
                 html += `</div>`;
                 html += '</td>';
                 html += '</tr>';
@@ -14204,8 +14337,8 @@
                     return;
                 }
 
-                // Apply improved table styling with fixed layout for better performance
-                table.style.cssText = 'width: 100%; border-collapse: separate; border-spacing: 0; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-radius: 8px; overflow: hidden; table-layout: fixed;';
+                // Apply improved table styling
+                table.style.cssText = 'width: 100%; border-collapse: separate; border-spacing: 0; background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 12px; overflow: hidden; table-layout: auto;';
 
                 // Process header row
                 const thead = table.querySelector('thead');
@@ -14230,11 +14363,11 @@
                     }
                 });
 
-                // Style header cells with compact padding
+                // Style header cells with better padding
                 Array.from(headerRow.children).forEach((th, idx) => {
-                    th.style.cssText = 'background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%); color: #d4af37; padding: 10px 8px; border: 1px solid #3a6fa5; text-align: center; font-weight: 600; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;';
-                    if (idx === 0) th.style.borderTopLeftRadius = '8px';
-                    if (idx === headerRow.children.length - 1) th.style.borderTopRightRadius = '8px';
+                    th.style.cssText = 'background: linear-gradient(135deg, #1a365d 0%, #2c5282 100%); color: #d4af37; padding: 15px 12px; border: 1px solid #3a6fa5; text-align: center; font-weight: 700; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;';
+                    if (idx === 0) th.style.borderTopLeftRadius = '12px';
+                    if (idx === headerRow.children.length - 1) th.style.borderTopRightRadius = '12px';
                 });
 
                 // Add Brand Image and Brand Description headers after original columns
@@ -14422,14 +14555,18 @@
                         const rowId = `row_${tier}_${Date.now()}_${validRowIndex}`;
                         validRowIndex++;
 
-                        // Style row cells with compact padding
+                        // Style row cells with more generous padding
                         Array.from(row.children).forEach((cell, idx) => {
+                            // Add data-label for mobile view
+                            const headerText = headerRow ? (headerRow.children[idx]?.textContent || '').trim() : '';
+                            if (headerText) cell.setAttribute('data-label', headerText);
+
                             // Skip if this is Product Selection or Actions cell (will be styled separately)
                             if (cell.classList.contains('product-selection-cell') || cell.classList.contains('actions-cell')) {
                                 return;
                             }
 
-                            cell.style.cssText = 'padding: 8px 6px; border: 1px solid #e2e8f0; vertical-align: middle; font-size: 0.9em;';
+                            cell.style.cssText = 'padding: 12px 10px; border: 1px solid #e2e8f0; vertical-align: middle; font-size: 0.95em;';
                             if (validRowIndex % 2 === 0) {
                                 cell.style.backgroundColor = '#f8fafc';
                             } else {
@@ -14438,18 +14575,17 @@
 
                             // Style description cells - wrap long text
                             const cellText = cell.textContent.toLowerCase().trim();
-                            const headerText = headerRow ? (headerRow.children[idx]?.textContent || '').toLowerCase() : '';
                             // Apply text wrapping to description columns (including Brand Description)
-                            if (headerText.includes('description') || headerText.includes('desc') ||
+                            if (headerText.toLowerCase().includes('description') || headerText.toLowerCase().includes('desc') ||
                                 cell.classList.contains('brand-description-cell') ||
                                 (cellText.length > 50 && !cell.querySelector('img'))) {
                                 cell.style.wordWrap = 'break-word';
                                 cell.style.wordBreak = 'break-word';
                                 cell.style.overflowWrap = 'break-word';
                                 cell.style.whiteSpace = 'normal';
-                                cell.style.maxWidth = '300px';
-                                cell.style.minWidth = '150px';
-                                cell.style.lineHeight = '1.4';
+                                cell.style.maxWidth = '400px';
+                                cell.style.minWidth = '200px';
+                                cell.style.lineHeight = '1.5';
                             }
 
                             // Style image cells
@@ -14526,7 +14662,8 @@
                                 const brandImageCell = document.createElement('td');
                                 brandImageCell.className = 'brand-image-cell';
                                 brandImageCell.dataset.rowId = rowId;
-                                brandImageCell.style.cssText = 'padding: 8px 6px; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle; background: #fff; width: 8%; min-width: 80px; max-width: 100px;';
+                                brandImageCell.setAttribute('data-label', 'Brand Image');
+                                brandImageCell.style.cssText = 'padding: 12px 10px; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle; background: #fff; width: 8%; min-width: 80px; max-width: 100px;';
                                 if (row.children.length === insertIndex) {
                                     row.appendChild(brandImageCell);
                                 } else {
@@ -14546,7 +14683,8 @@
                                 const brandDescCell = document.createElement('td');
                                 brandDescCell.className = 'brand-description-cell';
                                 brandDescCell.dataset.rowId = rowId;
-                                brandDescCell.style.cssText = 'padding: 8px 6px; border: 1px solid #e2e8f0; vertical-align: middle; background: #fff; width: 20%; min-width: 200px; max-width: 400px; font-size: 0.85em; line-height: 1.4; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal !important;';
+                                brandDescCell.setAttribute('data-label', 'Brand Description');
+                                brandDescCell.style.cssText = 'padding: 12px 10px; border: 1px solid #e2e8f0; vertical-align: middle; background: #fff; width: 20%; min-width: 200px; max-width: 400px; font-size: 0.9em; line-height: 1.5; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; white-space: normal !important;';
                                 const newImageIndex = Array.from(row.children).findIndex(cell => cell.classList.contains('brand-image-cell'));
                                 if (newImageIndex >= 0) {
                                     row.insertBefore(brandDescCell, row.children[newImageIndex + 1]);
@@ -14642,18 +14780,20 @@
                             const productSelectionCell = document.createElement('td');
                             productSelectionCell.className = 'product-selection-cell';
                             productSelectionCell.dataset.rowId = rowId;
+                            productSelectionCell.setAttribute('data-label', 'Product Selection');
                             productSelectionCell.innerHTML = createProductSelectionDropdowns(rowId, tier);
-                            productSelectionCell.style.cssText = 'padding: 8px 6px; border: 1px solid #e2e8f0; vertical-align: middle; background: #fff; width: 14%; min-width: 160px; max-width: 180px;';
+                            productSelectionCell.style.cssText = 'padding: 12px 10px; border: 1px solid #e2e8f0; vertical-align: middle; background: #fff; width: 14%; min-width: 180px;';
                             row.appendChild(productSelectionCell);
 
                             // Add Actions cell immediately after Product Selection
                             const actionsCell = document.createElement('td');
                             actionsCell.className = 'actions-cell';
-                            actionsCell.style.cssText = 'padding: 8px 4px; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle; background: #fff; width: 6%; min-width: 85px; max-width: 100px;';
+                            actionsCell.setAttribute('data-label', 'Actions');
+                            actionsCell.style.cssText = 'padding: 12px 10px; border: 1px solid #e2e8f0; text-align: center; vertical-align: middle; background: #fff; width: 6%; min-width: 100px;';
                             actionsCell.innerHTML = `
-                            <div style="display: flex; gap: 4px; justify-content: center; align-items: center; flex-wrap: nowrap;">
-                                <button onclick="addRow('${rowId}', '${tier}')" title="Add row below" style="background: linear-gradient(135deg, #4ade80, #22c55e); color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 700; box-shadow: 0 2px 4px rgba(34,197,94,0.3); transition: all 0.2s; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 8px rgba(34,197,94,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(34,197,94,0.3)'">+</button>
-                                <button onclick="deleteRow('${rowId}', '${tier}')" title="Delete this row" style="background: linear-gradient(135deg, #f87171, #ef4444); color: white; border: none; padding: 6px 10px; border-radius: 5px; cursor: pointer; font-size: 16px; font-weight: 700; box-shadow: 0 2px 4px rgba(239,68,68,0.3); transition: all 0.2s; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 8px rgba(239,68,68,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(239,68,68,0.3)'">×</button>
+                            <div style="display: flex; gap: 8px; justify-content: center; align-items: center; flex-wrap: nowrap;">
+                                <button onclick="addRow('${rowId}', '${tier}')" title="Add row below" style="background: linear-gradient(135deg, #4ade80, #22c55e); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: 700; box-shadow: 0 2px 4px rgba(34,197,94,0.3); transition: all 0.2s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 10px rgba(34,197,94,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(34,197,94,0.3)'">+</button>
+                                <button onclick="deleteRow('${rowId}', '${tier}')" title="Delete this row" style="background: linear-gradient(135deg, #f87171, #ef4444); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 18px; font-weight: 700; box-shadow: 0 2px 4px rgba(239,68,68,0.3); transition: all 0.2s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 4px 10px rgba(239,68,68,0.4)'" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(239,68,68,0.3)'">×</button>
                             </div>
                         `;
                             row.appendChild(actionsCell);
@@ -16663,7 +16803,7 @@
          */
         function showImage(src, caption = '', brandName = '') {
             const modal = document.getElementById('imageModal');
-            
+
             console.log(`[showImage] Function called with src: ${src}`);
             console.log(`[showImage] Modal found: ${!!modal}`);
 
@@ -16685,17 +16825,17 @@
                     }
                     finalSrc = finalSrc.replace(/\\/g, '/');
                     console.log(`[showImage] Setting src to: ${finalSrc}`);
-                    
-                    enlargedImage.onload = function() {
+
+                    enlargedImage.onload = function () {
                         console.log(`[showImage] ✓ Image loaded successfully: ${this.src}`);
                     };
-                    
+
                     enlargedImage.onerror = function () {
                         console.warn(`[showImage] ✗ Failed to load: ${this.src}, using fallback`);
                         this.onerror = null;
                         this.src = '/static/images/LOGO.png';
                     };
-                    
+
                     enlargedImage.src = finalSrc;
                 } else {
                     console.log(`[showImage] Empty src, using LOGO fallback`);
@@ -16708,7 +16848,7 @@
                     captionText.innerHTML = caption;
                     captionText.style.display = caption ? 'block' : 'none';
                 }
-                
+
                 // Update brand badge
                 let brandBadge = document.getElementById('modalBrandBadge');
                 if (brandBadge) {
@@ -16746,7 +16886,7 @@
 
                 // Display modal - set display: flex to trigger visibility via CSS
                 modal.style.display = 'flex';
-                
+
                 console.log(`[showImage] Modal displayed`);
             } else {
                 console.error(`[showImage] Modal element not found!`);
@@ -16795,7 +16935,7 @@
             // Find the selected brand data from the cache
             const brands = brandDataCache[tier] || [];
             const selectedBrand = brands.find(b => b.name === brandName);
-            
+
             // Update the display with logo, name, and country
             const displayElement = container.querySelector('.brand-input-display');
             if (displayElement && selectedBrand) {
@@ -16811,7 +16951,7 @@
             } else if (displayElement) {
                 displayElement.innerHTML = `<span style="color: #334155;">${brandName}</span>`;
             }
-            
+
             const hiddenInput = container.querySelector('.brand-dropdown');
             const list = container.querySelector('.brand-dropdown-list');
 
@@ -16837,26 +16977,26 @@
         <div class="image-modal-content">
             <span class="image-modal-close"
                 onclick="document.getElementById('imageModal').style.display='none'">&times;</span>
-            
+
             <!-- Brand Logo Display -->
             <div id="modalLogoContainer" style="margin-bottom: 20px; display: none; text-align: center;">
-                <img id="modalBrandLogo" class="image-modal-logo" 
-                     style="max-height: 80px; max-width: 200px; object-fit: contain;"
-                     onerror="this.parentElement.style.display='none'">
+                <img id="modalBrandLogo" class="image-modal-logo"
+                    style="max-height: 80px; max-width: 200px; object-fit: contain;"
+                    onerror="this.parentElement.style.display='none'">
             </div>
-            
+
             <!-- Product Image Container -->
             <div class="image-modal-image-container">
                 <img class="image-modal-img" id="enlargedImage"
                     onerror="this.onerror=null; this.src='/static/images/LOGO.png'">
-                <div id="modalBrandBadge" class="image-modal-brand-badge"
-                    style="display: none;">
+                <div id="modalBrandBadge" class="image-modal-brand-badge" style="display: none;">
                 </div>
             </div>
-            
+
             <!-- Modal Caption (minimal) -->
             <div id="modalCaption" class="image-modal-caption"
-                style="color: white; font-weight: 500; font-size: 0.9em; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin-top: 12px; max-width: 90%; line-height: 1.4;"></div>
+                style="color: white; font-weight: 500; font-size: 0.9em; text-shadow: 0 2px 4px rgba(0,0,0,0.5); margin-top: 12px; max-width: 90%; line-height: 1.4;">
+            </div>
         </div>
     </div>
 </body>
