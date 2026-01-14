@@ -557,15 +557,27 @@ class OfferGenerator:
                                 
                                 # Add brand logo above images if available
                                 brand_logo = row.get('brand_logo')
+                                brand_name = row.get('brand') or row.get('Brand')
                                 
-                                # Fallback: try to get brand_logo from brand name
-                                if not brand_logo:
-                                    brand_name = row.get('brand') or row.get('Brand')
-                                    if brand_name:
-                                        try:
-                                            brand_logo = self._get_brand_logo(brand_name)
-                                        except:
-                                            pass
+                                # Fallback: Extract brand from description field
+                                if not brand_name:
+                                    description_value = row.get('Description') or row.get('description') or row.get('Discription') or ''
+                                    # Look for known brands in description
+                                    known_brands = ['OTTIMO', 'B&T', 'BT', 'NARBUTAS', 'PEDRALI', 'STEELCASE', 'HAWORTH', 'KINNARPS']
+                                    for kb in known_brands:
+                                        if kb.upper() in str(description_value).upper():
+                                            brand_name = kb
+                                            logger.info(f"Extracted brand '{brand_name}' from description")
+                                            break
+                                
+                                # Get brand_logo from brand name if not already set
+                                if not brand_logo and brand_name:
+                                    try:
+                                        brand_logo = self._get_brand_logo(brand_name)
+                                        if brand_logo:
+                                            logger.info(f"Retrieved brand logo for '{brand_name}': {brand_logo}")
+                                    except Exception as e:
+                                        logger.warning(f"Could not get brand logo for '{brand_name}': {e}")
                                 
                                 if brand_logo:
                                     try:
@@ -590,9 +602,20 @@ class OfferGenerator:
                                                     logo_final_height = 0.5 * inch
                                                     logo_final_width = logo_final_height / aspect_ratio
                                                 
-                                                # Convert to PNG for consistency
+                                                # Convert to PNG - Handle transparency properly
                                                 tmp_logo = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-                                                pil_logo.convert('RGB').save(tmp_logo.name, 'PNG')
+                                                
+                                                # Check if image has transparency (RGBA or palette with transparency)
+                                                if pil_logo.mode in ('RGBA', 'LA') or (pil_logo.mode == 'P' and 'transparency' in pil_logo.info):
+                                                    # Create white background and paste logo on it
+                                                    background = PILImage.new('RGB', pil_logo.size, (255, 255, 255))
+                                                    if pil_logo.mode == 'P':
+                                                        pil_logo = pil_logo.convert('RGBA')
+                                                    background.paste(pil_logo, mask=pil_logo.split()[-1])  # Use alpha channel as mask
+                                                    background.save(tmp_logo.name, 'PNG')
+                                                else:
+                                                    pil_logo.convert('RGB').save(tmp_logo.name, 'PNG')
+                                                
                                                 self.temp_files.append(tmp_logo.name)
                                                 
                                                 logo_img = RLImage(tmp_logo.name, width=logo_final_width, height=logo_final_height)

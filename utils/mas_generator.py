@@ -637,9 +637,20 @@ class MASGenerator:
                                 logo_height = 0.75 * inch
                                 logo_width = logo_height / aspect_ratio
                             
-                            # Save to temp PNG
+                            # Save to temp PNG - Handle transparency properly
                             tmp = tempfile.NamedTemporaryFile(delete=False, suffix='.png')
-                            pil_img.convert('RGB').save(tmp.name, 'PNG')
+                            
+                            # Check if image has transparency (RGBA or palette with transparency)
+                            if pil_img.mode in ('RGBA', 'LA') or (pil_img.mode == 'P' and 'transparency' in pil_img.info):
+                                # Create white background and paste logo on it
+                                background = PILImage.new('RGB', pil_img.size, (255, 255, 255))
+                                if pil_img.mode == 'P':
+                                    pil_img = pil_img.convert('RGBA')
+                                background.paste(pil_img, mask=pil_img.split()[-1])  # Use alpha channel as mask
+                                background.save(tmp.name, 'PNG')
+                            else:
+                                pil_img.convert('RGB').save(tmp.name, 'PNG')
+                            
                             self.temp_files.append(tmp.name)
                             
                             # Create logo image
