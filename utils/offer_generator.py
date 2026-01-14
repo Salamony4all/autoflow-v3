@@ -406,6 +406,10 @@ class OfferGenerator:
             # Prepare table data with images
             table_rows = []
             
+            # Get product_selections for brand logo fallback
+            product_selections = file_info.get('product_selections', []) if file_info else []
+            logger.info(f"Product selections available: {len(product_selections)}")
+            
             # Headers - USE ACTUAL EXTRACTED HEADERS (don't normalize to avoid SN->Item conversion)
             headers = table_data['headers']
             
@@ -460,7 +464,7 @@ class OfferGenerator:
             table_rows.append(header_row)
             
             # Data rows - show only final costed prices with images
-            for row in table_data['rows']:
+            for row_idx, row in enumerate(table_data['rows']):
                 table_row = []
                 
                 for h in filtered_headers:
@@ -559,7 +563,20 @@ class OfferGenerator:
                                 brand_logo = row.get('brand_logo')
                                 brand_name = row.get('brand') or row.get('Brand')
                                 
-                                # Fallback: Extract brand from description field
+                                # Fallback 1: Check product_selections for brand info
+                                if product_selections and (not brand_name or not brand_logo):
+                                    selection = next((p for p in product_selections if p.get('row_index') == row_idx), None)
+                                    if selection:
+                                        if not brand_name:
+                                            brand_name = selection.get('brand')
+                                            if brand_name:
+                                                logger.info(f"Got brand '{brand_name}' from product_selections for row {row_idx}")
+                                        if not brand_logo:
+                                            brand_logo = selection.get('brand_logo')
+                                            if brand_logo:
+                                                logger.info(f"Got brand_logo from product_selections for row {row_idx}")
+                                
+                                # Fallback 2: Extract brand from description field
                                 if not brand_name:
                                     description_value = row.get('Description') or row.get('description') or row.get('Discription') or ''
                                     # Look for known brands in description
