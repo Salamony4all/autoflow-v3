@@ -125,10 +125,13 @@ def get_brand_logo_url(brand_name):
     Get brand logo URL from brand-specific JSON files in brands_data directory.
     Each brand should have its own self-contained JSON file (e.g., NARBUTAS_mid_range.json, PEDRALI_seating.json).
     
+    IMPORTANT: When a brand file is definitively matched, return that brand's logo or None.
+    Do NOT fall back to other brand files' logos - this prevents showing wrong brand logos.
+    
     Matching logic:
-    1. Exact prefix match (brand_name matches start of filename)
-    2. Normalized fuzzy match (handles case, spaces, special chars)
-    3. Search within file content for brand field match
+    1. Exact prefix match (brand_name matches start of filename) - DEFINITIVE
+    2. Content match (brand field inside JSON matches brand_name) - DEFINITIVE
+    3. Normalized fuzzy match (only if no definitive match found)
     
     Args:
         brand_name: Name of the brand to look up
@@ -158,39 +161,35 @@ def get_brand_logo_url(brand_name):
         return None
     
     # Try to load from brand-specific JSON files ONLY (no brands_dynamic.json)
-    # This ensures each brand is fully self-contained
     try:
         json_files = [f for f in os.listdir(brands_data_dir) 
                       if f.endswith('.json') and f != 'brands_dynamic.json']
         
-        # Priority 1: Exact prefix match (case-insensitive)
+        # Priority 1: Exact prefix match (case-insensitive) - DEFINITIVE MATCH
+        # If we find a file that starts with the brand name, that IS the brand file
         for filename in json_files:
             file_base = filename.rsplit('.', 1)[0]  # Remove .json extension
-            if file_base.lower().startswith(brand_name.lower()):
+            # Check if file starts with brand name (handles B&T -> BT, etc.)
+            if file_base.lower().startswith(brand_name.lower().replace('&', '')):
                 brand_file_path = os.path.join(brands_data_dir, filename)
                 logo = _extract_logo_from_file(brand_file_path)
                 if logo:
                     logger.info(f"Found brand logo for '{brand_name}' via prefix match in {filename}")
                     return logo
+                else:
+                    # CRITICAL: This IS the correct brand file but has no logo
+                    # Return None, do NOT continue searching other files
+                    logger.warning(f"Brand file {filename} matched for '{brand_name}' but has no logo - returning None (not falling back)")
+                    return None
         
-        # Priority 2: Normalized fuzzy match
-        for filename in json_files:
-            file_base = filename.rsplit('.', 1)[0]
-            normalized_file = normalize_name(file_base)
-            if normalized_file.startswith(normalized_brand) or normalized_brand in normalized_file:
-                brand_file_path = os.path.join(brands_data_dir, filename)
-                logo = _extract_logo_from_file(brand_file_path)
-                if logo:
-                    logger.info(f"Found brand logo for '{brand_name}' via fuzzy match in {filename}")
-                    return logo
-        
-        # Priority 3: Search within file content for brand field
+        # Priority 2: Search within file content for brand field match - DEFINITIVE MATCH
         for filename in json_files:
             brand_file_path = os.path.join(brands_data_dir, filename)
             try:
                 with open(brand_file_path, 'r', encoding='utf-8') as f:
                     brand_data = json.load(f)
                     file_brand = brand_data.get('brand', '')
+                    # Exact normalized match on the brand field
                     if normalize_name(file_brand) == normalized_brand:
                         logo = brand_data.get('logo') or \
                                brand_data.get('brand_info', {}).get('logo') or \
@@ -198,8 +197,37 @@ def get_brand_logo_url(brand_name):
                         if logo:
                             logger.info(f"Found brand logo for '{brand_name}' via content match in {filename}")
                             return logo
+                        else:
+                            # CRITICAL: This IS the correct brand file but has no logo
+                            # Return None, do NOT continue searching other files
+                            logger.warning(f"Brand file {filename} matched for '{brand_name}' but has no logo - returning None (not falling back)")
+                            return None
             except Exception:
                 continue
+        
+        # Priority 3: Normalized fuzzy match (only if no definitive match above)
+        # This is a weaker match and should only be used as last resort
+        for filename in json_files:
+            file_base = filename.rsplit('.', 1)[0]
+            normalized_file = normalize_name(file_base)
+            # Only match if the normalized brand is a significant substring
+            if len(normalized_brand) >= 3 and normalized_file.startswith(normalized_brand):
+                brand_file_path = os.path.join(brands_data_dir, filename)
+                # Verify by checking brand field inside
+                try:
+                    with open(brand_file_path, 'r', encoding='utf-8') as f:
+                        brand_data = json.load(f)
+                        file_brand = normalize_name(brand_data.get('brand', ''))
+                        # Only use if brand field also matches
+                        if file_brand == normalized_brand or normalized_brand in file_brand:
+                            logo = brand_data.get('logo') or \
+                                   brand_data.get('brand_info', {}).get('logo') or \
+                                   brand_data.get('brand_logo')
+                            if logo:
+                                logger.info(f"Found brand logo for '{brand_name}' via fuzzy match in {filename}")
+                                return logo
+                except Exception:
+                    continue
         
         logger.warning(f"No brand logo found for '{brand_name}' in {len(json_files)} brand files")
         
