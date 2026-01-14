@@ -8158,6 +8158,24 @@
                         <div id="dbUploadResult"
                             style="display: none; margin-top: 15px; padding: 15px; border-radius: 6px; background: #0f172a;">
                         </div>
+
+                        <!-- Delete Brand Section -->
+                        <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid #dc2626;">
+                            <label style="display: block; color: #ef4444; margin-bottom: 8px; font-weight: bold;">⚠️
+                                Danger Zone</label>
+                            <p style="color: #94a3b8; margin-bottom: 15px; font-size: 0.85em;">
+                                Permanently delete the selected brand from the database. This action cannot be undone.
+                            </p>
+                            <button type="button" onclick="deleteBrandDatabase()" class="btn btn-danger"
+                                style="width: 100%; padding: 12px 24px; background: #dc2626; color: white; font-weight: bold; cursor: pointer; border: none; border-radius: 6px;">
+                                🗑️ Delete Brand
+                            </button>
+                        </div>
+
+                        <!-- Delete Result -->
+                        <div id="dbDeleteResult"
+                            style="display: none; margin-top: 15px; padding: 15px; border-radius: 6px; background: #0f172a;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -13695,6 +13713,85 @@
                 console.error('Error uploading database:', error);
             }
         }
+
+        // Delete brand from database
+        async function deleteBrandDatabase() {
+            const brandSelect = document.getElementById('dbBrandSelect');
+            const tierSelect = document.getElementById('dbTierSelect');
+            const resultDiv = document.getElementById('dbDeleteResult');
+
+            if (!brandSelect || !brandSelect.value) {
+                alert('Please select a brand to delete');
+                return;
+            }
+
+            const brand = brandSelect.value;
+            const tier = tierSelect?.value || 'mid_range';
+
+            // Confirm deletion
+            const confirmMessage = `⚠️ WARNING: This will permanently delete "${brand}" (${tier}) from the database.\n\nThis action cannot be undone. Are you sure?`;
+            if (!confirm(confirmMessage)) {
+                return;
+            }
+
+            // Double confirm for safety
+            const doubleConfirm = prompt(`To confirm deletion, type the brand name: "${brand}"`);
+            if (doubleConfirm !== brand) {
+                alert('Brand name did not match. Deletion cancelled.');
+                return;
+            }
+
+            try {
+                if (resultDiv) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.background = '#0f172a';
+                    resultDiv.style.color = '#94a3b8';
+                    resultDiv.innerHTML = '🔄 Deleting brand...';
+                }
+
+                const response = await fetch(`/api/brands/delete?brand=${encodeURIComponent(brand)}&tier=${encodeURIComponent(tier)}`, {
+                    method: 'DELETE'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    if (resultDiv) {
+                        resultDiv.style.display = 'block';
+                        resultDiv.style.background = '#0f4d3c';
+                        resultDiv.style.color = '#4ade80';
+                        resultDiv.innerHTML = `
+                            <strong>✅ Brand Deleted!</strong><br>
+                            ${result.message}
+                        `;
+                    }
+
+                    // Reload brands list
+                    loadBrandsForDatabase();
+
+                    // Update brand dropdowns
+                    if (typeof updateBrandDropdownsForTier === 'function') {
+                        updateBrandDropdownsForTier(currentBudgetTier || 'budgetary');
+                    }
+                } else {
+                    if (resultDiv) {
+                        resultDiv.style.display = 'block';
+                        resultDiv.style.background = '#7f1d1d';
+                        resultDiv.style.color = '#f87171';
+                        resultDiv.innerHTML = `<strong>❌ Error:</strong> ${result.error || 'Failed to delete brand'}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error deleting brand:', error);
+                if (resultDiv) {
+                    resultDiv.style.display = 'block';
+                    resultDiv.style.background = '#7f1d1d';
+                    resultDiv.style.color = '#f87171';
+                    resultDiv.innerHTML = `<strong>❌ Error:</strong> ${error.message}`;
+                }
+            }
+        }
+
 
         // Update brand dropdown when tier changes (set up on DOM ready)
         document.addEventListener('DOMContentLoaded', () => {

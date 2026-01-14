@@ -30,8 +30,13 @@ app.config['SESSION_PERMANENT'] = True
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(hours=4)  # Session lasts 4 hours
 
 # Configurable brands data directory - can point to Railway volume for persistence
-# Set BRANDS_DATA_PATH environment variable to use a mounted volume
-BRANDS_DATA_DIR = os.environ.get('BRANDS_DATA_PATH', 'brands_data')
+BRANDS_DATA_DIR = os.environ.get('BRANDS_DATA_PATH')
+if not BRANDS_DATA_DIR:
+    # Auto-detect Railway volume mount point if environment variable not explicitly set
+    if os.path.exists('/data/brands_data'):
+        BRANDS_DATA_DIR = '/data/brands_data'
+    else:
+        BRANDS_DATA_DIR = 'brands_data'
 
 # Ensure brands data directory exists
 os.makedirs(BRANDS_DATA_DIR, exist_ok=True)
@@ -5200,6 +5205,55 @@ def download_brand_excel():
         
     except Exception as e:
         logger.exception('Error generating Excel download for brand')
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/brands/delete', methods=['DELETE'])
+def delete_brand():
+    """Delete a brand from the database (filesystem)"""
+    try:
+        brand = request.args.get('brand')
+        tier = request.args.get('tier', 'mid_range')
+        
+        if not brand:
+            return jsonify({'error': 'Brand name is required'}), 400
+            
+        # Create safe filename
+        import re
+        safe_brand_name = re.sub(r'[^\w\-_]', '', brand.replace(' ', '_'))
+        filename = f"{safe_brand_name}_{tier}.json"
+        filepath = os.path.join(BRANDS_DATA_DIR, filename)
+        
+        logger.info(f"🗑️ Deletion request for brand: {brand} ({tier}) -> {filename}")
+        
+        if os.path.exists(filepath):
+            os.remove(filepath)
+            logger.info(f"✅ Deleted brand file: {filename}")
+            return jsonify({
+                'success': True,
+                'message': f'Successfully deleted {brand} ({tier}) from database'
+            })
+        else:
+            # Try case-insensitive search
+            found = False
+            if os.path.exists(BRANDS_DATA_DIR):
+                for f in os.listdir(BRANDS_DATA_DIR):
+                    if f.lower() == filename.lower():
+                        os.remove(os.path.join(BRANDS_DATA_DIR, f))
+                        logger.info(f"✅ Deleted brand file (case-insensitive): {f}")
+                        found = True
+                        break
+            
+            if found:
+                return jsonify({
+                    'success': True,
+                    'message': f'Successfully deleted {brand} ({tier}) from database'
+                })
+            else:
+                logger.warning(f"⚠️ Brand file not found for deletion: {filename}")
+                return jsonify({'error': f'Brand data not found for {brand} ({tier})'}), 404
+                
+    except Exception as e:
+        logger.exception('Error deleting brand')
         return jsonify({'error': str(e)}), 500
 
 @app.route('/api/brands/upload-excel', methods=['POST'])

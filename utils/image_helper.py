@@ -7,6 +7,14 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+# Configurable brands data directory - matches app.py logic for Railway persistence
+BRANDS_DATA_DIR = os.environ.get('BRANDS_DATA_PATH')
+if not BRANDS_DATA_DIR:
+    if os.path.exists('/data/brands_data'):
+        BRANDS_DATA_DIR = '/data/brands_data'
+    else:
+        BRANDS_DATA_DIR = 'brands_data'
+
 def download_image(image_url, cache_dir='static/product_images'):
     """
     Download and cache an image from URL
@@ -80,15 +88,14 @@ def get_product_image_url(brand_name, category, subcategory, model_name, tier='m
         # Load brand data
         safe_brand_name = re.sub(r'[^\w\-_]', '', brand_name.replace(' ', '_'))
         filename = f"{safe_brand_name}_{tier}.json"
-        filepath = os.path.join('brands_data', filename)
+        filepath = os.path.join(BRANDS_DATA_DIR, filename)
         
         if not os.path.exists(filepath):
             # Try case-insensitive search
-            brands_data_dir = 'brands_data'
-            if os.path.exists(brands_data_dir):
-                for f in os.listdir(brands_data_dir):
+            if os.path.exists(BRANDS_DATA_DIR):
+                for f in os.listdir(BRANDS_DATA_DIR):
                     if f.lower() == filename.lower():
-                        filepath = os.path.join(brands_data_dir, f)
+                        filepath = os.path.join(BRANDS_DATA_DIR, f)
                         break
         
         if not os.path.exists(filepath):
@@ -146,7 +153,6 @@ def get_brand_logo_url(brand_name):
     import re
     
     brand_name = brand_name.strip()
-    brands_data_dir = 'brands_data'
     
     # Normalize brand name for matching (lowercase, remove special chars)
     def normalize_name(name):
@@ -156,13 +162,13 @@ def get_brand_logo_url(brand_name):
     
     normalized_brand = normalize_name(brand_name)
     
-    if not os.path.exists(brands_data_dir):
-        logger.warning(f"Brands data directory not found: {brands_data_dir}")
+    if not os.path.exists(BRANDS_DATA_DIR):
+        logger.warning(f"Brands data directory not found: {BRANDS_DATA_DIR}")
         return None
     
     # Try to load from brand-specific JSON files ONLY (no brands_dynamic.json)
     try:
-        json_files = [f for f in os.listdir(brands_data_dir) 
+        json_files = [f for f in os.listdir(BRANDS_DATA_DIR) 
                       if f.endswith('.json') and f != 'brands_dynamic.json']
         
         # Priority 1: Exact prefix match (case-insensitive) - DEFINITIVE MATCH
@@ -171,7 +177,7 @@ def get_brand_logo_url(brand_name):
             file_base = filename.rsplit('.', 1)[0]  # Remove .json extension
             # Check if file starts with brand name (handles B&T -> BT, etc.)
             if file_base.lower().startswith(brand_name.lower().replace('&', '')):
-                brand_file_path = os.path.join(brands_data_dir, filename)
+                brand_file_path = os.path.join(BRANDS_DATA_DIR, filename)
                 logo = _extract_logo_from_file(brand_file_path)
                 if logo:
                     logger.info(f"Found brand logo for '{brand_name}' via prefix match in {filename}")
@@ -184,7 +190,7 @@ def get_brand_logo_url(brand_name):
         
         # Priority 2: Search within file content for brand field match - DEFINITIVE MATCH
         for filename in json_files:
-            brand_file_path = os.path.join(brands_data_dir, filename)
+            brand_file_path = os.path.join(BRANDS_DATA_DIR, filename)
             try:
                 with open(brand_file_path, 'r', encoding='utf-8') as f:
                     brand_data = json.load(f)
@@ -212,7 +218,7 @@ def get_brand_logo_url(brand_name):
             normalized_file = normalize_name(file_base)
             # Only match if the normalized brand is a significant substring
             if len(normalized_brand) >= 3 and normalized_file.startswith(normalized_brand):
-                brand_file_path = os.path.join(brands_data_dir, filename)
+                brand_file_path = os.path.join(BRANDS_DATA_DIR, filename)
                 # Verify by checking brand field inside
                 try:
                     with open(brand_file_path, 'r', encoding='utf-8') as f:
