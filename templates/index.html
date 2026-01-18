@@ -3616,6 +3616,228 @@
             color: #e2e8f0;
         }
 
+        /* Volume-Based Freight Toggle Styles */
+        .freight-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .freight-toggle-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: rgba(100, 116, 139, 0.4);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .toggle-switch::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 18px;
+            height: 18px;
+            background: #ffffff;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .toggle-checkbox {
+            display: none;
+        }
+
+        .toggle-checkbox:checked+.toggle-switch {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .toggle-checkbox:checked+.toggle-switch::before {
+            transform: translateX(20px);
+        }
+
+        .toggle-text {
+            font-size: 0.85em;
+            color: #94a3b8;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .toggle-checkbox:checked~.toggle-text {
+            color: #10b981;
+        }
+
+        /* Volume Freight Sub-Panel */
+        .volume-freight-panel {
+            margin-top: 15px;
+            padding: 20px;
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .volume-freight-panel.hidden {
+            display: none;
+        }
+
+        .volume-freight-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .volume-freight-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .volume-freight-field label {
+            font-size: 0.85em;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .volume-freight-field select,
+        .volume-freight-field input {
+            padding: 10px 12px;
+            background: #1e3a5f;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.95em;
+            transition: all 0.2s ease;
+        }
+
+        .volume-freight-field select:hover,
+        .volume-freight-field input:hover {
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .volume-freight-field select:focus,
+        .volume-freight-field input:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+
+        .volume-freight-field select option {
+            background: #1a2a4a;
+            color: #ffffff;
+        }
+
+        /* Route Selector */
+        .route-selector-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 15px;
+        }
+
+        .route-arrow {
+            color: #10b981;
+            font-size: 1.2em;
+            padding-bottom: 10px;
+        }
+
+        /* Market Rate Display */
+        .market-rate-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+        }
+
+        .market-rate-label {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .market-rate-label span:first-child {
+            font-size: 0.85em;
+            color: #94a3b8;
+        }
+
+        .market-rate-label span:last-child {
+            font-size: 0.75em;
+            color: #64748b;
+        }
+
+        .market-rate-value {
+            font-size: 1.25em;
+            font-weight: 700;
+            color: #f59e0b;
+        }
+
+        /* Fixed Freight Row in Preview */
+        .preview-row-freight-fixed {
+            background: rgba(16, 185, 129, 0.08);
+            margin: 5px -10px;
+            padding: 8px 10px;
+            border-radius: 6px;
+        }
+
+        .preview-row-freight-fixed .preview-label {
+            color: #10b981;
+        }
+
+        .preview-row-freight-fixed .preview-value {
+            color: #10b981;
+            font-weight: 600;
+        }
+
+        .freight-source-tooltip {
+            font-size: 0.75em;
+            color: #64748b;
+            margin-left: 8px;
+        }
+
+        /* Disabled Slider State */
+        .slider-disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .factor-control-disabled {
+            opacity: 0.5;
+            position: relative;
+        }
+
+        .factor-control-disabled::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            cursor: not-allowed;
+        }
+
         /* Responsive adjustments for costing module */
         @media (max-width: 768px) {
             .currency-selectors {
@@ -3643,6 +3865,36 @@
 
             .rate-input {
                 flex: 1;
+            }
+
+            /* Volume-based freight responsive */
+            .freight-toggle-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .volume-freight-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .route-selector-row {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .route-arrow {
+                display: none;
+            }
+
+            .market-rate-display {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+
+            .market-rate-label {
+                align-items: center;
             }
         }
 
@@ -5561,30 +5813,333 @@
 
         /**
          * Calculate total markup percentage from all factors
+         * Excludes freight percentage when volume-based freight is enabled
          */
         function calculateTotalMarkup() {
             const netMargin = parseFloat(document.getElementById('netMarginSlider')?.value) || 0;
-            const freight = parseFloat(document.getElementById('freightSlider')?.value) || 0;
             const customs = parseFloat(document.getElementById('customsSlider')?.value) || 0;
             const installation = parseFloat(document.getElementById('installationSlider')?.value) || 0;
             const additional = parseFloat(document.getElementById('additionalSlider')?.value) || 0;
 
+            // Only include freight percentage if volume-based freight is NOT enabled
+            const isVolumeFreightEnabled = document.getElementById('volumeFreightToggle')?.checked || false;
+            const freight = isVolumeFreightEnabled ? 0 : (parseFloat(document.getElementById('freightSlider')?.value) || 0);
+
             return netMargin + freight + customs + installation + additional;
+        }
+
+        // =============================================
+        // VOLUME-BASED FREIGHT MODULE
+        // =============================================
+
+        // Sea freight rate database (USD) - Estimated market rates for 2024
+        const seaFreightRates = {
+            // Rates per container type: { 20ft, 40ft, cbm (per CBM for LCL) }
+            // Routes: departure -> arrival
+            'shanghai': {
+                'sohar': { '20ft': 1200, '40ft': 2200, 'cbm': 65 },
+                'salalah': { '20ft': 1150, '40ft': 2100, 'cbm': 62 },
+                'muscat': { '20ft': 1250, '40ft': 2300, 'cbm': 68 },
+                'dubai': { '20ft': 850, '40ft': 1600, 'cbm': 45 },
+                'dammam': { '20ft': 1100, '40ft': 2000, 'cbm': 58 },
+                'jeddah': { '20ft': 1300, '40ft': 2400, 'cbm': 70 },
+                'doha': { '20ft': 950, '40ft': 1750, 'cbm': 52 },
+                'kuwait': { '20ft': 1000, '40ft': 1850, 'cbm': 55 },
+                'bahrain': { '20ft': 980, '40ft': 1800, 'cbm': 53 }
+            },
+            'ningbo': {
+                'sohar': { '20ft': 1180, '40ft': 2150, 'cbm': 63 },
+                'salalah': { '20ft': 1130, '40ft': 2050, 'cbm': 60 },
+                'muscat': { '20ft': 1230, '40ft': 2250, 'cbm': 66 },
+                'dubai': { '20ft': 830, '40ft': 1550, 'cbm': 43 },
+                'dammam': { '20ft': 1080, '40ft': 1950, 'cbm': 56 },
+                'jeddah': { '20ft': 1280, '40ft': 2350, 'cbm': 68 },
+                'doha': { '20ft': 930, '40ft': 1700, 'cbm': 50 },
+                'kuwait': { '20ft': 980, '40ft': 1800, 'cbm': 53 },
+                'bahrain': { '20ft': 960, '40ft': 1750, 'cbm': 51 }
+            },
+            'shenzhen': {
+                'sohar': { '20ft': 1220, '40ft': 2250, 'cbm': 67 },
+                'salalah': { '20ft': 1170, '40ft': 2150, 'cbm': 64 },
+                'muscat': { '20ft': 1270, '40ft': 2350, 'cbm': 70 },
+                'dubai': { '20ft': 870, '40ft': 1650, 'cbm': 47 },
+                'dammam': { '20ft': 1120, '40ft': 2050, 'cbm': 60 },
+                'jeddah': { '20ft': 1320, '40ft': 2450, 'cbm': 72 },
+                'doha': { '20ft': 970, '40ft': 1800, 'cbm': 54 },
+                'kuwait': { '20ft': 1020, '40ft': 1900, 'cbm': 57 },
+                'bahrain': { '20ft': 1000, '40ft': 1850, 'cbm': 55 }
+            },
+            'guangzhou': {
+                'sohar': { '20ft': 1210, '40ft': 2230, 'cbm': 66 },
+                'salalah': { '20ft': 1160, '40ft': 2130, 'cbm': 63 },
+                'muscat': { '20ft': 1260, '40ft': 2330, 'cbm': 69 },
+                'dubai': { '20ft': 860, '40ft': 1630, 'cbm': 46 },
+                'dammam': { '20ft': 1110, '40ft': 2030, 'cbm': 59 },
+                'jeddah': { '20ft': 1310, '40ft': 2430, 'cbm': 71 },
+                'doha': { '20ft': 960, '40ft': 1780, 'cbm': 53 },
+                'kuwait': { '20ft': 1010, '40ft': 1880, 'cbm': 56 },
+                'bahrain': { '20ft': 990, '40ft': 1830, 'cbm': 54 }
+            },
+            'qingdao': {
+                'sohar': { '20ft': 1250, '40ft': 2300, 'cbm': 68 },
+                'salalah': { '20ft': 1200, '40ft': 2200, 'cbm': 65 },
+                'muscat': { '20ft': 1300, '40ft': 2400, 'cbm': 71 },
+                'dubai': { '20ft': 900, '40ft': 1700, 'cbm': 48 },
+                'dammam': { '20ft': 1150, '40ft': 2100, 'cbm': 61 },
+                'jeddah': { '20ft': 1350, '40ft': 2500, 'cbm': 73 },
+                'doha': { '20ft': 1000, '40ft': 1850, 'cbm': 55 },
+                'kuwait': { '20ft': 1050, '40ft': 1950, 'cbm': 58 },
+                'bahrain': { '20ft': 1030, '40ft': 1900, 'cbm': 56 }
+            },
+            'tianjin': {
+                'sohar': { '20ft': 1280, '40ft': 2350, 'cbm': 70 },
+                'salalah': { '20ft': 1230, '40ft': 2250, 'cbm': 67 },
+                'muscat': { '20ft': 1330, '40ft': 2450, 'cbm': 73 },
+                'dubai': { '20ft': 930, '40ft': 1750, 'cbm': 50 },
+                'dammam': { '20ft': 1180, '40ft': 2150, 'cbm': 63 },
+                'jeddah': { '20ft': 1380, '40ft': 2550, 'cbm': 75 },
+                'doha': { '20ft': 1030, '40ft': 1900, 'cbm': 57 },
+                'kuwait': { '20ft': 1080, '40ft': 2000, 'cbm': 60 },
+                'bahrain': { '20ft': 1060, '40ft': 1950, 'cbm': 58 }
+            },
+            'mumbai': {
+                'sohar': { '20ft': 450, '40ft': 800, 'cbm': 28 },
+                'salalah': { '20ft': 500, '40ft': 900, 'cbm': 32 },
+                'muscat': { '20ft': 400, '40ft': 700, 'cbm': 25 },
+                'dubai': { '20ft': 350, '40ft': 600, 'cbm': 22 },
+                'dammam': { '20ft': 550, '40ft': 1000, 'cbm': 35 },
+                'jeddah': { '20ft': 650, '40ft': 1200, 'cbm': 40 },
+                'doha': { '20ft': 420, '40ft': 750, 'cbm': 26 },
+                'kuwait': { '20ft': 480, '40ft': 850, 'cbm': 30 },
+                'bahrain': { '20ft': 460, '40ft': 820, 'cbm': 29 }
+            },
+            'chennai': {
+                'sohar': { '20ft': 480, '40ft': 850, 'cbm': 30 },
+                'salalah': { '20ft': 530, '40ft': 950, 'cbm': 34 },
+                'muscat': { '20ft': 430, '40ft': 750, 'cbm': 27 },
+                'dubai': { '20ft': 380, '40ft': 650, 'cbm': 24 },
+                'dammam': { '20ft': 580, '40ft': 1050, 'cbm': 37 },
+                'jeddah': { '20ft': 680, '40ft': 1250, 'cbm': 42 },
+                'doha': { '20ft': 450, '40ft': 800, 'cbm': 28 },
+                'kuwait': { '20ft': 510, '40ft': 900, 'cbm': 32 },
+                'bahrain': { '20ft': 490, '40ft': 870, 'cbm': 31 }
+            },
+            'dubai': {
+                'sohar': { '20ft': 250, '40ft': 400, 'cbm': 18 },
+                'salalah': { '20ft': 350, '40ft': 600, 'cbm': 25 },
+                'muscat': { '20ft': 200, '40ft': 350, 'cbm': 15 },
+                'dammam': { '20ft': 300, '40ft': 500, 'cbm': 20 },
+                'jeddah': { '20ft': 450, '40ft': 800, 'cbm': 30 },
+                'doha': { '20ft': 220, '40ft': 380, 'cbm': 16 },
+                'kuwait': { '20ft': 280, '40ft': 480, 'cbm': 19 },
+                'bahrain': { '20ft': 260, '40ft': 450, 'cbm': 18 }
+            },
+            'singapore': {
+                'sohar': { '20ft': 950, '40ft': 1750, 'cbm': 52 },
+                'salalah': { '20ft': 900, '40ft': 1650, 'cbm': 49 },
+                'muscat': { '20ft': 1000, '40ft': 1850, 'cbm': 55 },
+                'dubai': { '20ft': 700, '40ft': 1300, 'cbm': 38 },
+                'dammam': { '20ft': 850, '40ft': 1550, 'cbm': 46 },
+                'jeddah': { '20ft': 1050, '40ft': 1950, 'cbm': 58 },
+                'doha': { '20ft': 750, '40ft': 1400, 'cbm': 40 },
+                'kuwait': { '20ft': 800, '40ft': 1500, 'cbm': 43 },
+                'bahrain': { '20ft': 780, '40ft': 1450, 'cbm': 42 }
+            },
+            'rotterdam': {
+                'sohar': { '20ft': 1800, '40ft': 3300, 'cbm': 95 },
+                'salalah': { '20ft': 1750, '40ft': 3200, 'cbm': 92 },
+                'muscat': { '20ft': 1850, '40ft': 3400, 'cbm': 98 },
+                'dubai': { '20ft': 1500, '40ft': 2800, 'cbm': 80 },
+                'dammam': { '20ft': 1700, '40ft': 3100, 'cbm': 90 },
+                'jeddah': { '20ft': 1400, '40ft': 2600, 'cbm': 75 },
+                'doha': { '20ft': 1550, '40ft': 2900, 'cbm': 83 },
+                'kuwait': { '20ft': 1600, '40ft': 3000, 'cbm': 85 },
+                'bahrain': { '20ft': 1580, '40ft': 2950, 'cbm': 84 }
+            },
+            'hamburg': {
+                'sohar': { '20ft': 1850, '40ft': 3400, 'cbm': 98 },
+                'salalah': { '20ft': 1800, '40ft': 3300, 'cbm': 95 },
+                'muscat': { '20ft': 1900, '40ft': 3500, 'cbm': 100 },
+                'dubai': { '20ft': 1550, '40ft': 2900, 'cbm': 83 },
+                'dammam': { '20ft': 1750, '40ft': 3200, 'cbm': 92 },
+                'jeddah': { '20ft': 1450, '40ft': 2700, 'cbm': 78 },
+                'doha': { '20ft': 1600, '40ft': 3000, 'cbm': 85 },
+                'kuwait': { '20ft': 1650, '40ft': 3100, 'cbm': 88 },
+                'bahrain': { '20ft': 1630, '40ft': 3050, 'cbm': 87 }
+            }
+        };
+
+        // Port display names for route info
+        const portNames = {
+            'shanghai': 'Shanghai',
+            'ningbo': 'Ningbo',
+            'shenzhen': 'Shenzhen',
+            'guangzhou': 'Guangzhou',
+            'qingdao': 'Qingdao',
+            'tianjin': 'Tianjin',
+            'mumbai': 'Mumbai',
+            'chennai': 'Chennai',
+            'dubai': 'Jebel Ali',
+            'singapore': 'Singapore',
+            'rotterdam': 'Rotterdam',
+            'hamburg': 'Hamburg',
+            'sohar': 'Sohar',
+            'salalah': 'Salalah',
+            'muscat': 'Muscat',
+            'dammam': 'Dammam',
+            'jeddah': 'Jeddah',
+            'doha': 'Doha',
+            'kuwait': 'Kuwait',
+            'bahrain': 'Bahrain'
+        };
+
+        // Current fixed freight cost in USD (calculated from volume inputs)
+        // Exposed on window for access from table_manager.js
+        window.currentFreightCostUSD = 0;
+
+        /**
+         * Toggle volume-based freight mode
+         */
+        function toggleVolumeFreight() {
+            const toggle = document.getElementById('volumeFreightToggle');
+            const panel = document.getElementById('volumeFreightPanel');
+            const slider = document.getElementById('freightSlider');
+            const freightValue = document.getElementById('freightValue');
+            const freightFixedRow = document.getElementById('previewFreightFixedRow');
+            const freightFixedEl = document.getElementById('previewFreightFixed');
+            const freightTooltipEl = document.getElementById('freightSourceTooltip');
+
+            if (toggle.checked) {
+                // Enable volume-based freight
+                panel.classList.remove('hidden');
+                slider.classList.add('slider-disabled');
+                slider.disabled = true;
+                freightValue.textContent = 'Fixed';
+                freightValue.style.color = '#10b981';
+
+                // Show fixed freight row in preview
+                if (freightFixedRow) freightFixedRow.classList.remove('hidden');
+
+                // Update market rate and preview
+                updateFreightMarketRate();
+            } else {
+                // Disable volume-based freight (back to percentage)
+                panel.classList.add('hidden');
+                slider.classList.remove('slider-disabled');
+                slider.disabled = false;
+                freightValue.textContent = `${slider.value}%`;
+                freightValue.style.color = '';
+
+                // Hide fixed freight row in preview and clear values
+                if (freightFixedRow) freightFixedRow.classList.add('hidden');
+                if (freightFixedEl) freightFixedEl.textContent = '+0.00 OMR';
+                if (freightTooltipEl) freightTooltipEl.textContent = '';
+
+                // Reset fixed cost to 0
+                window.currentFreightCostUSD = 0;
+
+                // Reset volume-based input fields to defaults
+                const unitTypeEl = document.getElementById('freightUnitType');
+                const quantityEl = document.getElementById('freightQuantity');
+                const departureEl = document.getElementById('freightDeparture');
+                const arrivalEl = document.getElementById('freightArrival');
+                const marketRateEl = document.getElementById('freightMarketRate');
+                const routeInfoEl = document.getElementById('freightRouteInfo');
+
+                if (unitTypeEl) unitTypeEl.value = '20ft';
+                if (quantityEl) quantityEl.value = 1;
+                if (departureEl) departureEl.value = 'shanghai';
+                if (arrivalEl) arrivalEl.value = 'sohar';
+                if (marketRateEl) marketRateEl.textContent = '$1,200';
+                if (routeInfoEl) routeInfoEl.textContent = 'Shanghai → Sohar';
+
+                // Update preview with percentage-based calculation
+                updateCalculationPreview();
+            }
+        }
+
+
+        /**
+         * Get the current freight market rate based on route and container type
+         */
+        function getFreightMarketRate(departure, arrival, unitType) {
+            // Check if route exists
+            if (seaFreightRates[departure] && seaFreightRates[departure][arrival]) {
+                return seaFreightRates[departure][arrival][unitType] || 0;
+            }
+
+            // If exact route not found, return default estimate
+            const defaultRates = { '20ft': 1000, '40ft': 1800, 'cbm': 55 };
+            return defaultRates[unitType] || 0;
+        }
+
+        /**
+         * Update freight market rate display based on current selections
+         */
+        function updateFreightMarketRate() {
+            const departure = document.getElementById('freightDeparture')?.value || 'shanghai';
+            const arrival = document.getElementById('freightArrival')?.value || 'sohar';
+            const unitType = document.getElementById('freightUnitType')?.value || '20ft';
+            const quantity = parseFloat(document.getElementById('freightQuantity')?.value) || 1;
+
+            // Get unit rate
+            const unitRate = getFreightMarketRate(departure, arrival, unitType);
+
+            // Calculate total freight cost in USD
+            window.currentFreightCostUSD = unitRate * quantity;
+
+            // Update display elements
+            const marketRateEl = document.getElementById('freightMarketRate');
+            const routeInfoEl = document.getElementById('freightRouteInfo');
+
+            if (marketRateEl) {
+                marketRateEl.textContent = `$${window.currentFreightCostUSD.toLocaleString()}`;
+            }
+
+            if (routeInfoEl) {
+                const departName = portNames[departure] || departure;
+                const arrivalName = portNames[arrival] || arrival;
+                routeInfoEl.textContent = `${departName} → ${arrivalName}`;
+            }
+
+            // Update calculation preview
+            updateCalculationPreview();
+        }
+
+        /**
+         * Convert USD freight to OMR using the exchange rate
+         * Uses fixed rate of 0.384 as specified in requirements
+         */
+        function convertFreightToOMR(usdAmount) {
+            const exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 0.384;
+            return usdAmount * exchangeRate;
         }
 
         /**
          * Update the calculation preview panel in real-time
+         * Enhanced to support volume-based freight mode
          */
         function updateCalculationPreview() {
             const basePrice = costingBasePrice;
             const totalMarkup = calculateTotalMarkup();
             const vatPercent = parseFloat(document.getElementById('vatSlider')?.value) || 5;
             const exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 1;
+            const isVolumeFreightEnabled = document.getElementById('volumeFreightToggle')?.checked || false;
 
             // Calculate values
             const markupAmount = basePrice * (totalMarkup / 100);
             const afterMarkup = basePrice + markupAmount;
-            const subtotal = afterMarkup * exchangeRate;
+
+            // Convert to local currency (OMR)
+            let subtotal = afterMarkup * exchangeRate;
+
+            // If volume-based freight is enabled, add converted freight cost
+            let freightFixedOMR = 0;
+            if (isVolumeFreightEnabled && window.currentFreightCostUSD > 0) {
+                freightFixedOMR = convertFreightToOMR(window.currentFreightCostUSD);
+                subtotal += freightFixedOMR;
+            }
+
             const vatAmount = subtotal * (vatPercent / 100);
             const grandTotal = subtotal + vatAmount;
 
@@ -5618,7 +6173,23 @@
                     }
                 }
             }
+
+            // Update fixed freight row if volume-based is enabled
+            if (isVolumeFreightEnabled) {
+                const freightFixedEl = document.getElementById('previewFreightFixed');
+                const freightTooltipEl = document.getElementById('freightSourceTooltip');
+                const toCurrency = document.getElementById('currencyTo')?.value || 'OMR';
+
+                if (freightFixedEl) {
+                    freightFixedEl.textContent = `+${freightFixedOMR.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${toCurrency}`;
+                }
+
+                if (freightTooltipEl) {
+                    freightTooltipEl.textContent = `(Includes $${window.currentFreightCostUSD.toLocaleString()} USD @ ${exchangeRate.toFixed(4)})`;
+                }
+            }
         }
+
 
         /**
          * Initialize enhanced costing module event listeners
@@ -5639,11 +6210,20 @@
                 const valueDisplay = document.getElementById(valueId);
                 if (slider && valueDisplay) {
                     slider.addEventListener('input', () => {
+                        // Special handling for freight slider - don't update if volume-based is enabled
+                        if (id === 'freightSlider') {
+                            const volumeToggle = document.getElementById('volumeFreightToggle');
+                            if (volumeToggle && volumeToggle.checked) {
+                                // Don't update the value display when in fixed mode
+                                return;
+                            }
+                        }
                         valueDisplay.textContent = `${slider.value}${suffix}`;
                         updateCalculationPreview();
                     });
                 }
             });
+
 
             // Currency dropdown event listeners
             const currencyFrom = document.getElementById('currencyFrom');
@@ -5821,30 +6401,144 @@
 
         /**
          * Calculate total markup percentage for MB module
+         * Excludes freight percentage when volume-based freight is enabled
          */
         function calculateMBTotalMarkup() {
             const netMargin = parseFloat(document.getElementById('mbNetMarginSlider')?.value) || 0;
-            const freight = parseFloat(document.getElementById('mbFreightSlider')?.value) || 0;
             const customs = parseFloat(document.getElementById('mbCustomsSlider')?.value) || 0;
             const installation = parseFloat(document.getElementById('mbInstallationSlider')?.value) || 0;
             const additional = parseFloat(document.getElementById('mbAdditionalSlider')?.value) || 0;
 
+            // Only include freight percentage if volume-based freight is NOT enabled
+            const isMBVolumeFreightEnabled = document.getElementById('mbVolumeFreightToggle')?.checked || false;
+            const freight = isMBVolumeFreightEnabled ? 0 : (parseFloat(document.getElementById('mbFreightSlider')?.value) || 0);
+
             return netMargin + freight + customs + installation + additional;
+        }
+
+        // MB-specific fixed freight cost in USD
+        window.mbCurrentFreightCostUSD = 0;
+
+        /**
+         * Toggle volume-based freight mode for Multi-Budget
+         */
+        function toggleMBVolumeFreight() {
+            const toggle = document.getElementById('mbVolumeFreightToggle');
+            const panel = document.getElementById('mbVolumeFreightPanel');
+            const slider = document.getElementById('mbFreightSlider');
+            const freightValue = document.getElementById('mbFreightValue');
+            const freightFixedRow = document.getElementById('mbPreviewFreightFixedRow');
+            const freightFixedEl = document.getElementById('mbPreviewFreightFixed');
+            const freightTooltipEl = document.getElementById('mbFreightSourceTooltip');
+
+            if (toggle.checked) {
+                // Enable volume-based freight
+                panel.classList.remove('hidden');
+                slider.classList.add('slider-disabled');
+                slider.disabled = true;
+                freightValue.textContent = 'Fixed';
+                freightValue.style.color = '#10b981';
+
+                // Show fixed freight row in preview
+                if (freightFixedRow) freightFixedRow.classList.remove('hidden');
+
+                // Update market rate and preview
+                updateMBFreightMarketRate();
+            } else {
+                // Disable volume-based freight (back to percentage)
+                panel.classList.add('hidden');
+                slider.classList.remove('slider-disabled');
+                slider.disabled = false;
+                freightValue.textContent = `${slider.value}%`;
+                freightValue.style.color = '';
+
+                // Hide fixed freight row in preview and clear values
+                if (freightFixedRow) freightFixedRow.classList.add('hidden');
+                if (freightFixedEl) freightFixedEl.textContent = '+0.00 OMR';
+                if (freightTooltipEl) freightTooltipEl.textContent = '';
+
+                // Reset fixed cost to 0
+                window.mbCurrentFreightCostUSD = 0;
+
+                // Reset volume-based input fields to defaults
+                const unitTypeEl = document.getElementById('mbFreightUnitType');
+                const quantityEl = document.getElementById('mbFreightQuantity');
+                const departureEl = document.getElementById('mbFreightDeparture');
+                const arrivalEl = document.getElementById('mbFreightArrival');
+                const marketRateEl = document.getElementById('mbFreightMarketRate');
+                const routeInfoEl = document.getElementById('mbFreightRouteInfo');
+
+                if (unitTypeEl) unitTypeEl.value = '20ft';
+                if (quantityEl) quantityEl.value = 1;
+                if (departureEl) departureEl.value = 'shanghai';
+                if (arrivalEl) arrivalEl.value = 'sohar';
+                if (marketRateEl) marketRateEl.textContent = '$1,200';
+                if (routeInfoEl) routeInfoEl.textContent = 'Shanghai → Sohar';
+
+                // Update preview with percentage-based calculation
+                updateMBCalculationPreview();
+            }
+        }
+
+
+        /**
+         * Update MB freight market rate display based on current selections
+         */
+        function updateMBFreightMarketRate() {
+            const departure = document.getElementById('mbFreightDeparture')?.value || 'shanghai';
+            const arrival = document.getElementById('mbFreightArrival')?.value || 'sohar';
+            const unitType = document.getElementById('mbFreightUnitType')?.value || '20ft';
+            const quantity = parseFloat(document.getElementById('mbFreightQuantity')?.value) || 1;
+
+            // Get unit rate (using the same seaFreightRates from regular costing)
+            const unitRate = getFreightMarketRate(departure, arrival, unitType);
+
+            // Calculate total freight cost in USD
+            window.mbCurrentFreightCostUSD = unitRate * quantity;
+
+            // Update display elements
+            const marketRateEl = document.getElementById('mbFreightMarketRate');
+            const routeInfoEl = document.getElementById('mbFreightRouteInfo');
+
+            if (marketRateEl) {
+                marketRateEl.textContent = `$${window.mbCurrentFreightCostUSD.toLocaleString()}`;
+            }
+
+            if (routeInfoEl) {
+                const departName = portNames[departure] || departure;
+                const arrivalName = portNames[arrival] || arrival;
+                routeInfoEl.textContent = `${departName} → ${arrivalName}`;
+            }
+
+            // Update calculation preview
+            updateMBCalculationPreview();
         }
 
         /**
          * Update the MB calculation preview panel
+         * Enhanced to support volume-based freight mode
          */
         function updateMBCalculationPreview() {
             const basePrice = mbCostingBasePrice;
             const totalMarkup = calculateMBTotalMarkup();
             const vatPercent = parseFloat(document.getElementById('mbVatSlider')?.value) || 5;
             const exchangeRate = parseFloat(document.getElementById('mbExchangeRateInput')?.value) || 1;
+            const isMBVolumeFreightEnabled = document.getElementById('mbVolumeFreightToggle')?.checked || false;
 
             // Calculate values
             const markupAmount = basePrice * (totalMarkup / 100);
             const afterMarkup = basePrice + markupAmount;
-            const subtotal = afterMarkup * exchangeRate;
+
+            // Convert to local currency (OMR)
+            let subtotal = afterMarkup * exchangeRate;
+
+            // If volume-based freight is enabled, add converted freight cost
+            let freightFixedOMR = 0;
+            if (isMBVolumeFreightEnabled && window.mbCurrentFreightCostUSD > 0) {
+                freightFixedOMR = window.mbCurrentFreightCostUSD * exchangeRate;
+                subtotal += freightFixedOMR;
+            }
+
             const vatAmount = subtotal * (vatPercent / 100);
             const grandTotal = subtotal + vatAmount;
 
@@ -5878,7 +6572,23 @@
                     }
                 }
             }
+
+            // Update fixed freight row if volume-based is enabled
+            if (isMBVolumeFreightEnabled) {
+                const freightFixedEl = document.getElementById('mbPreviewFreightFixed');
+                const freightTooltipEl = document.getElementById('mbFreightSourceTooltip');
+                const toCurrency = document.getElementById('mbCurrencyTo')?.value || 'OMR';
+
+                if (freightFixedEl) {
+                    freightFixedEl.textContent = `+${freightFixedOMR.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${toCurrency}`;
+                }
+
+                if (freightTooltipEl) {
+                    freightTooltipEl.textContent = `(Includes $${window.mbCurrentFreightCostUSD.toLocaleString()} USD @ ${exchangeRate.toFixed(4)})`;
+                }
+            }
         }
+
 
         /**
          * Initialize Multi-Budget costing module event listeners
@@ -5899,11 +6609,20 @@
                 const valueDisplay = document.getElementById(valueId);
                 if (slider && valueDisplay) {
                     slider.addEventListener('input', () => {
+                        // Special handling for freight slider - don't update if volume-based is enabled
+                        if (id === 'mbFreightSlider') {
+                            const volumeToggle = document.getElementById('mbVolumeFreightToggle');
+                            if (volumeToggle && volumeToggle.checked) {
+                                // Don't update the value display when in fixed mode
+                                return;
+                            }
+                        }
                         valueDisplay.textContent = `${slider.value}${suffix}`;
                         updateMBCalculationPreview();
                     });
                 }
             });
+
 
             // Currency dropdown event listeners
             const currencyFrom = document.getElementById('mbCurrencyFrom');
@@ -7462,13 +8181,84 @@
                         <input type="range" min="0" max="100" value="0" step="0.5" class="slider" id="netMarginSlider">
                     </div>
 
-                    <div class="factor-control">
+                    <div class="factor-control" id="freightFactorControl">
                         <div class="factor-label">
-                            <span>Freight (%)</span>
+                            <div class="freight-toggle-container">
+                                <span>Freight (%)</span>
+                                <label class="freight-toggle-label">
+                                    <input type="checkbox" class="toggle-checkbox" id="volumeFreightToggle"
+                                        onchange="toggleVolumeFreight()">
+                                    <span class="toggle-switch"></span>
+                                    <span class="toggle-text">Use Volume-Based Freight</span>
+                                </label>
+                            </div>
                             <span class="factor-value" id="freightValue">0%</span>
                         </div>
                         <input type="range" min="0" max="50" value="0" step="0.5" class="slider" id="freightSlider">
+
+                        <!-- Volume-Based Freight Panel (Hidden by default) -->
+                        <div class="volume-freight-panel hidden" id="volumeFreightPanel">
+                            <div class="volume-freight-grid">
+                                <div class="volume-freight-field">
+                                    <label for="freightUnitType">Unit Type</label>
+                                    <select id="freightUnitType" onchange="updateFreightMarketRate()">
+                                        <option value="20ft">20ft Container</option>
+                                        <option value="40ft">40ft Container</option>
+                                        <option value="cbm">CBM / LCL</option>
+                                    </select>
+                                </div>
+                                <div class="volume-freight-field">
+                                    <label for="freightQuantity">Quantity</label>
+                                    <input type="number" id="freightQuantity" min="1" value="1" step="1"
+                                        oninput="updateFreightMarketRate()">
+                                </div>
+                            </div>
+
+                            <div class="route-selector-row">
+                                <div class="volume-freight-field">
+                                    <label for="freightDeparture">Departure Port</label>
+                                    <select id="freightDeparture" onchange="updateFreightMarketRate()">
+                                        <option value="shanghai">Shanghai, China</option>
+                                        <option value="ningbo">Ningbo, China</option>
+                                        <option value="shenzhen">Shenzhen, China</option>
+                                        <option value="guangzhou">Guangzhou, China</option>
+                                        <option value="qingdao">Qingdao, China</option>
+                                        <option value="tianjin">Tianjin, China</option>
+                                        <option value="mumbai">Mumbai, India</option>
+                                        <option value="chennai">Chennai, India</option>
+                                        <option value="dubai">Jebel Ali, UAE</option>
+                                        <option value="singapore">Singapore</option>
+                                        <option value="rotterdam">Rotterdam, Netherlands</option>
+                                        <option value="hamburg">Hamburg, Germany</option>
+                                    </select>
+                                </div>
+                                <span class="route-arrow">→</span>
+                                <div class="volume-freight-field">
+                                    <label for="freightArrival">Arrival Port</label>
+                                    <select id="freightArrival" onchange="updateFreightMarketRate()">
+                                        <option value="sohar" selected>Sohar, Oman</option>
+                                        <option value="salalah">Salalah, Oman</option>
+                                        <option value="muscat">Muscat (Sultan Qaboos), Oman</option>
+                                        <option value="dubai">Jebel Ali, UAE</option>
+                                        <option value="dammam">Dammam, Saudi Arabia</option>
+                                        <option value="jeddah">Jeddah, Saudi Arabia</option>
+                                        <option value="doha">Doha, Qatar</option>
+                                        <option value="kuwait">Kuwait City, Kuwait</option>
+                                        <option value="bahrain">Khalifa Bin Salman, Bahrain</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="market-rate-display">
+                                <div class="market-rate-label">
+                                    <span>Estimated Market Rate (USD)</span>
+                                    <span id="freightRouteInfo">Shanghai → Sohar</span>
+                                </div>
+                                <span class="market-rate-value" id="freightMarketRate">$1,200</span>
+                            </div>
+                        </div>
                     </div>
+
 
                     <div class="factor-control">
                         <div class="factor-label">
@@ -7584,6 +8374,14 @@
                                 <span class="preview-value" id="previewAfterMarkup">0.00 <span
                                         id="previewAfterMarkupCurrency">USD</span></span>
                             </div>
+                            <!-- Fixed Freight Row (shown when volume-based freight is active) -->
+                            <div class="preview-row preview-row-freight-fixed hidden" id="previewFreightFixedRow">
+                                <span class="preview-label">
+                                    Freight (Fixed):
+                                    <span class="freight-source-tooltip" id="freightSourceTooltip"></span>
+                                </span>
+                                <span class="preview-value" id="previewFreightFixed">+0.00 OMR</span>
+                            </div>
                             <div class="preview-row preview-row-muted">
                                 <span class="preview-label">Subtotal (<span
                                         id="previewSubtotalCurrency">OMR</span>):</span>
@@ -7600,6 +8398,7 @@
                             </div>
                         </div>
                     </div>
+
 
                     <div class="costing-actions">
                         <button class="btn btn-primary costing-apply-btn" onclick="applyCosting()">🎯 Apply
@@ -7685,13 +8484,84 @@
                             id="mbNetMarginSlider">
                     </div>
 
-                    <div class="factor-control">
+                    <div class="factor-control" id="mbFreightFactorControl">
                         <div class="factor-label">
-                            <span>Freight (%)</span>
+                            <div class="freight-toggle-container">
+                                <span>Freight (%)</span>
+                                <label class="freight-toggle-label">
+                                    <input type="checkbox" class="toggle-checkbox" id="mbVolumeFreightToggle"
+                                        onchange="toggleMBVolumeFreight()">
+                                    <span class="toggle-switch"></span>
+                                    <span class="toggle-text">Use Volume-Based Freight</span>
+                                </label>
+                            </div>
                             <span class="factor-value" id="mbFreightValue">0%</span>
                         </div>
                         <input type="range" min="0" max="50" value="0" step="0.5" class="slider" id="mbFreightSlider">
+
+                        <!-- Volume-Based Freight Panel for Multi-Budget (Hidden by default) -->
+                        <div class="volume-freight-panel hidden" id="mbVolumeFreightPanel">
+                            <div class="volume-freight-grid">
+                                <div class="volume-freight-field">
+                                    <label for="mbFreightUnitType">Unit Type</label>
+                                    <select id="mbFreightUnitType" onchange="updateMBFreightMarketRate()">
+                                        <option value="20ft">20ft Container</option>
+                                        <option value="40ft">40ft Container</option>
+                                        <option value="cbm">CBM / LCL</option>
+                                    </select>
+                                </div>
+                                <div class="volume-freight-field">
+                                    <label for="mbFreightQuantity">Quantity</label>
+                                    <input type="number" id="mbFreightQuantity" min="1" value="1" step="1"
+                                        oninput="updateMBFreightMarketRate()">
+                                </div>
+                            </div>
+
+                            <div class="route-selector-row">
+                                <div class="volume-freight-field">
+                                    <label for="mbFreightDeparture">Departure Port</label>
+                                    <select id="mbFreightDeparture" onchange="updateMBFreightMarketRate()">
+                                        <option value="shanghai">Shanghai, China</option>
+                                        <option value="ningbo">Ningbo, China</option>
+                                        <option value="shenzhen">Shenzhen, China</option>
+                                        <option value="guangzhou">Guangzhou, China</option>
+                                        <option value="qingdao">Qingdao, China</option>
+                                        <option value="tianjin">Tianjin, China</option>
+                                        <option value="mumbai">Mumbai, India</option>
+                                        <option value="chennai">Chennai, India</option>
+                                        <option value="dubai">Jebel Ali, UAE</option>
+                                        <option value="singapore">Singapore</option>
+                                        <option value="rotterdam">Rotterdam, Netherlands</option>
+                                        <option value="hamburg">Hamburg, Germany</option>
+                                    </select>
+                                </div>
+                                <span class="route-arrow">→</span>
+                                <div class="volume-freight-field">
+                                    <label for="mbFreightArrival">Arrival Port</label>
+                                    <select id="mbFreightArrival" onchange="updateMBFreightMarketRate()">
+                                        <option value="sohar" selected>Sohar, Oman</option>
+                                        <option value="salalah">Salalah, Oman</option>
+                                        <option value="muscat">Muscat (Sultan Qaboos), Oman</option>
+                                        <option value="dubai">Jebel Ali, UAE</option>
+                                        <option value="dammam">Dammam, Saudi Arabia</option>
+                                        <option value="jeddah">Jeddah, Saudi Arabia</option>
+                                        <option value="doha">Doha, Qatar</option>
+                                        <option value="kuwait">Kuwait City, Kuwait</option>
+                                        <option value="bahrain">Khalifa Bin Salman, Bahrain</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="market-rate-display">
+                                <div class="market-rate-label">
+                                    <span>Estimated Market Rate (USD)</span>
+                                    <span id="mbFreightRouteInfo">Shanghai → Sohar</span>
+                                </div>
+                                <span class="market-rate-value" id="mbFreightMarketRate">$1,200</span>
+                            </div>
+                        </div>
                     </div>
+
 
                     <div class="factor-control">
                         <div class="factor-label">
@@ -7810,7 +8680,16 @@
                                 <span class="preview-value" id="mbPreviewAfterMarkup">0.00 <span
                                         id="mbPreviewAfterMarkupCurrency">USD</span></span>
                             </div>
+                            <!-- Fixed Freight Row for Multi-Budget (shown when volume-based freight is active) -->
+                            <div class="preview-row preview-row-freight-fixed hidden" id="mbPreviewFreightFixedRow">
+                                <span class="preview-label">
+                                    Freight (Fixed):
+                                    <span class="freight-source-tooltip" id="mbFreightSourceTooltip"></span>
+                                </span>
+                                <span class="preview-value" id="mbPreviewFreightFixed">+0.00 OMR</span>
+                            </div>
                             <div class="preview-row preview-row-muted">
+
                                 <span class="preview-label">Subtotal (<span
                                         id="mbPreviewSubtotalCurrency">OMR</span>):</span>
                                 <span class="preview-value" id="mbPreviewSubtotal">0.00</span>
@@ -16097,18 +16976,34 @@
                 const table = tableData.table;
                 const tableDataExtracted = extractMultiBudgetTableData(table);
 
+                // Check if volume-based freight is enabled for MB
+                const isMBVolumeFreightEnabled = document.getElementById('mbVolumeFreightToggle')?.checked || false;
+                const mbFreightCostUSD = isMBVolumeFreightEnabled ? (window.mbCurrentFreightCostUSD || 0) : 0;
+                const mbExchangeRate = parseFloat(document.getElementById('mbExchangeRateInput')?.value) || 0.384;
+                const mbFreightCostOMR = mbFreightCostUSD * mbExchangeRate;
+
                 // Get factors from sliders and inputs
                 const factors = {
                     net_margin: parseFloat(document.getElementById('mbNetMarginSlider')?.value) || 0,
-                    freight: parseFloat(document.getElementById('mbFreightSlider')?.value) || 0,
+                    // Set freight percentage to 0 if volume-based is enabled
+                    freight: isMBVolumeFreightEnabled ? 0 : (parseFloat(document.getElementById('mbFreightSlider')?.value) || 0),
                     customs: parseFloat(document.getElementById('mbCustomsSlider')?.value) || 0,
                     installation: parseFloat(document.getElementById('mbInstallationSlider')?.value) || 0,
-                    exchange_rate: parseFloat(document.getElementById('mbExchangeRateInput')?.value) || 1.0,
+                    exchange_rate: mbExchangeRate,
                     vat: parseFloat(document.getElementById('mbVatSlider')?.value) || 5,
                     additional: parseFloat(document.getElementById('mbAdditionalSlider')?.value) || 0,
                     currency_from: document.getElementById('mbCurrencyFrom')?.value || 'USD',
-                    currency_to: document.getElementById('mbCurrencyTo')?.value || 'OMR'
+                    currency_to: document.getElementById('mbCurrencyTo')?.value || 'OMR',
+                    // Volume-based freight parameters
+                    volume_freight_enabled: isMBVolumeFreightEnabled,
+                    freight_cost_usd: mbFreightCostUSD,
+                    freight_cost_omr: mbFreightCostOMR,
+                    freight_unit_type: document.getElementById('mbFreightUnitType')?.value || '20ft',
+                    freight_quantity: parseFloat(document.getElementById('mbFreightQuantity')?.value) || 1,
+                    freight_departure: document.getElementById('mbFreightDeparture')?.value || 'shanghai',
+                    freight_arrival: document.getElementById('mbFreightArrival')?.value || 'sohar'
                 };
+
 
                 updateProgressPopup(40, 'Applying costing factors...');
 
@@ -16164,7 +17059,7 @@
             // This function is now replaced by initMBCostingModule() which handles all sliders and currency inputs
             if (typeof initMBCostingModule === 'function') {
                 initMBCostingModule();
-                console.log('Multi-budget costing initialized via MBCostingModule');
+                console.log('Multi-budget costing initialized via MBCostingModule [VER_FREIGHT_FIX_5]');
                 return;
             }
         }

@@ -17,6 +17,9 @@ import uuid as uuid_module
 from utils.excel_processor import process_excel_file
 
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.jinja_env.auto_reload = True
+
 
 # In-memory storage for scraping events/status (for real-time preview)
 scraping_status = {}
@@ -454,6 +457,15 @@ def landing():
     """Modern landing page"""
     return render_template('landing.html')
 
+@app.after_request
+def add_cache_control(response):
+    """Add cache-control headers to prevent stale templates"""
+    if 'text/html' in response.content_type:
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+    return response
+
 @app.route('/app')
 def main_app():
     """Main application page"""
@@ -473,10 +485,11 @@ def main_app():
 def index():
     """Home page - show landing page by default"""
     # Check if user wants to go directly to app
-    if request.args.get('workflow') or request.args.get('app'):
+    if request.args.get('workflow') or request.args.get('app') or request.args.get('showHero'):
         return render_template('index.html', now=int(time.time()))
     # Otherwise show landing page
     return render_template('landing.html')
+
 
 @app.route('/upload', methods=['POST'])
 def upload_file():

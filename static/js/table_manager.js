@@ -486,17 +486,33 @@ async function applyCosting() {
 
     const tableData = extractTableData(table);
 
+    // Check if volume-based freight is enabled
+    const isVolumeFreightEnabled = document.getElementById('volumeFreightToggle')?.checked || false;
+    const freightCostUSD = isVolumeFreightEnabled ? (window.currentFreightCostUSD || 0) : 0;
+    const exchangeRate = parseFloat(document.getElementById('exchangeRateInput')?.value) || 0.384;
+    const freightCostOMR = freightCostUSD * exchangeRate;
+
     const factors = {
         net_margin: parseFloat(document.getElementById('netMarginSlider')?.value) || 0,
-        freight: parseFloat(document.getElementById('freightSlider')?.value) || 0,
+        // Set freight percentage to 0 if volume-based is enabled
+        freight: isVolumeFreightEnabled ? 0 : (parseFloat(document.getElementById('freightSlider')?.value) || 0),
         customs: parseFloat(document.getElementById('customsSlider')?.value) || 0,
         installation: parseFloat(document.getElementById('installationSlider')?.value) || 0,
-        exchange_rate: parseFloat(document.getElementById('exchangeRateInput')?.value) || 1,
+        exchange_rate: exchangeRate,
         vat: parseFloat(document.getElementById('vatSlider')?.value) || 5,
         additional: parseFloat(document.getElementById('additionalSlider')?.value) || 0,
         currency_from: document.getElementById('currencyFrom')?.value || 'USD',
-        currency_to: document.getElementById('currencyTo')?.value || 'OMR'
+        currency_to: document.getElementById('currencyTo')?.value || 'OMR',
+        // Volume-based freight parameters
+        volume_freight_enabled: isVolumeFreightEnabled,
+        freight_cost_usd: freightCostUSD,
+        freight_cost_omr: freightCostOMR,
+        freight_unit_type: document.getElementById('freightUnitType')?.value || '20ft',
+        freight_quantity: parseFloat(document.getElementById('freightQuantity')?.value) || 1,
+        freight_departure: document.getElementById('freightDeparture')?.value || 'shanghai',
+        freight_arrival: document.getElementById('freightArrival')?.value || 'sohar'
     };
+
 
     try {
         const response = await fetch('/costing', {

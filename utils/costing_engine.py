@@ -151,9 +151,18 @@ class CostingEngine:
     def apply_factors_to_table(self, table_data, factors):
         """
         Apply costing factors to each row in the table
+        Supports both percentage-based and volume-based (fixed) freight
         """
         if not table_data or 'rows' not in table_data:
             return table_data
+        
+        # Check if volume-based freight is enabled
+        volume_freight_enabled = factors.get('volume_freight_enabled', False)
+        freight_cost_omr = factors.get('freight_cost_omr', 0) if volume_freight_enabled else 0
+        total_rows = len(table_data['rows'])
+        
+        # Distribute fixed freight cost across all rows if enabled
+        freight_per_row = freight_cost_omr / total_rows if total_rows > 0 and freight_cost_omr > 0 else 0
         
         # Identify price/rate columns
         price_columns = self.identify_price_columns(table_data['headers'])
@@ -174,6 +183,7 @@ class CostingEngine:
                         new_price *= factors.get('exchange_rate', 1.0)
                         
                         # Apply percentage-based factors
+                        # Note: freight percentage is 0 when volume-based is enabled
                         new_price *= (1 + factors.get('freight', 0) / 100)
                         new_price *= (1 + factors.get('customs', 0) / 100)
                         new_price *= (1 + factors.get('installation', 0) / 100)
@@ -187,11 +197,27 @@ class CostingEngine:
             updated_row = self.recalculate_totals(updated_row, table_data['headers'])
             updated_rows.append(updated_row)
         
-        return {
+        # Store volume-based freight info in the result
+        result = {
             'headers': table_data['headers'],
             'rows': updated_rows,
             'factors_applied': factors
         }
+        
+        # Add volume freight metadata if enabled
+        if volume_freight_enabled and freight_cost_omr > 0:
+            result['volume_freight'] = {
+                'enabled': True,
+                'cost_usd': factors.get('freight_cost_usd', 0),
+                'cost_omr': freight_cost_omr,
+                'unit_type': factors.get('freight_unit_type', '20ft'),
+                'quantity': factors.get('freight_quantity', 1),
+                'departure': factors.get('freight_departure', 'shanghai'),
+                'arrival': factors.get('freight_arrival', 'sohar')
+            }
+        
+        return result
+
     
     def identify_price_columns(self, headers):
         """
