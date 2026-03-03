@@ -524,9 +524,11 @@ class MASGenerator:
         story.append(Spacer(1, 0.08*inch))  # Reduced from 0.15
         
         # Project info - more compact
+        ps = getattr(self, 'project_settings', {}) or {}
         project_data = [
-            ['Project:', '[Project Name]', 'MAS No:', f'MAS-{str(item_num).zfill(3)}'],
-            ['Date:', datetime.now().strftime('%d/%m/%Y'), 'Rev:', '00'],
+            ['Project:', ps.get('project_name', '[Project Name]'), 'MAS No:', f'MAS-{str(item_num).zfill(3)}'],
+            ['Contractor:', ps.get('contractor', 'Al Shaya Enterprises'), 'Date:', datetime.now().strftime('%d/%m/%Y')],
+            ['Consultant:', ps.get('consultant', '[Consultant Name]'), 'Rev:', '00'],
         ]
         project_table = Table(project_data, colWidths=[1*inch, 3*inch, 0.8*inch, 2.2*inch])
         project_table.setStyle(TableStyle([
@@ -711,11 +713,11 @@ class MASGenerator:
                     pil_img = PILImage.open(valid_images[0])
                     img_width, img_height = pil_img.size
                     aspect_ratio = img_height / img_width
-                    target_width = 3.5 * inch  # Large single image
+                    target_width = 2.5 * inch  # Compact single image
                     target_height = target_width * aspect_ratio
                     # Cap max height
-                    if target_height > 3.0 * inch:
-                        target_height = 3.0 * inch
+                    if target_height > 1.8 * inch:
+                        target_height = 1.8 * inch
                         target_width = target_height / aspect_ratio
                     img = RLImage(valid_images[0], width=target_width, height=target_height)
                     img.hAlign = 'CENTER'
@@ -733,13 +735,13 @@ class MASGenerator:
                     if num_images <= 4:
                         cols = 2
                         col_width = 3.5 * inch
-                        max_img_width = 3.2 * inch
-                        max_img_height = 2.2 * inch
+                        max_img_width = 2.2 * inch
+                        max_img_height = 1.5 * inch
                     else:
                         cols = 3
                         col_width = 2.3 * inch
-                        max_img_width = 2.1 * inch
-                        max_img_height = 1.6 * inch # Reduce height for 3 rows to fit page
+                        max_img_width = 1.8 * inch
+                        max_img_height = 1.2 * inch
                     
                     for img_path in valid_images:
                         pil_img = PILImage.open(img_path)

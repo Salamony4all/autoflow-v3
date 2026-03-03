@@ -234,11 +234,11 @@ class WIRGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ]))
         story.append(project_table)
-        story.append(Spacer(1, 0.1 * inch))
+        story.append(Spacer(1, 0.05 * inch))
 
         # WORK DESCRIPTION
         story.append(Paragraph('<b>DESCRIPTION OF WORK</b>', self.header_style))
-        story.append(Spacer(1, 0.05 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         description_text = item.get('description', 'N/A')
         if len(description_text) > 350:
@@ -266,15 +266,15 @@ class WIRGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         story.append(work_table)
-        story.append(Spacer(1, 0.1 * inch))
+        story.append(Spacer(1, 0.05 * inch))
 
         # Product image
         self._add_product_image(story, item)
-        story.append(Spacer(1, 0.08 * inch))
+        story.append(Spacer(1, 0.04 * inch))
 
         # INSPECTION REQUEST
         story.append(Paragraph('<b>INSPECTION REQUESTED FOR</b>', self.header_style))
-        story.append(Spacer(1, 0.04 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         inspection_data = [
             ['☐  Pre-installation inspection (material check before fixing)'],
@@ -292,11 +292,11 @@ class WIRGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
         ]))
         story.append(inspection_table)
-        story.append(Spacer(1, 0.1 * inch))
+        story.append(Spacer(1, 0.05 * inch))
 
         # CONSULTANT'S RESPONSE
         story.append(Paragraph("<b>CONSULTANT'S RESPONSE</b>", self.header_style))
-        story.append(Spacer(1, 0.04 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         response_data = [
             ['☐  APPROVED — Work complies with specifications and may proceed'],
@@ -314,16 +314,16 @@ class WIRGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
         ]))
         story.append(response_table)
-        story.append(Spacer(1, 0.08 * inch))
+        story.append(Spacer(1, 0.05 * inch))
 
         # SIGNATURES
         story.append(Paragraph('<b>SIGNATURES</b>', self.header_style))
-        story.append(Spacer(1, 0.04 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         sig_data = [
-            ['Contractor Rep:', '', 'Date:', ''],
-            ['Signature:', '', '', ''],
-            ['Consultant Rep:', '', 'Date:', ''],
+            ['Site Engineer:', ps.get('site_engineer', '[Site Engineer Name]'), 'QA/QC Engineer:', '[QA/QC Name]'],
+            ['Signature:', '', 'Signature:', ''],
+            ['Consultant Rep:', '[Consultant Rep Name]', 'Date:', ''],
             ['Signature:', '', '', ''],
         ]
         sig_table = Table(sig_data, colWidths=[1.2 * inch, 2.5 * inch, 0.7 * inch, 2.6 * inch])
@@ -374,10 +374,10 @@ class WIRGenerator:
 
                         img_width, img_height = pil_img.size
                         aspect = img_height / img_width
-                        target_w = 2.5 * inch
+                        target_w = 2.0 * inch
                         target_h = target_w * aspect
-                        if target_h > 2.0 * inch:
-                            target_h = 2.0 * inch
+                        if target_h > 1.5 * inch:
+                            target_h = 1.5 * inch
                             target_w = target_h / aspect
 
                         img = RLImage(tmp.name, width=target_w, height=target_h)

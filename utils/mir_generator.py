@@ -238,8 +238,8 @@ class MIRGenerator:
         ps = getattr(self, 'project_settings', {}) or {}
         report_data = [
             ['Project:', ps.get('project_name', '[Project Name]'), 'MIR No:', f'MIR-{str(item_num).zfill(3)}'],
-            ['Contractor:', ps.get('contractor', 'Al Shaya Enterprises'), 'Date:', datetime.now().strftime('%d/%m/%Y')],
-            ['Consultant:', ps.get('consultant', '[Consultant Name]'), 'Rev:', '00'],
+            ['Contractor:', ps.get('contractor', 'Al Shaya Enterprises'), 'Location/Zone:', ps.get('location', '[Location/Zone]')],
+            ['Consultant:', ps.get('consultant', '[Consultant Name]'), 'Date:', datetime.now().strftime('%d/%m/%Y')],
         ]
         report_table = Table(report_data, colWidths=[1.0 * inch, 3.0 * inch, 0.8 * inch, 2.2 * inch])
         report_table.setStyle(TableStyle([
@@ -256,11 +256,11 @@ class MIRGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
         ]))
         story.append(report_table)
-        story.append(Spacer(1, 0.1 * inch))
+        story.append(Spacer(1, 0.05 * inch))
 
         # MATERIAL DESCRIPTION Section
         story.append(Paragraph('<b>MATERIAL DESCRIPTION</b>', self.header_style))
-        story.append(Spacer(1, 0.05 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         description_text = item.get('description', 'N/A')
         if len(description_text) > 350:
@@ -292,11 +292,11 @@ class MIRGenerator:
 
         # Product image
         self._add_product_image(story, item)
-        story.append(Spacer(1, 0.08 * inch))
+        story.append(Spacer(1, 0.04 * inch))
 
         # INSPECTION CHECKLIST
         story.append(Paragraph('<b>INSPECTION CHECKLIST</b>', self.header_style))
-        story.append(Spacer(1, 0.04 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         checklist_data = [
             ['#', 'Inspection Item', 'Comply', 'N/A', 'Remarks'],
@@ -323,11 +323,11 @@ class MIRGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
         ]))
         story.append(checklist_table)
-        story.append(Spacer(1, 0.1 * inch))
+        story.append(Spacer(1, 0.05 * inch))
 
         # INSPECTION RESULT
         story.append(Paragraph('<b>INSPECTION RESULT</b>', self.header_style))
-        story.append(Spacer(1, 0.04 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         result_data = [
             ['☐  APPROVED — Material accepted for use in the project'],
@@ -344,16 +344,16 @@ class MIRGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
         ]))
         story.append(result_table)
-        story.append(Spacer(1, 0.08 * inch))
+        story.append(Spacer(1, 0.04 * inch))
 
         # SIGNATURES
         story.append(Paragraph('<b>SIGNATURES</b>', self.header_style))
-        story.append(Spacer(1, 0.04 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         sig_data = [
-            ['Inspected By:', '', 'Date:', ''],
-            ['Signature:', '', '', ''],
-            ['Approved By:', '', 'Date:', ''],
+            ['Site Engineer:', ps.get('site_engineer', '[Site Engineer Name]'), 'QA/QC Engineer:', '[QA/QC Name]'],
+            ['Signature:', '', 'Signature:', ''],
+            ['Consultant Rep:', '[Consultant Rep Name]', 'Date:', ''],
             ['Signature:', '', '', ''],
         ]
         sig_table = Table(sig_data, colWidths=[1.2 * inch, 2.5 * inch, 0.7 * inch, 2.6 * inch])
@@ -370,7 +370,7 @@ class MIRGenerator:
             ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
         ]))
         story.append(sig_table)
-        story.append(Spacer(1, 0.06 * inch))
+        story.append(Spacer(1, 0.02 * inch))
 
         # Remarks
         remarks = Paragraph(
@@ -412,10 +412,10 @@ class MIRGenerator:
 
                         img_width, img_height = pil_img.size
                         aspect = img_height / img_width
-                        target_w = 2.5 * inch
+                        target_w = 2.0 * inch
                         target_h = target_w * aspect
-                        if target_h > 2.0 * inch:
-                            target_h = 2.0 * inch
+                        if target_h > 1.5 * inch:
+                            target_h = 1.5 * inch
                             target_w = target_h / aspect
 
                         img = RLImage(tmp.name, width=target_w, height=target_h)
