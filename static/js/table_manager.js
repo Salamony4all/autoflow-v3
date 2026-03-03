@@ -382,7 +382,59 @@ async function stitchTables(fileId) {
                         <button class="action-btn" onclick="openCosting('${fileId}')">💰 Apply Costing Factors</button>
                     </div>
                     <div style="margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #2196F3;">
-                        <h4 style="margin: 0 0 15px 0; color: #333; font-size: 1em;">📄 Quick Actions (Original Prices - 0% Costing)</h4>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4 style="margin: 0; color: #333; font-size: 1em;">📄 Quick Actions (Original Prices - 0% Costing)</h4>
+                            <button onclick="toggleQuickActionsSettings()" id="quickActionsSettingsToggle"
+                                style="background: none; border: 2px solid #d4af37; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 1.2em; color: #1a365d; transition: all 0.3s; position: relative;"
+                                title="Project Settings">
+                                ☰
+                                <span id="settingsDotQuickActions" style="display: none; position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #10b981; border-radius: 50%; border: 1px solid white;"></span>
+                            </button>
+                        </div>
+
+                        <!-- Hidden Project Settings Panel for Quick Actions -->
+                        <div id="projectSettingsPanelQuickActions" style="display: none; margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, #f0f4ff 0%, #fef9e7 100%); border-radius: 12px; border: 1px solid #d4af37; box-shadow: 0 2px 12px rgba(212,175,55,0.15);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h4 style="margin: 0; color: #1a365d; font-size: 0.95em;">⚙️ Project Details <span style="font-weight: 400; color: #94a3b8; font-size: 0.8em;">(optional — populates generated documents)</span></h4>
+                                <button onclick="if(typeof clearProjectSettings==='function') clearProjectSettings(); else { document.querySelectorAll('#projectSettingsPanelQuickActions input').forEach(i=>i.value=''); }" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8em; padding: 2px 6px;" title="Clear all fields">✕ Clear</button>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <label style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Project Name</label>
+                                    <input type="text" id="psProjectNameQuickActions" class="project-setting-input" placeholder="e.g. Oman Museum Interior" oninput="if(typeof syncProjectSetting==='function') syncProjectSetting(this, 'project_name');" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; outline: none;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <label style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Client Name</label>
+                                    <input type="text" id="psClientNameQuickActions" class="project-setting-input" placeholder="e.g. Ministry of Heritage" oninput="if(typeof syncProjectSetting==='function') syncProjectSetting(this, 'client_name');" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; outline: none;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <label style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Consultant</label>
+                                    <input type="text" id="psConsultantQuickActions" class="project-setting-input" placeholder="e.g. Atkins / KEO" oninput="if(typeof syncProjectSetting==='function') syncProjectSetting(this, 'consultant');" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; outline: none;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <label style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Contractor / Company</label>
+                                    <input type="text" id="psContractorQuickActions" class="project-setting-input" placeholder="Al Shaya Enterprises" value="Al Shaya Enterprises" oninput="if(typeof syncProjectSetting==='function') syncProjectSetting(this, 'contractor');" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; outline: none;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <label style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Location / Zone</label>
+                                    <input type="text" id="psLocationQuickActions" class="project-setting-input" placeholder="e.g. Building A - Level 2" oninput="if(typeof syncProjectSetting==='function') syncProjectSetting(this, 'location');" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; outline: none;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <label style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">PO / Contract Reference</label>
+                                    <input type="text" id="psPORefQuickActions" class="project-setting-input" placeholder="e.g. PO-2026-001" oninput="if(typeof syncProjectSetting==='function') syncProjectSetting(this, 'po_reference');" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; outline: none;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <label style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Drawing Reference</label>
+                                    <input type="text" id="psDrawingRefQuickActions" class="project-setting-input" placeholder="e.g. DWG-INT-001" oninput="if(typeof syncProjectSetting==='function') syncProjectSetting(this, 'drawing_ref');" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; outline: none;">
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 3px;">
+                                    <label style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Site Engineer / Contact</label>
+                                    <input type="text" id="psSiteEngineerQuickActions" class="project-setting-input" placeholder="e.g. Eng. Ahmed" oninput="if(typeof syncProjectSetting==='function') syncProjectSetting(this, 'site_engineer');" style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; outline: none;">
+                                </div>
+                            </div>
+                            <p style="margin: 8px 0 0 0; font-size: 0.72em; color: #94a3b8; text-align: center;">💡 Settings auto-save and persist across sessions. Leave blank to use default placeholders.</p>
+                        </div>
+
                         <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
                             <button class="action-btn" onclick="generateOfferPDF('${fileId}')" style="background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);">📄 Download Offer PDF</button>
                             <button class="action-btn" onclick="generateOfferExcel('${fileId}')" style="background: linear-gradient(135deg, #4CAF50 0%, #388E3C 100%);">📊 Download Offer Excel</button>

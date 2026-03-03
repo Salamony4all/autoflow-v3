@@ -12181,12 +12181,28 @@
             }
         }
 
+        // Toggle Quick Actions settings panel
+        function toggleQuickActionsSettings() {
+            const panel = document.getElementById('projectSettingsPanelQuickActions');
+            if (panel) {
+                const isVisible = panel.style.display !== 'none';
+                panel.style.display = isVisible ? 'none' : 'block';
+                // Populate from saved settings when opening
+                if (!isVisible && window.projectSettings) {
+                    Object.keys(psFieldMap).forEach(key => {
+                        const el = document.getElementById(`ps${psFieldMap[key]}QuickActions`);
+                        if (el && window.projectSettings[key]) el.value = window.projectSettings[key];
+                    });
+                }
+            }
+        }
+
         // Sync a project setting from one panel to the other + save
         function syncProjectSetting(input, key) {
             window.projectSettings[key] = input.value;
-            // Sync to both panels
+            // Sync to all panels (Costed, Regular, QuickActions)
             const fieldSuffix = psFieldMap[key];
-            ['Costed', 'Regular'].forEach(variant => {
+            ['Costed', 'Regular', 'QuickActions'].forEach(variant => {
                 const el = document.getElementById(`ps${fieldSuffix}${variant}`);
                 if (el && el !== input) el.value = input.value;
             });
@@ -12209,7 +12225,7 @@
                     // Populate all inputs
                     Object.keys(psFieldMap).forEach(key => {
                         const fieldSuffix = psFieldMap[key];
-                        ['Costed', 'Regular'].forEach(variant => {
+                        ['Costed', 'Regular', 'QuickActions'].forEach(variant => {
                             const el = document.getElementById(`ps${fieldSuffix}${variant}`);
                             if (el && window.projectSettings[key]) el.value = window.projectSettings[key];
                         });
@@ -12235,7 +12251,7 @@
         // Update green dot indicators when settings are filled
         function updateSettingsDots() {
             const hasFilled = Object.entries(window.projectSettings).some(([k, v]) => k !== 'contractor' && v && v.trim());
-            ['Costed', 'Regular'].forEach(variant => {
+            ['Costed', 'Regular', 'QuickActions'].forEach(variant => {
                 const dot = document.getElementById(`settingsDot${variant}`);
                 if (dot) dot.style.display = hasFilled ? 'block' : 'none';
             });
