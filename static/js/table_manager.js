@@ -389,6 +389,9 @@ async function stitchTables(fileId) {
                             <button class="action-btn" onclick="generatePresentationPPTX('${fileId}')" style="background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);">📽️ Generate Presentation</button>
                             <button class="action-btn" onclick="generatePresentationPDF('${fileId}')" style="background: linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%);">📑 Generate Presentation PDF</button>
                             <button class="action-btn" onclick="generateMAS('${fileId}')" style="background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%);">📋 Generate MAS</button>
+                            <button class="action-btn" onclick="generateMIR('${fileId}')" style="background: linear-gradient(135deg, #26C6DA 0%, #00ACC1 100%);">🔍 Generate MIR</button>
+                            <button class="action-btn" onclick="generateWIR('${fileId}')" style="background: linear-gradient(135deg, #7C4DFF 0%, #651FFF 100%);">🔧 Generate WIR</button>
+                            <button class="action-btn" onclick="generateDeliveryNote('${fileId}')" style="background: linear-gradient(135deg, #FF6D00 0%, #E65100 100%);">🚚 Delivery Note</button>
                         </div>
                         <p style="margin: 10px 0 0 0; font-size: 0.85em; color: #666; text-align: center;">
                             <em>💡 These actions use original prices from the file. To apply custom costing factors, click "Apply Costing Factors" above.</em>
@@ -763,7 +766,9 @@ async function generateMASFromCosting() {
 
         updateProgressPopup(50, 'Generating Material Approval Sheet...');
         const response = await fetch(`/generate-mas/${currentFileIdForCosting}`, {
-            method: 'POST'
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_settings: typeof getProjectSettings === 'function' ? getProjectSettings() : null })
         });
 
         const result = await response.json();
@@ -787,6 +792,69 @@ async function generateMASFromCosting() {
         closeProgressPopup();
         showAlert('Error: ' + error.message, 'error');
     }
+}
+
+async function generateMIRFromCosting() {
+    if (!currentFileIdForCosting) { showAlert('Please select a table first', 'error'); return; }
+
+    let popup = null;
+    try {
+        popup = showProgressPopup('Preparing MIR PDF...');
+        updateProgressPopup(20, 'Preparing MIR PDF...');
+        updateProgressPopup(50, 'Generating Material Inspection Report...');
+
+        const response = await fetch(`/generate-mir/${currentFileIdForCosting}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_settings: typeof getProjectSettings === 'function' ? getProjectSettings() : null }) });
+        const result = await response.json();
+
+        if (result.success) {
+            updateProgressPopup(90, 'Finalizing...');
+            window.open(`/download/mir/${currentFileIdForCosting}?format=pdf`, '_blank');
+            updateProgressPopup(100, 'Completed!');
+            setTimeout(() => { closeProgressPopup(); showAlert('✅ MIR generated successfully!', 'success'); }, 800);
+        } else { closeProgressPopup(); showAlert('Error: ' + result.error, 'error'); }
+    } catch (error) { closeProgressPopup(); showAlert('Error: ' + error.message, 'error'); }
+}
+
+async function generateWIRFromCosting() {
+    if (!currentFileIdForCosting) { showAlert('Please select a table first', 'error'); return; }
+
+    let popup = null;
+    try {
+        popup = showProgressPopup('Preparing WIR PDF...');
+        updateProgressPopup(20, 'Preparing WIR PDF...');
+        updateProgressPopup(50, 'Generating Work Inspection Request...');
+
+        const response = await fetch(`/generate-wir/${currentFileIdForCosting}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_settings: typeof getProjectSettings === 'function' ? getProjectSettings() : null }) });
+        const result = await response.json();
+
+        if (result.success) {
+            updateProgressPopup(90, 'Finalizing...');
+            window.open(`/download/wir/${currentFileIdForCosting}?format=pdf`, '_blank');
+            updateProgressPopup(100, 'Completed!');
+            setTimeout(() => { closeProgressPopup(); showAlert('✅ WIR generated successfully!', 'success'); }, 800);
+        } else { closeProgressPopup(); showAlert('Error: ' + result.error, 'error'); }
+    } catch (error) { closeProgressPopup(); showAlert('Error: ' + error.message, 'error'); }
+}
+
+async function generateDeliveryNoteFromCosting() {
+    if (!currentFileIdForCosting) { showAlert('Please select a table first', 'error'); return; }
+
+    let popup = null;
+    try {
+        popup = showProgressPopup('Preparing Delivery Note...');
+        updateProgressPopup(20, 'Preparing Delivery Note...');
+        updateProgressPopup(50, 'Generating Delivery Note...');
+
+        const response = await fetch(`/generate-delivery-note/${currentFileIdForCosting}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_settings: typeof getProjectSettings === 'function' ? getProjectSettings() : null }) });
+        const result = await response.json();
+
+        if (result.success) {
+            updateProgressPopup(90, 'Finalizing...');
+            window.open(`/download/delivery_note/${currentFileIdForCosting}?format=pdf`, '_blank');
+            updateProgressPopup(100, 'Completed!');
+            setTimeout(() => { closeProgressPopup(); showAlert('✅ Delivery Note generated successfully!', 'success'); }, 800);
+        } else { closeProgressPopup(); showAlert('Error: ' + result.error, 'error'); }
+    } catch (error) { closeProgressPopup(); showAlert('Error: ' + error.message, 'error'); }
 }
 
 async function valueEngineering() {
@@ -1608,7 +1676,8 @@ async function generateMAS(fileId) {
     await applyZeroCostingAndExecute(fileId, 'MAS', async (fId) => {
         const response = await fetch(`/generate-mas/${fId}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_settings: typeof getProjectSettings === 'function' ? getProjectSettings() : null })
         });
 
         if (!response.ok) {
@@ -1628,6 +1697,99 @@ async function generateMAS(fileId) {
             document.body.removeChild(link);
         } else {
             throw new Error(result.error || 'Failed to generate MAS');
+        }
+    });
+}
+
+/**
+ * Generate MIR document
+ */
+async function generateMIR(fileId) {
+    await applyZeroCostingAndExecute(fileId, 'MIR', async (fId) => {
+        const response = await fetch(`/generate-mir/${fId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_settings: typeof getProjectSettings === 'function' ? getProjectSettings() : null })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to generate MIR');
+        }
+
+        const result = await response.json();
+        if (result.success && result.file_path) {
+            showAlert('✅ MIR generated successfully!', 'success');
+            const link = document.createElement('a');
+            link.href = result.file_path;
+            link.download = result.file_path.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            throw new Error(result.error || 'Failed to generate MIR');
+        }
+    });
+}
+
+/**
+ * Generate WIR document
+ */
+async function generateWIR(fileId) {
+    await applyZeroCostingAndExecute(fileId, 'WIR', async (fId) => {
+        const response = await fetch(`/generate-wir/${fId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_settings: typeof getProjectSettings === 'function' ? getProjectSettings() : null })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to generate WIR');
+        }
+
+        const result = await response.json();
+        if (result.success && result.file_path) {
+            showAlert('✅ WIR generated successfully!', 'success');
+            const link = document.createElement('a');
+            link.href = result.file_path;
+            link.download = result.file_path.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            throw new Error(result.error || 'Failed to generate WIR');
+        }
+    });
+}
+
+/**
+ * Generate Delivery Note document
+ */
+async function generateDeliveryNote(fileId) {
+    await applyZeroCostingAndExecute(fileId, 'Delivery Note', async (fId) => {
+        const response = await fetch(`/generate-delivery-note/${fId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ project_settings: typeof getProjectSettings === 'function' ? getProjectSettings() : null })
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to generate Delivery Note');
+        }
+
+        const result = await response.json();
+        if (result.success && result.file_path) {
+            showAlert('✅ Delivery Note generated successfully!', 'success');
+            const link = document.createElement('a');
+            link.href = result.file_path;
+            link.download = result.file_path.split('/').pop();
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            throw new Error(result.error || 'Failed to generate Delivery Note');
         }
     });
 }

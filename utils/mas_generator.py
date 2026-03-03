@@ -98,11 +98,12 @@ class MASGenerator:
         footer_text = 'https://alshayaenterprises.com'
         canv.drawCentredString(page_width / 2, doc.bottomMargin + 5, footer_text)
     
-    def generate(self, file_id, session):
+    def generate(self, file_id, session, project_settings=None):
         """
         Generate Material Approval Sheet
         Returns: path to generated PDF
         """
+        self.project_settings = project_settings or {}
         # Get file info and extracted data
         uploaded_files = session.get('uploaded_files', [])
         file_info = None

@@ -8439,13 +8439,124 @@
                 </div>
             </div>
 
-            <!-- MAS Generator Card (Costed) -->
+            <!-- Document Generator Card (Costed) -->
             <div class="card" id="masCardCosted" style="display:none;">
-                <h2>📋 MAS Generator</h2>
-                <p style="color: #64748b; margin-bottom: 20px;">Generate Material Approval Submission documents in A4
-                    portrait format with 1 page per item, including product images and technical specifications.
-                    Includes costing information.</p>
-                <button class="btn btn-warning" onclick="generateMASFromCosting()">📋 Generate MAS PDF</button>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0;">📋 Document Generator</h2>
+                    <button onclick="toggleProjectSettings('costed')" id="projectSettingsToggleCosted"
+                        style="background: none; border: 2px solid #d4af37; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 1.2em; color: #1a365d; transition: all 0.3s; position: relative;"
+                        title="Project Settings">
+                        ☰
+                        <span id="settingsDotCosted"
+                            style="display: none; position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #10b981; border-radius: 50%; border: 1px solid white;"></span>
+                    </button>
+                </div>
+                <p style="color: #64748b; margin-bottom: 12px; margin-top: 8px;">Generate professional project documents
+                    with Alshaya branding. All documents include product images and technical specifications with
+                    costing information.</p>
+
+                <!-- Hidden Project Settings Panel -->
+                <div id="projectSettingsPanelCosted"
+                    style="display: none; margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, #f0f4ff 0%, #fef9e7 100%); border-radius: 12px; border: 1px solid #d4af37; box-shadow: 0 2px 12px rgba(212,175,55,0.15); animation: slideDown 0.3s ease;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="margin: 0; color: #1a365d; font-size: 0.95em;">⚙️ Project Details <span
+                                style="font-weight: 400; color: #94a3b8; font-size: 0.8em;">(optional — populates
+                                generated documents)</span></h4>
+                        <button onclick="clearProjectSettings()"
+                            style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8em; padding: 2px 6px;"
+                            title="Clear all fields">✕ Clear</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Project
+                                Name</label>
+                            <input type="text" id="psProjectNameCosted" class="project-setting-input"
+                                placeholder="e.g. Oman Museum Interior"
+                                oninput="syncProjectSetting(this, 'project_name')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Client
+                                Name</label>
+                            <input type="text" id="psClientNameCosted" class="project-setting-input"
+                                placeholder="e.g. Ministry of Heritage"
+                                oninput="syncProjectSetting(this, 'client_name')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Consultant</label>
+                            <input type="text" id="psConsultantCosted" class="project-setting-input"
+                                placeholder="e.g. Atkins / KEO" oninput="syncProjectSetting(this, 'consultant')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Contractor
+                                / Company</label>
+                            <input type="text" id="psContractorCosted" class="project-setting-input"
+                                placeholder="Al Shaya Enterprises" value="Al Shaya Enterprises"
+                                oninput="syncProjectSetting(this, 'contractor')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Location
+                                / Zone</label>
+                            <input type="text" id="psLocationCosted" class="project-setting-input"
+                                placeholder="e.g. Building A - Level 2" oninput="syncProjectSetting(this, 'location')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">PO
+                                / Contract Reference</label>
+                            <input type="text" id="psPORefCosted" class="project-setting-input"
+                                placeholder="e.g. PO-2026-001" oninput="syncProjectSetting(this, 'po_reference')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Drawing
+                                Reference</label>
+                            <input type="text" id="psDrawingRefCosted" class="project-setting-input"
+                                placeholder="e.g. DWG-INT-001" oninput="syncProjectSetting(this, 'drawing_ref')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Site
+                                Engineer / Contact</label>
+                            <input type="text" id="psSiteEngineerCosted" class="project-setting-input"
+                                placeholder="e.g. Eng. Ahmed" oninput="syncProjectSetting(this, 'site_engineer')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                    </div>
+                    <p style="margin: 8px 0 0 0; font-size: 0.72em; color: #94a3b8; text-align: center;">💡 Settings
+                        auto-save and persist across sessions. Leave blank to use default placeholders.</p>
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 4px;">
+                    <button class="btn btn-warning" onclick="generateMASFromCosting()"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%); color: #1a365d; border: none; box-shadow: 0 4px 12px rgba(212,175,55,0.3); transition: all 0.3s;">📋
+                        Generate MAS</button>
+                    <button class="btn" onclick="generateMIRFromCosting()"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(0,188,212,0.3); transition: all 0.3s;">🔍
+                        Generate MIR</button>
+                    <button class="btn" onclick="generateWIRFromCosting()"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #7C4DFF 0%, #651FFF 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(124,77,255,0.3); transition: all 0.3s;">🔧
+                        Generate WIR</button>
+                    <button class="btn" onclick="generateDeliveryNoteFromCosting()"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #FF6D00 0%, #E65100 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(255,109,0,0.3); transition: all 0.3s;">🚚
+                        Delivery Note</button>
+                </div>
+                <p style="color: #94a3b8; font-size: 0.8em; margin-top: 12px; text-align: center;">MAS = Material
+                    Approval Sheet &nbsp;|&nbsp; MIR = Material Inspection Report &nbsp;|&nbsp; WIR = Work Inspection
+                    Request</p>
             </div>
 
             <!-- Presentation Generator Card -->
@@ -8461,13 +8572,123 @@
                 </div>
             </div>
 
-            <!-- MAS Generator Card -->
+            <!-- Document Generator Card -->
             <div class="card" id="masCard" style="display:none;">
-                <h2>📋 MAS Generator</h2>
-                <p style="color: #64748b; margin-bottom: 20px;">Generate Material Approval Submission documents in A4
-                    portrait format with 1 page per item, including product images and technical specifications. Works
-                    with or without costing applied.</p>
-                <button class="btn btn-warning" onclick="generateMAS()">📋 Generate MAS PDF</button>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2 style="margin: 0;">📋 Document Generator</h2>
+                    <button onclick="toggleProjectSettings('regular')" id="projectSettingsToggleRegular"
+                        style="background: none; border: 2px solid #d4af37; border-radius: 8px; padding: 6px 10px; cursor: pointer; font-size: 1.2em; color: #1a365d; transition: all 0.3s; position: relative;"
+                        title="Project Settings">
+                        ☰
+                        <span id="settingsDotRegular"
+                            style="display: none; position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #10b981; border-radius: 50%; border: 1px solid white;"></span>
+                    </button>
+                </div>
+                <p style="color: #64748b; margin-bottom: 12px; margin-top: 8px;">Generate professional project documents
+                    with Alshaya branding. Works with or without costing applied.</p>
+
+                <!-- Hidden Project Settings Panel -->
+                <div id="projectSettingsPanelRegular"
+                    style="display: none; margin-bottom: 16px; padding: 16px; background: linear-gradient(135deg, #f0f4ff 0%, #fef9e7 100%); border-radius: 12px; border: 1px solid #d4af37; box-shadow: 0 2px 12px rgba(212,175,55,0.15); animation: slideDown 0.3s ease;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h4 style="margin: 0; color: #1a365d; font-size: 0.95em;">⚙️ Project Details <span
+                                style="font-weight: 400; color: #94a3b8; font-size: 0.8em;">(optional — populates
+                                generated documents)</span></h4>
+                        <button onclick="clearProjectSettings()"
+                            style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8em; padding: 2px 6px;"
+                            title="Clear all fields">✕ Clear</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Project
+                                Name</label>
+                            <input type="text" id="psProjectNameRegular" class="project-setting-input"
+                                placeholder="e.g. Oman Museum Interior"
+                                oninput="syncProjectSetting(this, 'project_name')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Client
+                                Name</label>
+                            <input type="text" id="psClientNameRegular" class="project-setting-input"
+                                placeholder="e.g. Ministry of Heritage"
+                                oninput="syncProjectSetting(this, 'client_name')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Consultant</label>
+                            <input type="text" id="psConsultantRegular" class="project-setting-input"
+                                placeholder="e.g. Atkins / KEO" oninput="syncProjectSetting(this, 'consultant')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Contractor
+                                / Company</label>
+                            <input type="text" id="psContractorRegular" class="project-setting-input"
+                                placeholder="Al Shaya Enterprises" value="Al Shaya Enterprises"
+                                oninput="syncProjectSetting(this, 'contractor')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Location
+                                / Zone</label>
+                            <input type="text" id="psLocationRegular" class="project-setting-input"
+                                placeholder="e.g. Building A - Level 2" oninput="syncProjectSetting(this, 'location')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">PO
+                                / Contract Reference</label>
+                            <input type="text" id="psPORefRegular" class="project-setting-input"
+                                placeholder="e.g. PO-2026-001" oninput="syncProjectSetting(this, 'po_reference')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Drawing
+                                Reference</label>
+                            <input type="text" id="psDrawingRefRegular" class="project-setting-input"
+                                placeholder="e.g. DWG-INT-001" oninput="syncProjectSetting(this, 'drawing_ref')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 3px;">
+                            <label
+                                style="font-size: 0.72em; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Site
+                                Engineer / Contact</label>
+                            <input type="text" id="psSiteEngineerRegular" class="project-setting-input"
+                                placeholder="e.g. Eng. Ahmed" oninput="syncProjectSetting(this, 'site_engineer')"
+                                style="padding: 7px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.85em; transition: border 0.2s; outline: none;">
+                        </div>
+                    </div>
+                    <p style="margin: 8px 0 0 0; font-size: 0.72em; color: #94a3b8; text-align: center;">💡 Settings
+                        auto-save and persist across sessions. Leave blank to use default placeholders.</p>
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 4px;">
+                    <button class="btn btn-warning" onclick="generateMAS()"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #d4af37 0%, #b8941f 100%); color: #1a365d; border: none; box-shadow: 0 4px 12px rgba(212,175,55,0.3); transition: all 0.3s;">📋
+                        Generate MAS</button>
+                    <button class="btn" onclick="generateMIR()"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(0,188,212,0.3); transition: all 0.3s;">🔍
+                        Generate MIR</button>
+                    <button class="btn" onclick="generateWIR()"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #7C4DFF 0%, #651FFF 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(124,77,255,0.3); transition: all 0.3s;">🔧
+                        Generate WIR</button>
+                    <button class="btn" onclick="generateDeliveryNote()"
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 18px; font-weight: 600; border-radius: 10px; background: linear-gradient(135deg, #FF6D00 0%, #E65100 100%); color: white; border: none; box-shadow: 0 4px 12px rgba(255,109,0,0.3); transition: all 0.3s;">🚚
+                        Delivery Note</button>
+                </div>
+                <p style="color: #94a3b8; font-size: 0.8em; margin-top: 12px; text-align: center;">MAS = Material
+                    Approval Sheet &nbsp;|&nbsp; MIR = Material Inspection Report &nbsp;|&nbsp; WIR = Work Inspection
+                    Request</p>
             </div>
 
             <!-- Multi-Budget Costing Card (Separate from regular costing) -->
@@ -8829,7 +9050,19 @@
                         </button>
                         <button class="btn btn-warning" onclick="exportMultiBudget('mas', 'pdf')"
                             style="flex: 1; min-width: 150px;">
-                            📋 Generate MAS PDF
+                            📋 Generate MAS
+                        </button>
+                        <button class="btn" onclick="exportMultiBudget('mir', 'pdf')"
+                            style="flex: 1; min-width: 150px; background: linear-gradient(135deg, #00BCD4 0%, #0097A7 100%); color: white; border: none;">
+                            🔍 Generate MIR
+                        </button>
+                        <button class="btn" onclick="exportMultiBudget('wir', 'pdf')"
+                            style="flex: 1; min-width: 150px; background: linear-gradient(135deg, #7C4DFF 0%, #651FFF 100%); color: white; border: none;">
+                            🔧 Generate WIR
+                        </button>
+                        <button class="btn" onclick="exportMultiBudget('delivery_note', 'pdf')"
+                            style="flex: 1; min-width: 150px; background: linear-gradient(135deg, #FF6D00 0%, #E65100 100%); color: white; border: none;">
+                            🚚 Delivery Note
                         </button>
                     </div>
                 </div>
@@ -11912,6 +12145,128 @@
             }
         }
 
+        // ======== Project Settings Management ========
+        // Global project settings object
+        window.projectSettings = {
+            project_name: '',
+            client_name: '',
+            consultant: '',
+            contractor: 'Al Shaya Enterprises',
+            location: '',
+            po_reference: '',
+            drawing_ref: '',
+            site_engineer: ''
+        };
+
+        // Field mapping for sync
+        const psFieldMap = {
+            'project_name': 'ProjectName',
+            'client_name': 'ClientName',
+            'consultant': 'Consultant',
+            'contractor': 'Contractor',
+            'location': 'Location',
+            'po_reference': 'PORef',
+            'drawing_ref': 'DrawingRef',
+            'site_engineer': 'SiteEngineer'
+        };
+
+        // Toggle project settings panel visibility
+        function toggleProjectSettings(variant) {
+            const panel = document.getElementById(`projectSettingsPanel${variant === 'costed' ? 'Costed' : 'Regular'}`);
+            if (panel) {
+                const isVisible = panel.style.display !== 'none';
+                panel.style.display = isVisible ? 'none' : 'block';
+                const btn = document.getElementById(`projectSettingsToggle${variant === 'costed' ? 'Costed' : 'Regular'}`);
+                if (btn) btn.style.background = isVisible ? 'none' : 'linear-gradient(135deg, #f0f4ff 0%, #fef9e7 100%)';
+            }
+        }
+
+        // Sync a project setting from one panel to the other + save
+        function syncProjectSetting(input, key) {
+            window.projectSettings[key] = input.value;
+            // Sync to both panels
+            const fieldSuffix = psFieldMap[key];
+            ['Costed', 'Regular'].forEach(variant => {
+                const el = document.getElementById(`ps${fieldSuffix}${variant}`);
+                if (el && el !== input) el.value = input.value;
+            });
+            saveProjectSettings();
+            updateSettingsDots();
+        }
+
+        // Save settings to localStorage
+        function saveProjectSettings() {
+            try { localStorage.setItem('projectSettings', JSON.stringify(window.projectSettings)); } catch (e) { }
+        }
+
+        // Load settings from localStorage
+        function loadProjectSettings() {
+            try {
+                const saved = localStorage.getItem('projectSettings');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    Object.assign(window.projectSettings, parsed);
+                    // Populate all inputs
+                    Object.keys(psFieldMap).forEach(key => {
+                        const fieldSuffix = psFieldMap[key];
+                        ['Costed', 'Regular'].forEach(variant => {
+                            const el = document.getElementById(`ps${fieldSuffix}${variant}`);
+                            if (el && window.projectSettings[key]) el.value = window.projectSettings[key];
+                        });
+                    });
+                    updateSettingsDots();
+                }
+            } catch (e) { }
+        }
+
+        // Clear all settings
+        function clearProjectSettings() {
+            Object.keys(window.projectSettings).forEach(k => { window.projectSettings[k] = ''; });
+            window.projectSettings.contractor = 'Al Shaya Enterprises';
+            document.querySelectorAll('.project-setting-input').forEach(input => {
+                if (input.id.includes('Contractor')) { input.value = 'Al Shaya Enterprises'; }
+                else { input.value = ''; }
+            });
+            saveProjectSettings();
+            updateSettingsDots();
+            showAlert('Project settings cleared', 'info');
+        }
+
+        // Update green dot indicators when settings are filled
+        function updateSettingsDots() {
+            const hasFilled = Object.entries(window.projectSettings).some(([k, v]) => k !== 'contractor' && v && v.trim());
+            ['Costed', 'Regular'].forEach(variant => {
+                const dot = document.getElementById(`settingsDot${variant}`);
+                if (dot) dot.style.display = hasFilled ? 'block' : 'none';
+            });
+        }
+
+        // Helper: get project settings for API calls
+        function getProjectSettings() {
+            const settings = {};
+            Object.keys(window.projectSettings).forEach(k => {
+                if (window.projectSettings[k] && window.projectSettings[k].trim()) {
+                    settings[k] = window.projectSettings[k].trim();
+                }
+            });
+            return Object.keys(settings).length > 0 ? settings : null;
+        }
+
+        // Load on page ready
+        document.addEventListener('DOMContentLoaded', loadProjectSettings);
+
+        // Add slideDown animation CSS dynamically
+        if (!document.getElementById('projectSettingsStyles')) {
+            const style = document.createElement('style');
+            style.id = 'projectSettingsStyles';
+            style.textContent = `
+                @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); max-height: 0; } to { opacity: 1; transform: translateY(0); max-height: 500px; } }
+                .project-setting-input:focus { border-color: #d4af37 !important; box-shadow: 0 0 0 2px rgba(212,175,55,0.15); }
+                .project-setting-input:hover { border-color: #cbd5e1; }
+            `;
+            document.head.appendChild(style);
+        }
+
         // Generate MAS function
         async function generateMAS(passedFileId) {
             // Use passed fileId parameter, or fallback to currentFileIdForCosting
@@ -11932,7 +12287,9 @@
                 updateProgressPopup(50, 'Generating Material Approval Sheet...');
 
                 const response = await fetch(`/generate-mas/${fileId}`, {
-                    method: 'POST'
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_settings: getProjectSettings() })
                 });
 
                 const result = await response.json();
@@ -11955,6 +12312,75 @@
                 closeProgressPopup();
                 showAlert('Error: ' + error.message, 'error');
             }
+        }
+
+        // Generate MIR function
+        async function generateMIR(passedFileId) {
+            const fileId = passedFileId || currentFileIdForCosting;
+            if (!fileId) { showAlert('Please extract tables first', 'error'); return; }
+
+            let popup = null;
+            try {
+                popup = showProgressPopup('Preparing MIR PDF...');
+                updateProgressPopup(20, 'Preparing MIR PDF...');
+                updateProgressPopup(50, 'Generating Material Inspection Report...');
+
+                const response = await fetch(`/generate-mir/${fileId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_settings: getProjectSettings() }) });
+                const result = await response.json();
+
+                if (result.success) {
+                    updateProgressPopup(90, 'Finalizing...');
+                    window.open(`/download/mir/${fileId}?format=pdf`, '_blank');
+                    updateProgressPopup(100, 'Completed!');
+                    setTimeout(() => { closeProgressPopup(); showAlert('✅ Material Inspection Report generated successfully!', 'success'); }, 800);
+                } else { closeProgressPopup(); showAlert('Error: ' + result.error, 'error'); }
+            } catch (error) { closeProgressPopup(); showAlert('Error: ' + error.message, 'error'); }
+        }
+
+        // Generate WIR function
+        async function generateWIR(passedFileId) {
+            const fileId = passedFileId || currentFileIdForCosting;
+            if (!fileId) { showAlert('Please extract tables first', 'error'); return; }
+
+            let popup = null;
+            try {
+                popup = showProgressPopup('Preparing WIR PDF...');
+                updateProgressPopup(20, 'Preparing WIR PDF...');
+                updateProgressPopup(50, 'Generating Work Inspection Request...');
+
+                const response = await fetch(`/generate-wir/${fileId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_settings: getProjectSettings() }) });
+                const result = await response.json();
+
+                if (result.success) {
+                    updateProgressPopup(90, 'Finalizing...');
+                    window.open(`/download/wir/${fileId}?format=pdf`, '_blank');
+                    updateProgressPopup(100, 'Completed!');
+                    setTimeout(() => { closeProgressPopup(); showAlert('✅ Work Inspection Request generated successfully!', 'success'); }, 800);
+                } else { closeProgressPopup(); showAlert('Error: ' + result.error, 'error'); }
+            } catch (error) { closeProgressPopup(); showAlert('Error: ' + error.message, 'error'); }
+        }
+
+        // Generate Delivery Note function
+        async function generateDeliveryNote(passedFileId) {
+            const fileId = passedFileId || currentFileIdForCosting;
+            if (!fileId) { showAlert('Please extract tables first', 'error'); return; }
+
+            let popup = null;
+            try {
+                popup = showProgressPopup('Preparing Delivery Note...');
+                updateProgressPopup(20, 'Preparing Delivery Note...');
+                updateProgressPopup(50, 'Generating Delivery Note...');
+
+                const response = await fetch(`/generate-delivery-note/${fileId}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ project_settings: getProjectSettings() }) });
+                const result = await response.json();
+
+                if (result.success) {
+                    updateProgressPopup(90, 'Finalizing...');
+                    window.open(`/download/delivery_note/${fileId}?format=pdf`, '_blank');
+                    updateProgressPopup(100, 'Completed!');
+                    setTimeout(() => { closeProgressPopup(); showAlert('✅ Delivery Note generated successfully!', 'success'); }, 800);
+                } else { closeProgressPopup(); showAlert('Error: ' + result.error, 'error'); }
+            } catch (error) { closeProgressPopup(); showAlert('Error: ' + error.message, 'error'); }
         }
 
         // Value Engineering function
@@ -16885,7 +17311,8 @@
                     },
                     body: JSON.stringify({
                         type: type,
-                        format: format
+                        format: format,
+                        project_settings: getProjectSettings()
                     })
                 });
 

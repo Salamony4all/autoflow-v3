@@ -2941,8 +2941,9 @@ def export_multibudget(tier):
     """Export multi-budget table (excludes Product Selection and Actions columns)"""
     try:
         data = request.get_json()
-        export_type = data.get('type', 'offer')  # offer, presentation, mas
+        export_type = data.get('type', 'offer')  # offer, presentation, mas, mir, wir, delivery_note
         format_type = data.get('format', 'pdf')  # pdf, excel, pptx
+        project_settings = data.get('project_settings')
         
         # Priority: Use costed_data if available, otherwise use stored table
         import uuid
@@ -3013,8 +3014,23 @@ def export_multibudget(tier):
         elif export_type == 'mas':
             from utils.mas_generator import MASGenerator
             generator = MASGenerator()
-            result = generator.generate(file_id, session)
+            result = generator.generate(file_id, session, project_settings=project_settings)
             return send_file(result, as_attachment=True, download_name=f'mas_{tier}.pdf')
+        elif export_type == 'mir':
+            from utils.mir_generator import MIRGenerator
+            generator = MIRGenerator()
+            result = generator.generate(file_id, session, project_settings=project_settings)
+            return send_file(result, as_attachment=True, download_name=f'mir_{tier}.pdf')
+        elif export_type == 'wir':
+            from utils.wir_generator import WIRGenerator
+            generator = WIRGenerator()
+            result = generator.generate(file_id, session, project_settings=project_settings)
+            return send_file(result, as_attachment=True, download_name=f'wir_{tier}.pdf')
+        elif export_type == 'delivery_note':
+            from utils.delivery_note_generator import DeliveryNoteGenerator
+            generator = DeliveryNoteGenerator()
+            result = generator.generate(file_id, session, project_settings=project_settings)
+            return send_file(result, as_attachment=True, download_name=f'delivery_note_{tier}.pdf')
         
         return jsonify({'error': 'Invalid export type or format'}), 400
         
@@ -3069,7 +3085,9 @@ def generate_mas(file_id):
         
         from utils.mas_generator import MASGenerator
         generator = MASGenerator()
-        result = generator.generate(file_id, session)
+        data = request.get_json(silent=True) or {}
+        project_settings = data.get('project_settings')
+        result = generator.generate(file_id, session, project_settings=project_settings)
         
         return jsonify({
             'success': True,
@@ -3078,6 +3096,72 @@ def generate_mas(file_id):
         })
     except Exception as e:
         logger.exception('Error generating MAS')
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-mir/<file_id>', methods=['POST'])
+def generate_mir(file_id):
+    """Generate Material Inspection Report"""
+    try:
+        uploaded_files = session.get('uploaded_files', [])
+        logger.info(f'Generate MIR called for file_id: {file_id}')
+        
+        from utils.mir_generator import MIRGenerator
+        generator = MIRGenerator()
+        data = request.get_json(silent=True) or {}
+        project_settings = data.get('project_settings')
+        result = generator.generate(file_id, session, project_settings=project_settings)
+        
+        return jsonify({
+            'success': True,
+            'file_path': result,
+            'message': 'MIR generated successfully'
+        })
+    except Exception as e:
+        logger.exception('Error generating MIR')
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-wir/<file_id>', methods=['POST'])
+def generate_wir(file_id):
+    """Generate Work Inspection Request"""
+    try:
+        uploaded_files = session.get('uploaded_files', [])
+        logger.info(f'Generate WIR called for file_id: {file_id}')
+        
+        from utils.wir_generator import WIRGenerator
+        generator = WIRGenerator()
+        data = request.get_json(silent=True) or {}
+        project_settings = data.get('project_settings')
+        result = generator.generate(file_id, session, project_settings=project_settings)
+        
+        return jsonify({
+            'success': True,
+            'file_path': result,
+            'message': 'WIR generated successfully'
+        })
+    except Exception as e:
+        logger.exception('Error generating WIR')
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/generate-delivery-note/<file_id>', methods=['POST'])
+def generate_delivery_note(file_id):
+    """Generate Delivery Note"""
+    try:
+        uploaded_files = session.get('uploaded_files', [])
+        logger.info(f'Generate Delivery Note called for file_id: {file_id}')
+        
+        from utils.delivery_note_generator import DeliveryNoteGenerator
+        generator = DeliveryNoteGenerator()
+        data = request.get_json(silent=True) or {}
+        project_settings = data.get('project_settings')
+        result = generator.generate(file_id, session, project_settings=project_settings)
+        
+        return jsonify({
+            'success': True,
+            'file_path': result,
+            'message': 'Delivery Note generated successfully'
+        })
+    except Exception as e:
+        logger.exception('Error generating Delivery Note')
         return jsonify({'error': str(e)}), 500
 
 @app.route('/value-engineering/<file_id>', methods=['POST'])

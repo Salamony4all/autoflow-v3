@@ -39,7 +39,7 @@ class DownloadManager:
         
         Args:
             file_id: ID of the file
-            file_type: Type of file (extraction, offer, presentation, mas, ve)
+            file_type: Type of file (extraction, offer, presentation, mas, mir, wir, delivery_note, ve)
             format_type: Output format (pdf, excel, xlsx, xls, zip)
             session: Flask session object
         
@@ -76,6 +76,12 @@ class DownloadManager:
             return self.prepare_presentation_download(file_info, format_type, session_id)
         elif file_type == 'mas':
             return self.prepare_mas_download(file_info, format_type, session_id)
+        elif file_type == 'mir':
+            return self.prepare_mir_download(file_info, format_type, session_id)
+        elif file_type == 'wir':
+            return self.prepare_wir_download(file_info, format_type, session_id)
+        elif file_type == 'delivery_note':
+            return self.prepare_delivery_note_download(file_info, format_type, session_id)
         elif file_type == 've':
             return self.prepare_ve_download(file_info, format_type, session_id)
         elif file_type == 'all':
@@ -246,6 +252,45 @@ class DownloadManager:
         
         raise Exception('MAS file not found')
     
+    def prepare_mir_download(self, file_info, format_type, session_id):
+        """Prepare MIR for download"""
+        mir_dir = os.path.join('outputs', session_id, 'mir')
+        
+        if not os.path.exists(mir_dir):
+            raise Exception('MIR not generated yet')
+        
+        pdf_files = [f for f in os.listdir(mir_dir) if f.endswith('.pdf') and file_info['id'] in f]
+        if pdf_files:
+            return os.path.join(mir_dir, pdf_files[0])
+        
+        raise Exception('MIR file not found')
+    
+    def prepare_wir_download(self, file_info, format_type, session_id):
+        """Prepare WIR for download"""
+        wir_dir = os.path.join('outputs', session_id, 'wir')
+        
+        if not os.path.exists(wir_dir):
+            raise Exception('WIR not generated yet')
+        
+        pdf_files = [f for f in os.listdir(wir_dir) if f.endswith('.pdf') and file_info['id'] in f]
+        if pdf_files:
+            return os.path.join(wir_dir, pdf_files[0])
+        
+        raise Exception('WIR file not found')
+    
+    def prepare_delivery_note_download(self, file_info, format_type, session_id):
+        """Prepare Delivery Note for download"""
+        dn_dir = os.path.join('outputs', session_id, 'delivery_note')
+        
+        if not os.path.exists(dn_dir):
+            raise Exception('Delivery Note not generated yet')
+        
+        pdf_files = [f for f in os.listdir(dn_dir) if f.endswith('.pdf') and file_info['id'] in f]
+        if pdf_files:
+            return os.path.join(dn_dir, pdf_files[0])
+        
+        raise Exception('Delivery Note file not found')
+    
     def prepare_ve_download(self, file_info, format_type, session_id):
         """Prepare value engineering alternatives for download"""
         if 'value_engineering' not in file_info:
@@ -293,7 +338,7 @@ class DownloadManager:
                     pass
             
             # Add PDFs from various directories
-            for subdir in ['offers', 'presentations', 'mas']:
+            for subdir in ['offers', 'presentations', 'mas', 'mir', 'wir', 'delivery_note']:
                 dir_path = os.path.join('outputs', session_id, subdir)
                 if os.path.exists(dir_path):
                     for filename in os.listdir(dir_path):
